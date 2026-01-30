@@ -1,6 +1,6 @@
+import { createValidator } from "@middlewares/validation.middleware";
+import { CreatePostSchema } from "@posts/api/post.schemas";
 import { Hono } from "hono";
-import { CreatePostSchema } from "./post.schemas";
-import { createValidator } from "./validation.middleware";
 
 const validateCreatePost = createValidator(CreatePostSchema);
 

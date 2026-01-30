@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+        "strict": true,
+        "noUncheckedIndexedAccess": true,
+        "noImplicitOverride": true,
+        "jsx": "react-jsx",
+        "jsxImportSource": "hono/jsx",
+        "target": "es2022",
+        "module": "esnext",
+        "moduleResolution": "bundler",
+        "paths": {
+            "@packages/env": [
+                "./packages/env/*"
+            ],
+            "@packages/database": [
+                "./packages/database/*"
+            ],
+        }
+    }
+}
