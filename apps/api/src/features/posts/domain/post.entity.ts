@@ -17,7 +17,7 @@ export const PostFactory = {
     new: (authorId: Id, body: string): Post => {
         const now = new Date();
         const nowTimestamp = now.toISOString();
-        // const newPost = PostSchema.safeParse({
+        const newPost = PostSchema.safeParse({
             id: randomUUIDv7(undefined, now),
             authorId: authorId,
             body: body,

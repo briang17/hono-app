@@ -8,6 +8,7 @@
         "target": "es2022",
         "module": "esnext",
         "moduleResolution": "bundler",
+        "baseUrl": ".",
         "paths": {
             "@packages/env": [
                 "./packages/env/*"
@@ -15,6 +16,15 @@
             "@packages/database": [
                 "./packages/database/*"
             ],
+            "@packages/secrets": [
+                "./packages/secrets/*"
+            ],
+            "@apps/api": [
+                "./apps/api/*"
+            ],
+            "@apps/web": [
+                "./apps/web/*"
+            ]
         }
     }
 }

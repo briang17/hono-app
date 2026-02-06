@@ -1,5 +1,5 @@
 {
-    "name": "@anew/api",
+    "name": "@apps/api",
     "scripts": {
         "dev": "bun run --hot src/index.ts",
         "cq": "biome check --write",
@@ -12,6 +12,10 @@
     },
     "devDependencies": {
         "@biomejs/biome": "2.3.11",
-        "@types/bun": "latest"
+        "@types/bun": "latest",
+        "@packages/env": "workspace:*",
+        "@packages/database": "workspace:*",
+        "@packages/secrets": "workspace:*",
+        "@packages/auth": "workspace:*"
     }
 }

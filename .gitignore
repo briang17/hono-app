@@ -1,10 +1,9 @@
 # deps
 node_modules/
-
-
-# build
-dist/
-
-
+./**/node_modules/
 # env
 .env
+
+#build
+dist/
+./**/dist/

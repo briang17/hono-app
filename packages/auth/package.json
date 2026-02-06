@@ -1,0 +1,19 @@
+{
+  "name": "@packages/auth",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.28.1",
+  "dependencies": {
+    "@packages/database": "workspace:*",
+    "@packages/env": "workspace:*",
+    "better-auth": "1.4.18",
+    "drizzle-orm": "^0.45.1"
+  }
+}

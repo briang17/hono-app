@@ -1,10 +1,12 @@
 {
-  "name": "@anew/database",
+  "name": "@packages/database",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "bun index.ts",
+    "dev:env": "bun --env-file=../../.env index.ts"
   },
   "keywords": [],
   "author": "",
@@ -12,9 +14,12 @@
   "packageManager": "pnpm@10.28.1",
   "devDependencies": {
     "@types/bun": "^1.3.6",
+    "@types/pg": "^8.16.0",
     "drizzle-kit": "^0.31.8"
   },
   "dependencies": {
-    "drizzle-orm": "^0.45.1"
+    "@packages/env": "workspace:*",
+    "drizzle-orm": "^0.45.1",
+    "pg": "^8.18.0"
   }
 }
