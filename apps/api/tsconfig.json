@@ -1,18 +1,12 @@
 {
-    "extends": "../../tsconfig.base.json",
-    "compilerOptions": {
-        /*paths*/
-        "baseUrl": ".",
-        "paths": {
-            "@features/*": [
-                "src/features/*"
-            ],
-            "@posts/*": [
-                "src/features/posts/*"
-            ],
-            "@middlewares/*": [
-                "src/middlewares/*"
-            ]
-        },
-    }
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		/*paths*/
+		"baseUrl": ".",
+		"paths": {
+			"@features/*": ["src/features/*"],
+			"@posts/*": ["src/features/posts/*"],
+			"@middlewares/*": ["src/middlewares/*"]
+		}
+	}
 }

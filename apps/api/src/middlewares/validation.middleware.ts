@@ -1,19 +1,30 @@
 import type { Context, Next } from "hono";
 import { createMiddleware } from "hono/factory";
 import type { z } from "zod/v4";
-export const createValidator = (schema: z.ZodType) => {
-    return createMiddleware(async (c: Context, next: Next) => {
-        const body = await c.req.json();
 
-        const validationResult = schema.safeParse(body);
+export const createValidator = (
+	schema: z.ZodType,
+	type: "body" | "params" = "body",
+) => {
+	return createMiddleware(async (c: Context, next: Next) => {
+		let data;
+		if (type === "body") {
+			data = await c.req.json();
+		} else if (type === "params") {
+			data = c.req.param();
+		}
 
-        if (validationResult.error) throw validationResult.error;
+		const validationResult = schema.safeParse(data);
 
-        if (validationResult.success) {
-            c.set("parsedBody", validationResult.data);
+		if (validationResult.error) throw validationResult.error;
 
-            console.log(`Validated: ${c.get("parsedBody")}`);
-            next();
-        }
-    });
+		if (validationResult.success) {
+			if (type === "body") {
+				c.set("validatedData", validationResult.data);
+			} else {
+				c.set("params", validationResult.data);
+			}
+			next();
+		}
+	});
 };
