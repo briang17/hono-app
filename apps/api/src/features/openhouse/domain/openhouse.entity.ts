@@ -32,7 +32,10 @@ export type OpenHouseLead = z.infer<typeof OpenHouseLeadEntitySchema>;
 
 export const OpenHouseFactory = {
 	create: (params: z.input<typeof OpenHouseEntitySchema>): OpenHouse => {
-		return OpenHouseEntitySchema.parse(params);
+		console.log("[FACTORY] create called with params:", params);
+		const result = OpenHouseEntitySchema.parse(params);
+		console.log("[FACTORY] parsed successfully:", result);
+		return result;
 	},
 };
 

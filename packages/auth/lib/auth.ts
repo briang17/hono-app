@@ -1,16 +1,20 @@
-import { betterAuth } from "better-auth";
+import { betterAuth} from "better-auth";
 import {organization, admin, openAPI} from "better-auth/plugins";
 import {drizzleAdapter} from "better-auth/adapters/drizzle";
 import {db} from "@packages/database";
+import * as authSchema from "@packages/database/src/schemas/auth.schema"
 import { authEnv as env } from "@packages/env";
 
 
 export const auth = betterAuth({
+    basePath: "/api/auth",
     database: drizzleAdapter(db, {
-        provider: "pg"
+        provider: "pg",
+        schema: authSchema
     }),
     emailAndPassword: {
         enabled: true,
+        requireEmailVerification: false
     },
     socialProviders: {
         github: {
@@ -18,5 +22,11 @@ export const auth = betterAuth({
             clientSecret: env.GITHUB_CLIENT_SECRET
         }
     },
-    plugins: [organization(), admin(), openAPI()]
+    plugins: [organization(), admin(), openAPI()],
+    advanced: {
+        database: {
+            generateId: () => Bun.randomUUIDv7()
+        },
+    },
+    trustedOrigins: ["https://app.rs.hauntednuke.com"],
 })

@@ -4,9 +4,18 @@
 		/*paths*/
 		"baseUrl": ".",
 		"paths": {
-			"@features/*": ["src/features/*"],
-			"@posts/*": ["src/features/posts/*"],
-			"@middlewares/*": ["src/middlewares/*"]
+			"@features/*": [
+				"src/features/*"
+			],
+			"@posts/*": [
+				"src/features/posts/*"
+			],
+			"@middlewares/*": [
+				"src/middlewares/*"
+			],
+			"@lib/*": [
+				"src/lib/*"
+			]
 		}
 	}
 }

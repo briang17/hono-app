@@ -12,8 +12,8 @@ const service = new OpenHouseService(repository);
 
 export const openhouseController = {
 	createOpenHouse: async (c: Context) => {
-		const userId = c.get("session")?.userId;
-		const organizationId = c.get("session")?.activeOrganizationId;
+		const userId = c.get("session").userId;
+		const organizationId = c.get("session").activeOrganizationId;
 
 		if (!userId || !organizationId) {
 			throw new HTTPException(401, { message: "Unauthorized" });
@@ -42,19 +42,20 @@ export const openhouseController = {
 	},
 
 	getOpenHouse: async (c: Context) => {
+		console.log("[CONTROLLER] controller line 1");
 		const userId = c.get("session")?.userId;
 		const organizationId = c.get("session")?.activeOrganizationId;
-
 		if (!userId || !organizationId) {
 			throw new HTTPException(401, { message: "Unauthorized" });
 		}
 
 		const { id } = c.get("params");
+		
 		const openHouse = await service.getOpenHouse(id);
-
 		if (!openHouse || openHouse.organizationId !== organizationId) {
 			throw new HTTPException(404, { message: "Open house not found" });
 		}
+		console.log("About to return:", JSON.stringify({data: openHouse}));
 
 		return c.json({ data: openHouse });
 	},

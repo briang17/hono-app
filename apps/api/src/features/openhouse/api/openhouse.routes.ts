@@ -7,45 +7,48 @@ import {
 	CreateOpenHouseSchema,
 	OpenHouseIdParamsSchema,
 } from "./openhouse.schemas";
+import { zValidator } from "@hono/zod-validator";
+import { HonoEnv } from "@lib/types";
 
 const openhouseRoutes = new Hono();
 
-const protectedRoutes = new Hono();
-protectedRoutes.use("*", authMiddleware);
 
-protectedRoutes.post(
-	"/",
-	createValidator(CreateOpenHouseSchema),
-	openhouseController.createOpenHouse,
+
+openhouseRoutes.post(
+  "/",
+  authMiddleware,
+  zValidator("json", CreateOpenHouseSchema),
+  openhouseController.createOpenHouse
 );
 
-protectedRoutes.get("/", openhouseController.getOpenHouses);
+openhouseRoutes.get("/", authMiddleware, openhouseController.getOpenHouses);
 
-protectedRoutes.get(
-	"/:id",
-	createValidator(OpenHouseIdParamsSchema, "params"),
-	openhouseController.getOpenHouse,
-);
-
-protectedRoutes.get(
-	"/:id/leads",
-	createValidator(OpenHouseIdParamsSchema, "params"),
-	openhouseController.getOpenHouseLeads,
+openhouseRoutes.get(
+  "/:id",
+  authMiddleware,
+  createValidator(OpenHouseIdParamsSchema, "params"),
+  openhouseController.getOpenHouse
 );
 
 openhouseRoutes.get(
-	"/:id/public",
-	createValidator(OpenHouseIdParamsSchema, "params"),
-	openhouseController.getPublicOpenHouse,
+  "/:id/leads",
+  authMiddleware,
+  createValidator(OpenHouseIdParamsSchema, "params"),
+  openhouseController.getOpenHouseLeads
+);
+
+// public routes
+openhouseRoutes.get(
+  "/:id/public",
+  createValidator(OpenHouseIdParamsSchema, "params"),
+  openhouseController.getPublicOpenHouse
 );
 
 openhouseRoutes.post(
-	"/:id/sign-in",
-	createValidator(OpenHouseIdParamsSchema, "params"),
-	createValidator(CreateOpenHouseLeadSchema),
-	openhouseController.createOpenHouseLead,
+  "/:id/sign-in",
+  createValidator(OpenHouseIdParamsSchema, "params"),
+  createValidator(CreateOpenHouseLeadSchema),
+  openhouseController.createOpenHouseLead
 );
-
-openhouseRoutes.route("/", protectedRoutes);
 
 export { openhouseRoutes };

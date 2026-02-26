@@ -1,6 +1,12 @@
-import type { Context, Next } from "hono";
+import type { Context, Next, ValidationTargets } from "hono";
 import { createMiddleware } from "hono/factory";
-import type { z } from "zod/v4";
+import { z, type ZodType } from "zod/v4";
+import { zValidator } from '@hono/zod-validator'
+
+export const createValidatoor = (schema: ZodType, type: keyof ValidationTargets) => {
+	return zValidator(type, schema);
+}
+
 
 export const createValidator = (
 	schema: z.ZodType,
@@ -14,9 +20,17 @@ export const createValidator = (
 			data = c.req.param();
 		}
 
+		console.log(`[VALIDATOR] ${type} validation:`, { input: data });
+
 		const validationResult = schema.safeParse(data);
 
-		if (validationResult.error) throw validationResult.error;
+		if (validationResult.error) {
+			console.error(
+				`[VALIDATOR] ${type} validation failed:`,
+				validationResult.error,
+			);
+			throw validationResult.error;
+		}
 
 		if (validationResult.success) {
 			if (type === "body") {
@@ -24,7 +38,7 @@ export const createValidator = (
 			} else {
 				c.set("params", validationResult.data);
 			}
-			next();
+			return await next();
 		}
 	});
 };

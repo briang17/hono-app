@@ -20,7 +20,7 @@ async function checkLife() {
   process.exit();
 }
 
-if(Bun.argv.includes("--check-life")) {
+if(process.argv.includes("--check-life")) {
 
   checkLife();
 }

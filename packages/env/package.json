@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "bun index.ts",
-    "dev:env": "bun --env-file=../../.env index.ts"
+    "dev:env": "bun index.ts"
   },
   "keywords": [],
   "author": "",

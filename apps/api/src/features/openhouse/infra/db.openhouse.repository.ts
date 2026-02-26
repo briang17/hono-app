@@ -45,7 +45,7 @@ export class DbOpenHouseRepository implements IOpenHouseRepository {
 			createdByUserId: result.createdByUserId,
 			propertyAddress: result.propertyAddress,
 			listingPrice: Number(result.listingPrice),
-			date: result.date,
+			date: new Date(result.date),
 			startTime: result.startTime,
 			endTime: result.endTime,
 			listingImageUrl: result.listingImageUrl ?? null,
@@ -56,28 +56,34 @@ export class DbOpenHouseRepository implements IOpenHouseRepository {
 	}
 
 	async findById(id: string) {
+		console.log("[REPO] findById called with id:", id);
 		const [result] = await db
 			.select()
 			.from(openHouse)
 			.where(eq(openHouse.id, id))
 			.limit(1);
 
+		console.log("[REPO] findById result:", result);
+
 		if (!result) return null;
 
-		return OpenHouseFactory.create({
+		const data = {
 			id: result.id,
 			organizationId: result.organizationId,
 			createdByUserId: result.createdByUserId,
 			propertyAddress: result.propertyAddress,
 			listingPrice: Number(result.listingPrice),
-			date: result.date,
+			date: new Date(result.date),
 			startTime: result.startTime,
 			endTime: result.endTime,
 			listingImageUrl: result.listingImageUrl ?? null,
 			notes: result.notes ?? null,
 			createdAt: result.createdAt,
 			updatedAt: result.updatedAt,
-		});
+		};
+		console.log("[REPO] passing to factory:", data);
+
+		return OpenHouseFactory.create(data);
 	}
 
 	async findByOrgAndUser(organizationId: string, userId: string) {
@@ -99,7 +105,7 @@ export class DbOpenHouseRepository implements IOpenHouseRepository {
 				createdByUserId: result.createdByUserId,
 				propertyAddress: result.propertyAddress,
 				listingPrice: Number(result.listingPrice),
-				date: result.date,
+				date: new Date(result.date),
 				startTime: result.startTime,
 				endTime: result.endTime,
 				listingImageUrl: result.listingImageUrl ?? null,
@@ -125,7 +131,7 @@ export class DbOpenHouseRepository implements IOpenHouseRepository {
 			createdByUserId: result.createdByUserId,
 			propertyAddress: result.propertyAddress,
 			listingPrice: Number(result.listingPrice),
-			date: result.date,
+			date: new Date(result.date),
 			startTime: result.startTime,
 			endTime: result.endTime,
 			listingImageUrl: result.listingImageUrl ?? null,

@@ -1,3 +1,4 @@
+import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 
 export const CreateOpenHouseSchema = z
@@ -28,7 +29,7 @@ export const CreateOpenHouseLeadSchema = z
 	});
 
 export const OpenHouseIdParamsSchema = z.object({
-	id: z.string().uuid(),
+	id: z.uuid(),
 });
 
 export type CreateOpenHouseInput = z.infer<typeof CreateOpenHouseSchema>;
