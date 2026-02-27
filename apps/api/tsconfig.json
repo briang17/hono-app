@@ -10,6 +10,9 @@
 			"@posts/*": [
 				"src/features/posts/*"
 			],
+			"@openhouse/*": [
+				"src/features/openhouse/*"
+			],
 			"@middlewares/*": [
 				"src/middlewares/*"
 			],

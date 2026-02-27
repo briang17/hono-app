@@ -18,7 +18,7 @@ export const openHouse = pgTable("open_house", {
 		.notNull()
 		.references(() => user.id, { onDelete: "cascade" }),
 	propertyAddress: text("property_address").notNull(),
-	listingPrice: numeric("listing_price", { precision: 12, scale: 2 }).notNull(),
+	listingPrice: numeric("listing_price", { precision: 2, scale: 2, mode: "number" }).notNull(),
 	date: timestamp("date", { mode: "date" }).notNull(),
 	startTime: text("start_time").notNull(),
 	endTime: text("end_time").notNull(),
@@ -80,3 +80,9 @@ export const organizationOpenHouseRelations = relations(
 		openHouses: many(openHouse),
 	}),
 );
+
+
+export type InsertOpenHouse = typeof openHouse.$inferInsert;
+export type SelectOpenHouse = typeof openHouse.$inferSelect;
+export type InsertOpenHouseLead = typeof openHouseLead.$inferInsert;
+export type SelectOpenHouseLead = typeof openHouseLead.$inferSelect;

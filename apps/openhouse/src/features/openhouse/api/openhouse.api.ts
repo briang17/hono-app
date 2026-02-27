@@ -60,7 +60,7 @@ const openhouseApi = {
   getPublicOpenHouse: async (id: string) => {
     const response = await apiClient.get<{
       data: Pick<OpenHouse, "id" | "propertyAddress" | "date" | "startTime" | "endTime">;
-    }>(`/open-houses/${id}/public`);
+    }>(`/public/open-houses/${id}`);
     return response.data.data;
   },
 
@@ -75,7 +75,7 @@ const openhouseApi = {
   },
 
   createOpenHouseLead: async (id: string, data: CreateOpenHouseLeadInput) => {
-    const response = await apiClient.post<{ data: OpenHouseLead }>(`/open-houses/${id}/sign-in`, data);
+    const response = await apiClient.post<{ data: OpenHouseLead }>(`/public/open-houses/${id}/sign-in`, data);
     return response.data.data;
   },
 };
@@ -120,12 +120,7 @@ export function useOpenHouseLeads(id: string) {
 }
 
 export function useCreateOpenHouseLead(id: string) {
-  const queryClient = useQueryClient();
-
   return useMutation({
-    mutationFn: (data: CreateOpenHouseLeadInput) => openhouseApi.createOpenHouseLead(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["open-houses", id, "leads"] });
-    },
+    mutationFn: (data: CreateOpenHouseLeadInput) => openhouseApi.createOpenHouseLead(id, data)
   });
 }

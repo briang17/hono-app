@@ -1,4 +1,4 @@
-import { openhouseRoutes } from "@features/openhouse/api/openhouse.routes";
+import { openhouseRoutes, publicOpenHouseRoutes } from "@features/openhouse/api/openhouse.routes";
 import { logReq } from "@middlewares/temp.logging.middleware";
 import { auth } from "@packages/auth";
 import { postRoutes } from "@posts/api/post.routes";
@@ -26,7 +26,9 @@ app.on(["POST", "GET"], "/api/auth/**", (c) => {
 	return auth.handler(c.req.raw);
 });
 
+//separate into /api/public at a later date, since IF mounted AFTER the protected routes, will still go through the middleware
 app.route("/api/open-houses", openhouseRoutes);
+app.route("/api/public/open-houses", publicOpenHouseRoutes);
 
 
 app.get("/health", (c) => {

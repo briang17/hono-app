@@ -1,4 +1,4 @@
-import { type Id, IdSchema, TimestampSchema } from "@features/common/all.vo";
+import { type Id, IdSchema, TimestampSchema } from "@features/common/values";
 import { randomUUIDv7 } from "bun";
 import { string, z } from "zod/v4";
 

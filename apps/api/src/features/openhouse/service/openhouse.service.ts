@@ -3,7 +3,7 @@ import type {
 	CreateOpenHouseLeadInput,
 } from "../api/openhouse.schemas";
 import type { IOpenHouseRepository } from "../domain/interface.openhouse.repository";
-import type { OpenHouse, OpenHouseLead } from "../domain/openhouse.entity";
+import { OpenHouseFactory, OpenHouseLeadFactory, type OpenHouse, type OpenHouseLead } from "../domain/openhouse.entity";
 
 export class OpenHouseService {
 	constructor(private repository: IOpenHouseRepository) {}
@@ -13,23 +13,18 @@ export class OpenHouseService {
 		organizationId: string,
 		userId: string,
 	): Promise<OpenHouse> {
-		return this.repository.create({
-			propertyAddress: data.propertyAddress,
-			listingPrice: data.listingPrice,
-			date: data.date,
-			startTime: data.startTime,
-			endTime: data.endTime,
-			listingImageUrl: data.listingImageUrl || null,
-			notes: data.notes || null,
-			organizationId,
-			createdByUserId: userId,
-		});
+
+		const openHouse = OpenHouseFactory.create(data, organizationId, userId);
+
+
+		return await this.repository.create(openHouse);
 	}
 
 	async getOpenHouses(
 		organizationId: string,
 		userId: string,
 	): Promise<OpenHouse[]> {
+		console.log(`@@@@@@@GETS TO CALL REPO`)
 		return this.repository.findByOrgAndUser(organizationId, userId);
 	}
 
@@ -46,15 +41,10 @@ export class OpenHouseService {
 		data: CreateOpenHouseLeadInput,
 		organizationId: string,
 	): Promise<OpenHouseLead> {
-		return this.repository.createLead({
-			firstName: data.firstName,
-			lastName: data.lastName,
-			email: data.email || null,
-			phone: data.phone || null,
-			workingWithAgent: data.workingWithAgent,
-			openHouseId,
-			organizationId,
-		});
+
+		const lead = OpenHouseLeadFactory.create(data, openHouseId, organizationId);
+
+		return this.repository.createLead(lead);
 	}
 
 	async getOpenHouseLeads(openHouseId: string): Promise<OpenHouseLead[]> {

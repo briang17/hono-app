@@ -1,48 +1,99 @@
 import { z } from "zod";
+import { IdSchema, PhoneSchema, EmailSchema, DateSchema, Id } from "@features/common/values";
 
-const OpenHouseEntitySchema = z.object({
-	id: z.string().uuid(),
-	organizationId: z.string().uuid(),
-	createdByUserId: z.string().uuid(),
-	propertyAddress: z.string(),
-	listingPrice: z.number(),
-	date: z.date(),
-	startTime: z.string(),
-	endTime: z.string(),
-	listingImageUrl: z.string().nullable(),
+export const OpenHouseSchema = z.object({
+	id: IdSchema,
+	organizationId: IdSchema,
+	createdByUserId: IdSchema,
+	propertyAddress: z.string().min(1, "Address is required"),
+	listingPrice: z.number().positive("Price must be positive"),
+	date: DateSchema,
+	startTime: z.string().regex(/^\d{2}:\d{2}$/, "Invalid time format (HH:MM)"),
+	endTime: z.string().regex(/^\d{2}:\d{2}$/, "Invalid time format (HH:MM)"),
+	listingImageUrl: z.union([z.url().nullish(),z.literal("")]),
 	notes: z.string().nullable(),
-	createdAt: z.date(),
-	updatedAt: z.date(),
+	createdAt: DateSchema,
+	updatedAt: DateSchema,
 });
 
-const OpenHouseLeadEntitySchema = z.object({
-	id: z.string().uuid(),
-	openHouseId: z.string().uuid(),
-	organizationId: z.string().uuid(),
-	firstName: z.string(),
-	lastName: z.string(),
-	email: z.string().nullable(),
-	phone: z.string().nullable(),
-	workingWithAgent: z.boolean(),
-	submittedAt: z.date(),
+export const NewOpenHouseSchema = OpenHouseSchema.pick({
+	propertyAddress: true,
+	listingPrice: true,
+	date: true,
+	startTime: true,
+	endTime: true,
+	listingImageUrl: true,
+	notes: true
+}).refine(data => data.startTime < data.endTime, {
+	error: "End time must be after start time",
+	path: ["endTime"]
+})
+
+export const OpenHouseLeadSchema = z.object({
+	id: IdSchema,
+	openHouseId: IdSchema,
+	organizationId: IdSchema,
+	firstName: z.string().min(1, "First name is required"),
+	lastName: z.string().min(1, "Last name is required"),
+	email: z.union([EmailSchema.nullish(),z.literal('')]),
+	phone: z.union([PhoneSchema.nullish(),z.literal('')]),
+	workingWithAgent: z.boolean().default(false),
+	submittedAt: DateSchema,
 });
 
-export type OpenHouse = z.infer<typeof OpenHouseEntitySchema>;
-export type OpenHouseLead = z.infer<typeof OpenHouseLeadEntitySchema>;
+export const NewOpenHouseLeadSchema = OpenHouseLeadSchema
+	.pick({
+		firstName: true,
+		lastName: true,
+		email: true,
+		phone: true,
+		workingWithAgent: true,
+	})
+	.refine((data) => data.email || data.phone, {
+		message: "Email or phone is required",
+	});
+
+export type OpenHouse = z.infer<typeof OpenHouseSchema>;
+export type OpenHouseLead = z.infer<typeof OpenHouseLeadSchema>;
+
+
 
 export const OpenHouseFactory = {
-	create: (params: z.input<typeof OpenHouseEntitySchema>): OpenHouse => {
-		console.log("[FACTORY] create called with params:", params);
-		const result = OpenHouseEntitySchema.parse(params);
-		console.log("[FACTORY] parsed successfully:", result);
+	create: (params: z.input<typeof NewOpenHouseSchema>, organizationId: Id, userId: Id): OpenHouse => {
+		const now = new Date();
+		const result = OpenHouseSchema.parse({
+			...params,
+			id: Bun.randomUUIDv7(),
+			organizationId,
+			createdByUserId: userId,
+			createdAt: now,
+			updatedAt: now
+		});
 		return result;
 	},
+	fromDb: (params: z.input<typeof OpenHouseSchema>): OpenHouse => {
+		const result = OpenHouseSchema.parse(params);
+		return result;
+	}
 };
 
 export const OpenHouseLeadFactory = {
 	create: (
-		params: z.input<typeof OpenHouseLeadEntitySchema>,
+		params: z.input<typeof NewOpenHouseLeadSchema>,
+		openHouseId: Id,
+		organizationId: Id
 	): OpenHouseLead => {
-		return OpenHouseLeadEntitySchema.parse(params);
+		const now = new Date();
+		return OpenHouseLeadSchema.parse({
+			...params,
+			id: Bun.randomUUIDv7(),
+			openHouseId,
+			organizationId,
+			submittedAt: now
+		});
 	},
+	fromDb: (params: z.input<typeof OpenHouseLeadSchema>): OpenHouseLead => {
+		const result = OpenHouseLeadSchema.parse(params);
+		return result;
+	}
 };

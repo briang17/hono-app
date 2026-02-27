@@ -6,84 +6,35 @@ import {
 import { and, desc, eq } from "drizzle-orm";
 import type { IOpenHouseRepository } from "../domain/interface.openhouse.repository";
 import {
+	OpenHouse,
 	OpenHouseFactory,
+	OpenHouseLead,
 	OpenHouseLeadFactory,
 } from "../domain/openhouse.entity";
+import { Id } from "@features/common/values";
 
 export class DbOpenHouseRepository implements IOpenHouseRepository {
-	async create(params: {
-		organizationId: string;
-		createdByUserId: string;
-		propertyAddress: string;
-		listingPrice: number;
-		date: Date;
-		startTime: string;
-		endTime: string;
-		listingImageUrl: string | null;
-		notes: string | null;
-	}) {
+	async create(params: OpenHouse) {
 		const [result] = await db
 			.insert(openHouse)
-			.values({
-				organizationId: params.organizationId,
-				createdByUserId: params.createdByUserId,
-				propertyAddress: params.propertyAddress,
-				listingPrice: params.listingPrice.toString(),
-				date: params.date,
-				startTime: params.startTime,
-				endTime: params.endTime,
-				listingImageUrl: params.listingImageUrl,
-				notes: params.notes,
-			})
+			.values(params)
 			.returning();
 
 		if (!result) throw new Error();
 
-		return OpenHouseFactory.create({
-			id: result.id,
-			organizationId: result.organizationId,
-			createdByUserId: result.createdByUserId,
-			propertyAddress: result.propertyAddress,
-			listingPrice: Number(result.listingPrice),
-			date: new Date(result.date),
-			startTime: result.startTime,
-			endTime: result.endTime,
-			listingImageUrl: result.listingImageUrl ?? null,
-			notes: result.notes ?? null,
-			createdAt: result.createdAt,
-			updatedAt: result.updatedAt,
-		});
+		return OpenHouseFactory.fromDb(result);
 	}
 
-	async findById(id: string) {
-		console.log("[REPO] findById called with id:", id);
+	async findById(id: Id) {
 		const [result] = await db
 			.select()
 			.from(openHouse)
 			.where(eq(openHouse.id, id))
 			.limit(1);
 
-		console.log("[REPO] findById result:", result);
-
 		if (!result) return null;
 
-		const data = {
-			id: result.id,
-			organizationId: result.organizationId,
-			createdByUserId: result.createdByUserId,
-			propertyAddress: result.propertyAddress,
-			listingPrice: Number(result.listingPrice),
-			date: new Date(result.date),
-			startTime: result.startTime,
-			endTime: result.endTime,
-			listingImageUrl: result.listingImageUrl ?? null,
-			notes: result.notes ?? null,
-			createdAt: result.createdAt,
-			updatedAt: result.updatedAt,
-		};
-		console.log("[REPO] passing to factory:", data);
-
-		return OpenHouseFactory.create(data);
+		return OpenHouseFactory.fromDb(result);
 	}
 
 	async findByOrgAndUser(organizationId: string, userId: string) {
@@ -99,20 +50,7 @@ export class DbOpenHouseRepository implements IOpenHouseRepository {
 			.orderBy(desc(openHouse.date), desc(openHouse.createdAt));
 
 		return results.map((result) =>
-			OpenHouseFactory.create({
-				id: result.id,
-				organizationId: result.organizationId,
-				createdByUserId: result.createdByUserId,
-				propertyAddress: result.propertyAddress,
-				listingPrice: Number(result.listingPrice),
-				date: new Date(result.date),
-				startTime: result.startTime,
-				endTime: result.endTime,
-				listingImageUrl: result.listingImageUrl ?? null,
-				notes: result.notes ?? null,
-				createdAt: result.createdAt,
-				updatedAt: result.updatedAt,
-			}),
+			OpenHouseFactory.fromDb(result),
 		);
 	}
 
@@ -125,57 +63,18 @@ export class DbOpenHouseRepository implements IOpenHouseRepository {
 
 		if (!result) return null;
 
-		return OpenHouseFactory.create({
-			id: result.id,
-			organizationId: result.organizationId,
-			createdByUserId: result.createdByUserId,
-			propertyAddress: result.propertyAddress,
-			listingPrice: Number(result.listingPrice),
-			date: new Date(result.date),
-			startTime: result.startTime,
-			endTime: result.endTime,
-			listingImageUrl: result.listingImageUrl ?? null,
-			notes: result.notes ?? null,
-			createdAt: result.createdAt,
-			updatedAt: result.updatedAt,
-		});
+		return OpenHouseFactory.fromDb(result);
 	}
 
-	async createLead(params: {
-		openHouseId: string;
-		organizationId: string;
-		firstName: string;
-		lastName: string;
-		email: string | null;
-		phone: string | null;
-		workingWithAgent: boolean;
-	}) {
+	async createLead(params: OpenHouseLead) {
 		const [result] = await db
 			.insert(openHouseLead)
-			.values({
-				openHouseId: params.openHouseId,
-				organizationId: params.organizationId,
-				firstName: params.firstName,
-				lastName: params.lastName,
-				email: params.email,
-				phone: params.phone,
-				workingWithAgent: params.workingWithAgent,
-			})
+			.values(params)
 			.returning();
 
 		if (!result) throw new Error();
 
-		return OpenHouseLeadFactory.create({
-			id: result.id,
-			openHouseId: result.openHouseId,
-			organizationId: result.organizationId,
-			firstName: result.firstName,
-			lastName: result.lastName,
-			email: result.email ?? null,
-			phone: result.phone ?? null,
-			workingWithAgent: result.workingWithAgent,
-			submittedAt: result.submittedAt,
-		});
+		return OpenHouseLeadFactory.fromDb(result);
 	}
 
 	async findLeadsByOpenHouseId(openHouseId: string) {
@@ -186,17 +85,7 @@ export class DbOpenHouseRepository implements IOpenHouseRepository {
 			.orderBy(openHouseLead.submittedAt);
 
 		return results.map((result) =>
-			OpenHouseLeadFactory.create({
-				id: result.id,
-				openHouseId: result.openHouseId,
-				organizationId: result.organizationId,
-				firstName: result.firstName,
-				lastName: result.lastName,
-				email: result.email ?? null,
-				phone: result.phone ?? null,
-				workingWithAgent: result.workingWithAgent,
-				submittedAt: result.submittedAt,
-			}),
+			OpenHouseLeadFactory.fromDb(result),
 		);
 	}
 
@@ -216,17 +105,7 @@ export class DbOpenHouseRepository implements IOpenHouseRepository {
 			.orderBy(openHouseLead.submittedAt);
 
 		return results.map((result) =>
-			OpenHouseLeadFactory.create({
-				id: result.id,
-				openHouseId: result.openHouseId,
-				organizationId: result.organizationId,
-				firstName: result.firstName,
-				lastName: result.lastName,
-				email: result.email ?? null,
-				phone: result.phone ?? null,
-				workingWithAgent: result.workingWithAgent,
-				submittedAt: result.submittedAt,
-			}),
+			OpenHouseLeadFactory.fromDb(result),
 		);
 	}
 }

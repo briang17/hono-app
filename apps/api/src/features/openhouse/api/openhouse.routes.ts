@@ -1,54 +1,55 @@
 import { authMiddleware } from "@middlewares/auth.middleware";
-import { createValidator } from "@middlewares/validation.middleware";
 import { Hono } from "hono";
 import { openhouseController } from "./openhouse.controller";
 import {
-	CreateOpenHouseLeadSchema,
-	CreateOpenHouseSchema,
-	OpenHouseIdParamsSchema,
-} from "./openhouse.schemas";
+  CreateOpenHouseLeadParamsSchema,
+  GetOpenHouseLeadsParamsSchema,
+	GetOpenHouseParamsSchema,
+  GetPublicOpenHouseParamsSchema,
+} from "@openhouse/api/openhouse.schemas";
+import { NewOpenHouseLeadSchema, NewOpenHouseSchema } from "@openhouse/domain/openhouse.entity";
 import { zValidator } from "@hono/zod-validator";
-import { HonoEnv } from "@lib/types";
 
 const openhouseRoutes = new Hono();
 
+openhouseRoutes.use(authMiddleware);
 
-
-openhouseRoutes.post(
-  "/",
-  authMiddleware,
-  zValidator("json", CreateOpenHouseSchema),
-  openhouseController.createOpenHouse
-);
-
-openhouseRoutes.get("/", authMiddleware, openhouseController.getOpenHouses);
+openhouseRoutes.get("/",openhouseController.getOpenHouses);
 
 openhouseRoutes.get(
   "/:id",
-  authMiddleware,
-  createValidator(OpenHouseIdParamsSchema, "params"),
+  zValidator("param", GetOpenHouseParamsSchema),
   openhouseController.getOpenHouse
 );
 
 openhouseRoutes.get(
   "/:id/leads",
-  authMiddleware,
-  createValidator(OpenHouseIdParamsSchema, "params"),
+  zValidator("param",GetOpenHouseLeadsParamsSchema),
   openhouseController.getOpenHouseLeads
 );
 
+openhouseRoutes.post(
+  "/",
+  zValidator("json", NewOpenHouseSchema),
+  openhouseController.createOpenHouse
+);
+
+
+
+const publicOpenHouseRoutes = new Hono();
+
 // public routes
-openhouseRoutes.get(
-  "/:id/public",
-  createValidator(OpenHouseIdParamsSchema, "params"),
+publicOpenHouseRoutes.get(
+  "/:id",
+  zValidator("param", GetPublicOpenHouseParamsSchema),
   openhouseController.getPublicOpenHouse
 );
 
-openhouseRoutes.post(
-  "/:id/sign-in",
-  createValidator(OpenHouseIdParamsSchema, "params"),
-  createValidator(CreateOpenHouseLeadSchema),
+publicOpenHouseRoutes.post(
+  "/:id/sign-in", // ??CHANGE THIS TO sign-up
+  zValidator("param", CreateOpenHouseLeadParamsSchema),
+  zValidator("json", NewOpenHouseLeadSchema),
   openhouseController.createOpenHouseLead
 );
 
-export { openhouseRoutes };
+export { openhouseRoutes, publicOpenHouseRoutes };

@@ -1,38 +1,51 @@
-import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
+import { OpenHouseSchema, NewOpenHouseSchema, NewOpenHouseLeadSchema } from "@openhouse/domain/openhouse.entity"
+import { ToCtx } from "@lib/types";
 
-export const CreateOpenHouseSchema = z
-	.object({
-		propertyAddress: z.string().min(1, "Address is required"),
-		listingPrice: z.number().positive("Price must be positive"),
-		date: z.coerce.date(),
-		startTime: z.string().regex(/^\d{2}:\d{2}$/, "Invalid time format (HH:MM)"),
-		endTime: z.string().regex(/^\d{2}:\d{2}$/, "Invalid time format (HH:MM)"),
-		listingImageUrl: z.string().url().optional().or(z.literal("")),
-		notes: z.string().optional(),
-	})
-	.refine((data) => data.startTime < data.endTime, {
-		message: "End time must be after start time",
-		path: ["endTime"],
-	});
+/* GET /api/open-houses -> getOpenHouses() */
+export type GetOpenHousesCtx = ToCtx<undefined, undefined, undefined>
 
-export const CreateOpenHouseLeadSchema = z
-	.object({
-		firstName: z.string().min(1, "First name is required"),
-		lastName: z.string().min(1, "Last name is required"),
-		email: z.string().email().optional().or(z.literal("")),
-		phone: z.string().optional().or(z.literal("")),
-		workingWithAgent: z.boolean().default(false),
-	})
-	.refine((data) => data.email || data.phone, {
-		message: "Email or phone is required",
-	});
 
-export const OpenHouseIdParamsSchema = z.object({
-	id: z.uuid(),
+/* GET /api/open-houses/:id -> getOpenHouse() */
+export const GetOpenHouseParamsSchema = z.object({
+	id: OpenHouseSchema.shape.id,
 });
+export type GetOpenHouseInput = undefined;
+type GetOpenHouseParams = z.infer<typeof GetOpenHouseParamsSchema>
+type GetOpenHouseQuery = undefined;
 
-export type CreateOpenHouseInput = z.infer<typeof CreateOpenHouseSchema>;
+export type GetOpenHouseCtx = ToCtx<GetOpenHouseInput, GetOpenHouseParams, GetOpenHouseQuery>;
+
+/* GET /api/open-houses/:id/leads -> getOpenHouseLeads() */
+export const GetOpenHouseLeadsParamsSchema = z.object({
+	id: OpenHouseSchema.shape.id
+});
+export type GetOpenHouseLeadsInput = undefined;
+type GetOpenHouseLeadsParams = z.infer<typeof GetOpenHouseLeadsParamsSchema>;
+type GetOpenHouseLeadsQuery = undefined;
+
+export type GetOpenHouseLeadsCtx = ToCtx<GetOpenHouseLeadsInput, GetOpenHouseLeadsParams, GetOpenHouseLeadsQuery>;
+
+/* POST /api/open-houses/ -> createOpenHouse() */
+export type CreateOpenHouseInput = z.infer<typeof NewOpenHouseSchema>;
+export type CreateOpenHouseCtx = ToCtx<CreateOpenHouseInput, undefined, undefined>
+
+/* GET /api/open-houses/:id/public */
+export const GetPublicOpenHouseParamsSchema = z.object({
+	id: OpenHouseSchema.shape.id
+})
+type GetPublicOpenHouseParams = z.infer<typeof GetPublicOpenHouseParamsSchema>
+
+export type GetPublicOpenHouseCtx = ToCtx<undefined, GetPublicOpenHouseParams, undefined>
+
+
+/* POST /api/open-houses/:id/sign-in */ // ??CHANGE FROM sign-in to sign-up
+export const CreateOpenHouseLeadParamsSchema = z.object({
+	id: OpenHouseSchema.shape.id
+});
 export type CreateOpenHouseLeadInput = z.infer<
-	typeof CreateOpenHouseLeadSchema
+typeof NewOpenHouseLeadSchema
 >;
+type CreateOpenHouseLeadParams = z.infer<typeof CreateOpenHouseLeadParamsSchema>;
+
+export type CreateOpenHouseLeadCtx = ToCtx<CreateOpenHouseLeadInput, CreateOpenHouseLeadParams, undefined>;

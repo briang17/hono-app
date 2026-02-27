@@ -1,5 +1,5 @@
 import { z } from "zod/v4";
-import { DateSchema, IdSchema } from "./all.vo";
+import { DateSchema, IdSchema } from "./values";
 
 export const BaseQuerySchema = z.object({
 	createdFrom: DateSchema,
