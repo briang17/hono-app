@@ -1,7 +1,7 @@
 {
 	"name": "@apps/api",
 	"scripts": {
-		"dev": "bun --hot --port 3001 src/index.ts",
+		"dev": "bun --port 3001 src/index.ts",
 		"cq": "biome check --write",
 		"cq:deep": "biome lint --write --only=nursery/noImportCycles --only=security/noSecrets",
 		"build": "bun build src/index.ts --outdir dist/ --target bun"

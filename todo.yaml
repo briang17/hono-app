@@ -1,23 +1,30 @@
 
 
+apps:
+  all:
+    - proper setup biome.json to extend base.
+  openhouse:
+    - When organization already exists, frontend doesn't alert the user.
+    - Top bar with logout and organization options for admin role.
+    - See agent list, manage FUB credentials to send leads
+  api:
+    - Login errors when user not found, instead of handling and communicating?
+    - 2026-02-27T00:26:57.986Z ERROR [Better Auth]: User not found {
+        email: "integrations@anew.house",
+      }
+    - Login should wait when login fails. 2s to 3s. prevent timing attacks.
 
-openhouse:
-  - When organization already exists, frontend doesn't alert the user.
-  - Top bar with logout and organization options for admin role.
-  - See agent list, manage FUB credentials to send leads
-api:
-  - Login errors when user not found, instead of handling and communicating?
-  - 2026-02-27T00:26:57.986Z ERROR [Better Auth]: User not found {
-      email: "integrations@anew.house",
-    }
-  - Login should wait when login fails. 2s to 3s. prevent timing attacks.
+    - emailService with resend, need to finalize implementation
 
-  - emailService with resend, need to finalize implementation
+    - in order to add user invitation, and finally flesh out organization
+    
+    - implement VALUE OBJECTS!!!
 
-  - in order to add user invitation, and finally flesh out organization
-  
-  - implement VALUE OBJECTS!!!
+packages:
+  - proper setup biome.json to extend base.
 
 workers:
+  all:
+    - proper setup biome.json to extend base.
   emailer:
     - 

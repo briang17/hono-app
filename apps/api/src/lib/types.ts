@@ -1,40 +1,40 @@
-import { auth } from "@packages/auth";
-import { Context } from "hono";
-
+import type { auth } from "@packages/auth";
+import type { Context } from "hono";
 
 export type HonoEnv = {
-    Variables: {
-    }
-}
+    Variables: object;
+};
 export type AuthEnv = HonoEnv & {
     Variables: {
         user: typeof auth.$Infer.Session.user;
         session: typeof auth.$Infer.Session.session;
-    }
-}
+    };
+};
 
 type ValidationMap = {
-    json?: any; param?: any; query?: any
-}
+    json?: object;
+    param?: object;
+    query?: object;
+};
 
 type ToHonoInput<V extends ValidationMap> = {
-    out: {[K in keyof V]: V[K]};
-}
+    out: { [K in keyof V]: V[K] };
+};
 
-export type AppContext<V extends ValidationMap ={}> = Context<
+export type AppContext<V extends ValidationMap = object> = Context<
     HonoEnv,
     string,
     ToHonoInput<V>
->
+>;
 
-export type AuthContext<V extends ValidationMap = {}> = Context<
+export type AuthContext<V extends ValidationMap = object> = Context<
     AuthEnv,
     string,
     ToHonoInput<V>
->
+>;
 
 export type ToCtx<J, P, Q> = {
-	json: J,
-	param: P,
-	query: Q
-}
+    json: J;
+    param: P;
+    query: Q;
+};

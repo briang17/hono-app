@@ -9,7 +9,6 @@ export type Timestamp = z.infer<typeof TimestampSchema>;
 export const DateSchema = z.coerce.date();
 export type Date = z.infer<typeof DateSchema>;
 
-
 export const PhoneSchema = z.string();
 export type Phone = z.infer<typeof PhoneSchema>;
 

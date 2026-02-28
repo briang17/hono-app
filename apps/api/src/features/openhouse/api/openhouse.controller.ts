@@ -1,107 +1,122 @@
+import { codes } from "@config/constants";
+import type { AppContext, AuthContext } from "@lib/types";
 import { HTTPException } from "hono/http-exception";
 import { DbOpenHouseRepository } from "../infra/db.openhouse.repository";
 import { OpenHouseService } from "../service/openhouse.service";
 import type {
-	CreateOpenHouseCtx,
-	CreateOpenHouseLeadCtx,
-	GetOpenHouseCtx,
-	GetOpenHouseLeadsCtx,
-	GetOpenHousesCtx,
-	GetPublicOpenHouseCtx
+    CreateOpenHouseCtx,
+    CreateOpenHouseLeadCtx,
+    GetOpenHouseCtx,
+    GetOpenHouseLeadsCtx,
+    GetOpenHousesCtx,
+    GetPublicOpenHouseCtx,
 } from "./openhouse.schemas";
-import { AppContext, AuthContext } from "@lib/types";
 
 const repository = new DbOpenHouseRepository();
 const service = new OpenHouseService(repository);
 
 export const openhouseController = {
-	createOpenHouse: async (c: AuthContext<CreateOpenHouseCtx>) => {
-		const userId = c.get("session").userId;
-		const organizationId = c.get("session").activeOrganizationId;
+    createOpenHouse: async (c: AuthContext<CreateOpenHouseCtx>) => {
+        const userId = c.get("session").userId;
+        const organizationId = c.get("session").activeOrganizationId;
 
-		if (!organizationId) {
-			//LoggerService.traceRequest().info(`request with user without organizationId:`)
-			throw new HTTPException(401, { message: "Unauthorized" });
-		}
+        if (!organizationId) {
+            //LoggerService.traceRequest().info(`request with user without organizationId:`)
+            throw new HTTPException(codes.UNAUTHORIZED, {
+                message: "Unauthorized",
+            });
+        }
 
-		const data = c.req.valid("json");
+        const data = c.req.valid("json");
 
-		const openHouse = await service.createOpenHouse(
-			data,
-			organizationId,
-			userId,
-		);
+        const openHouse = await service.createOpenHouse(
+            data,
+            organizationId,
+            userId,
+        );
 
-		return c.json({ data: openHouse }, 201);
-	},
+        return c.json({ data: openHouse }, codes.CREATED);
+    },
 
-	getOpenHouses: async (c: AuthContext<GetOpenHousesCtx>) => {
-		const userId = c.get("session").userId;
-		const organizationId = c.get("session").activeOrganizationId;
+    getOpenHouses: async (c: AuthContext<GetOpenHousesCtx>) => {
+        const userId = c.get("session").userId;
+        const organizationId = c.get("session").activeOrganizationId;
 
-		if (!organizationId) {
-			throw new HTTPException(401, { message: "Unauthorized" });
-		}
-		console.log(`GETS TO CALL SERVICE`);
-		const openHouses = await service.getOpenHouses(organizationId, userId);
-		return c.json({ data: openHouses });
-	},
+        if (!organizationId) {
+            throw new HTTPException(codes.UNAUTHORIZED, {
+                message: "Unauthorized",
+            });
+        }
+        console.log(`GETS TO CALL SERVICE`);
+        const openHouses = await service.getOpenHouses(organizationId, userId);
+        return c.json({ data: openHouses });
+    },
 
-	getOpenHouse: async (c: AuthContext<GetOpenHouseCtx>) => {
-		const organizationId = c.get("session").activeOrganizationId;
-		if (!organizationId) {
-			throw new HTTPException(401, { message: "Unauthorized" });
-		}
+    getOpenHouse: async (c: AuthContext<GetOpenHouseCtx>) => {
+        const organizationId = c.get("session").activeOrganizationId;
+        if (!organizationId) {
+            throw new HTTPException(codes.UNAUTHORIZED, {
+                message: "Unauthorized",
+            });
+        }
 
-		const { id } = c.req.valid("param");
-		
-		const openHouse = await service.getOpenHouse(id);
-		if (!openHouse || openHouse.organizationId !== organizationId) {
-			throw new HTTPException(404, { message: "Open house not found" });
-		}
+        const { id } = c.req.valid("param");
 
-		return c.json({ data: openHouse });
-	},
+        const openHouse = await service.getOpenHouse(id);
+        if (!openHouse || openHouse.organizationId !== organizationId) {
+            throw new HTTPException(codes.NOT_FOUND, {
+                message: "Open house not found",
+            });
+        }
 
-	getPublicOpenHouse: async (c: AppContext<GetPublicOpenHouseCtx>) => {
-		const { id } = c.req.valid("param");
-		const openHouse = await service.getPublicOpenHouse(id);
+        return c.json({ data: openHouse });
+    },
 
-		if (!openHouse) {
-			throw new HTTPException(404, { message: "Open house not found" });
-		}
+    getPublicOpenHouse: async (c: AppContext<GetPublicOpenHouseCtx>) => {
+        const { id } = c.req.valid("param");
+        const openHouse = await service.getPublicOpenHouse(id);
 
-		return c.json({ data: openHouse });
-	},
+        if (!openHouse) {
+            throw new HTTPException(codes.NOT_FOUND, {
+                message: "Open house not found",
+            });
+        }
 
-	createOpenHouseLead: async (c: AppContext<CreateOpenHouseLeadCtx>) => {
-		const { id: openHouseId } = c.req.valid('param');
-		const openHouse = await service.getOpenHouse(openHouseId);
+        return c.json({ data: openHouse });
+    },
 
-		if (!openHouse) {
-			throw new HTTPException(404, { message: "Open house not found" });
-		}
+    createOpenHouseLead: async (c: AppContext<CreateOpenHouseLeadCtx>) => {
+        const { id: openHouseId } = c.req.valid("param");
+        const openHouse = await service.getOpenHouse(openHouseId);
 
-		const data = c.req.valid("json");
-		const lead = await service.createOpenHouseLead(
-			openHouseId,
-			data,
-			openHouse.organizationId,
-		);
+        if (!openHouse) {
+            throw new HTTPException(codes.NOT_FOUND, {
+                message: "Open house not found",
+            });
+        }
 
-		return c.json({ data: lead }, 201);
-	},
+        const data = c.req.valid("json");
+        const lead = await service.createOpenHouseLead(
+            openHouseId,
+            data,
+            openHouse.organizationId,
+        );
 
-	getOpenHouseLeads: async (c: AuthContext<GetOpenHouseLeadsCtx>) => {
-		const organizationId = c.get("session").activeOrganizationId;
+        return c.json({ data: lead }, codes.CREATED);
+    },
 
-		if (!organizationId) {
-			throw new HTTPException(401, { message: "Unauthorized" });
-		}
+    getOpenHouseLeads: async (c: AuthContext<GetOpenHouseLeadsCtx>) => {
+        const organizationId = c.get("session").activeOrganizationId;
 
-		const { id } = c.req.valid("param");
-		const leads = await service.getOpenHouseLeadsOrg(id, organizationId);
+        if (!organizationId) {
+            throw new HTTPException(codes.UNAUTHORIZED, {
+                message: "Unauthorized",
+            });
+        }
 
-		return c.json({ data: leads });
-	},
+        const { id } = c.req.valid("param");
+        const leads = await service.getOpenHouseLeadsOrg(id, organizationId);
+
+        return c.json({ data: leads });
+    },
 };
