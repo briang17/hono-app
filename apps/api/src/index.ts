@@ -5,6 +5,7 @@ import {
 } from "@features/openhouse/api/openhouse.routes";
 import { auth } from "@packages/auth";
 import { Hono } from "hono";
+import { hc } from "hono/client";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
 
@@ -54,3 +55,5 @@ const routes = app
 
 export default app;
 export type AppType = typeof routes;
+
+const client = hc<AppType>("https://api.rs.hauntednuke.com");

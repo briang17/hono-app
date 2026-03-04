@@ -47,7 +47,6 @@ export const openhouseController = {
                 message: "Unauthorized",
             });
         }
-        console.log(`GETS TO CALL SERVICE`);
         const openHouses = await service.getOpenHouses(organizationId, userId);
         return c.json({ data: openHouses });
     },

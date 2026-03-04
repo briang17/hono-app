@@ -27,7 +27,6 @@ export class OpenHouseService {
         organizationId: string,
         userId: string,
     ): Promise<OpenHouse[]> {
-        console.log(`@@@@@@@GETS TO CALL REPO`);
         return await this.repository.findByOrgAndUser(organizationId, userId);
     }
 
