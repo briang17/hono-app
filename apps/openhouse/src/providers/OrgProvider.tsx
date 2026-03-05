@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { useEffect } from "react";
-import { useAuthStore } from "./AuthProvider";
+import { authClient } from "../lib/auth";
+
 
 interface OrgState {
   organizationId: string | null;
@@ -13,12 +14,12 @@ export const useOrgStore = create<OrgState>((set) => ({
 }));
 
 export function OrgProvider({ children }: { children: React.ReactNode }) {
-  const session = useAuthStore((state) => state.session);
+  const session = authClient.useSession();
   const setOrganizationId = useOrgStore((state) => state.setOrganizationId);
 
   useEffect(() => {
-    if (session?.session?.activeOrganizationId) {
-      setOrganizationId(session.session.activeOrganizationId);
+    if (session.data?.session.activeOrganizationId) {
+      setOrganizationId(session.data?.session.activeOrganizationId);
     }
   }, [session, setOrganizationId]);
 

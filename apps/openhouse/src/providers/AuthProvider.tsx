@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { useEffect } from "react";
-import apiClient from "../lib/axios";
+import { authClient } from "../lib/auth";
+
 
 interface Session {
   user: {
@@ -26,6 +27,36 @@ export const useAuthStore = create<AuthState>((set) => ({
   isLoading: true,
   fetchSession: async () => {
     try {
+      const response = await authClient.getSession();
+      console.log("Session response:", response.data);
+
+      
+      if(!response.data || response.error) throw new Error();
+      const {user, session} = response.data;
+      const formatted = {
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name
+        },
+        session: {
+          token: session.token,
+          activeOrganizationId: session.activeOrganizationId ?? ""
+        }
+      }
+
+      set({session: formatted, isLoading: false})
+
+    } catch (error) {
+      console.error("Session fetch error:", error);
+      set({ session: null, isLoading: false });
+    }
+  }
+  
+  
+  
+  /*async () => {
+    try {
       const response = await apiClient.get("/auth/get-session");
       console.log("Session response:", response.data);
       set({ session: response.data, isLoading: false });
@@ -33,14 +64,21 @@ export const useAuthStore = create<AuthState>((set) => ({
       console.error("Session fetch error:", error);
       set({ session: null, isLoading: false });
     }
-  },
+  }*/,
   logout: async () => {
     try {
+      await authClient.signOut()
+      set({session: null});
+    } catch(error) {
+      console.error("Logout failed", error);
+    }
+    
+    /*try {
       await apiClient.post("/auth/sign-out");
       set({ session: null });
     } catch (error) {
       console.error("Logout failed", error);
-    }
+    }*/
   },
 }));
 
