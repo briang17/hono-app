@@ -1,4 +1,5 @@
 import { codes } from "@config/constants";
+import { formConfigRoutes } from "@features/form-config/api/form-config.routes";
 import {
     openhouseRoutes,
     publicOpenHouseRoutes,
@@ -28,6 +29,7 @@ const routes = app
     })
     .route("/api/open-houses", openhouseRoutes)
     .route("/api/public/open-houses", publicOpenHouseRoutes)
+    .route("/api/form-config", formConfigRoutes)
     .get("/health", (c) => {
         const toSeconds = 1000000000;
         return c.json({
@@ -55,5 +57,3 @@ const routes = app
 
 export default app;
 export type AppType = typeof routes;
-
-const client = hc<AppType>("https://api.rs.hauntednuke.com");

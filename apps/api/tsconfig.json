@@ -13,6 +13,9 @@
 			"@openhouse/*": [
 				"src/features/openhouse/*"
 			],
+			"@formconfig/*": [
+				"src/features/form-config/*"
+			],
 			"@middlewares/*": [
 				"src/middlewares/*"
 			],

@@ -1,6 +1,6 @@
 import type { ToCtx } from "@lib/types";
 import {
-    type NewOpenHouseLeadSchema,
+    type NewOpenHouseLeadInput,
     type NewOpenHouseSchema,
     OpenHouseSchema,
 } from "@openhouse/domain/openhouse.entity";
@@ -57,11 +57,11 @@ export type GetPublicOpenHouseCtx = ToCtx<
     undefined
 >;
 
-/* POST /api/open-houses/:id/sign-in */ // ??CHANGE FROM sign-in to sign-up
+/* POST /api/open-houses/:id/sign-in */
 export const CreateOpenHouseLeadParamsSchema = z.object({
     id: OpenHouseSchema.shape.id,
 });
-export type CreateOpenHouseLeadInput = z.infer<typeof NewOpenHouseLeadSchema>;
+export type CreateOpenHouseLeadInput = z.infer<typeof NewOpenHouseLeadInput>;
 type CreateOpenHouseLeadParams = z.infer<
     typeof CreateOpenHouseLeadParamsSchema
 >;

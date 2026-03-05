@@ -1,5 +1,6 @@
 import type { Id } from "@features/common/values";
 import { db } from "@packages/database";
+import { organizationFormConfig } from "@packages/database/src/schemas/form-config.schema";
 import {
     openHouse,
     openHouseLead,
@@ -7,10 +8,12 @@ import {
 import { and, desc, eq } from "drizzle-orm";
 import type { IOpenHouseRepository } from "../domain/interface.openhouse.repository";
 import {
+    type FormConfig,
     type OpenHouse,
     OpenHouseFactory,
     type OpenHouseLead,
     OpenHouseLeadFactory,
+    type PublicOpenHouse,
 } from "../domain/openhouse.entity";
 
 export class DbOpenHouseRepository implements IOpenHouseRepository {
@@ -61,15 +64,65 @@ export class DbOpenHouseRepository implements IOpenHouseRepository {
         return OpenHouseFactory.fromDb(result);
     }
 
+    async findPublicByIdWithFormConfig(
+        id: string,
+    ): Promise<PublicOpenHouse | null> {
+        const [result] = await db
+            .select({
+                id: openHouse.id,
+                propertyAddress: openHouse.propertyAddress,
+                date: openHouse.date,
+                startTime: openHouse.startTime,
+                endTime: openHouse.endTime,
+                formConfig: organizationFormConfig,
+            })
+            .from(openHouse)
+            .leftJoin(
+                organizationFormConfig,
+                eq(
+                    organizationFormConfig.organizationId,
+                    openHouse.organizationId,
+                ),
+            )
+            .where(eq(openHouse.id, id))
+            .limit(1);
+
+        if (!result) return null;
+
+        return {
+            id: result.id,
+            propertyAddress: result.propertyAddress,
+            date: result.date,
+            startTime: result.startTime,
+            endTime: result.endTime,
+            formConfig: result.formConfig
+                ? {
+                      id: result.formConfig.id,
+                      organizationId: result.formConfig.organizationId,
+                      questions: result.formConfig
+                          .questions as FormConfig["questions"],
+                      createdAt: result.formConfig.createdAt,
+                      updatedAt: result.formConfig.updatedAt,
+                  }
+                : null,
+        };
+    }
+
     async createLead(params: OpenHouseLead) {
         const [result] = await db
             .insert(openHouseLead)
-            .values(params)
+            .values({
+                ...params,
+                responses: params.responses as unknown,
+            })
             .returning();
 
         if (!result) throw new Error();
 
-        return OpenHouseLeadFactory.fromDb(result);
+        return OpenHouseLeadFactory.fromDb({
+            ...result,
+            responses: result.responses as OpenHouseLead["responses"],
+        });
     }
 
     async findLeadsByOpenHouseId(openHouseId: string) {
@@ -79,7 +132,12 @@ export class DbOpenHouseRepository implements IOpenHouseRepository {
             .where(eq(openHouseLead.openHouseId, openHouseId))
             .orderBy(openHouseLead.submittedAt);
 
-        return results.map((result) => OpenHouseLeadFactory.fromDb(result));
+        return results.map((result) =>
+            OpenHouseLeadFactory.fromDb({
+                ...result,
+                responses: result.responses as OpenHouseLead["responses"],
+            }),
+        );
     }
 
     async findLeadsByOpenHouseIdAndOrg(
@@ -97,6 +155,11 @@ export class DbOpenHouseRepository implements IOpenHouseRepository {
             )
             .orderBy(openHouseLead.submittedAt);
 
-        return results.map((result) => OpenHouseLeadFactory.fromDb(result));
+        return results.map((result) =>
+            OpenHouseLeadFactory.fromDb({
+                ...result,
+                responses: result.responses as OpenHouseLead["responses"],
+            }),
+        );
     }
 }

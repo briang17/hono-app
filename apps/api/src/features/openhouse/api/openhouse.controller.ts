@@ -1,4 +1,5 @@
 import { codes } from "@config/constants";
+import { DbFormConfigRepository } from "@formconfig/infra/db.form-config.repository";
 import type { AppContext, AuthContext } from "@lib/types";
 import { HTTPException } from "hono/http-exception";
 import { DbOpenHouseRepository } from "../infra/db.openhouse.repository";
@@ -13,7 +14,8 @@ import type {
 } from "./openhouse.schemas";
 
 const repository = new DbOpenHouseRepository();
-const service = new OpenHouseService(repository);
+const formConfigRepository = new DbFormConfigRepository();
+const service = new OpenHouseService(repository, formConfigRepository);
 
 export const openhouseController = {
     createOpenHouse: async (c: AuthContext<CreateOpenHouseCtx>) => {
@@ -73,7 +75,7 @@ export const openhouseController = {
 
     getPublicOpenHouse: async (c: AppContext<GetPublicOpenHouseCtx>) => {
         const { id } = c.req.valid("param");
-        const openHouse = await service.getPublicOpenHouse(id);
+        const openHouse = await service.getPublicOpenHouseWithFormConfig(id);
 
         if (!openHouse) {
             throw new HTTPException(codes.NOT_FOUND, {
@@ -95,13 +97,23 @@ export const openhouseController = {
         }
 
         const data = c.req.valid("json");
-        const lead = await service.createOpenHouseLead(
-            openHouseId,
-            data,
-            openHouse.organizationId,
-        );
 
-        return c.json({ data: lead }, codes.CREATED);
+        try {
+            const lead = await service.createOpenHouseLead(
+                openHouseId,
+                data,
+                openHouse.organizationId,
+            );
+
+            return c.json({ data: lead }, codes.CREATED);
+        } catch (error) {
+            if (error instanceof HTTPException) {
+                throw error;
+            }
+            throw new HTTPException(codes.INTERNAL_SERVER_ERROR, {
+                message: "Failed to create lead",
+            });
+        }
     },
 
     getOpenHouseLeads: async (c: AuthContext<GetOpenHouseLeadsCtx>) => {

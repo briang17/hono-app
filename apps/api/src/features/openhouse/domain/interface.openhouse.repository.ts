@@ -1,5 +1,9 @@
 import type { Id } from "@features/common/values";
-import type { OpenHouse, OpenHouseLead } from "./openhouse.entity";
+import type {
+    OpenHouse,
+    OpenHouseLead,
+    PublicOpenHouse,
+} from "./openhouse.entity";
 
 export interface IOpenHouseRepository {
     create(params: OpenHouse): Promise<OpenHouse>;
@@ -9,6 +13,8 @@ export interface IOpenHouseRepository {
     findByOrgAndUser(organizationId: Id, userId: Id): Promise<OpenHouse[]>;
 
     findPublicById(id: Id): Promise<OpenHouse | null>;
+
+    findPublicByIdWithFormConfig(id: Id): Promise<PublicOpenHouse | null>;
 
     createLead(params: OpenHouseLead): Promise<OpenHouseLead>;
 
