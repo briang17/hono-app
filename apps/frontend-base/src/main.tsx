@@ -1,14 +1,26 @@
 import { QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { createRouter, RouterProvider } from '@tanstack/react-router'
-import { StrictMode, useEffect } from 'react'
+import { StrictMode } from 'react'
 import ReactDOM from 'react-dom/client'
 import { routeTree } from './routeTree.gen'
 import './index.css'
+import { authClient } from './lib/api/auth-client'
 import { queryClient } from './lib/react-query'
-import { useAuthStore } from './lib/stores/authStore'
 
-const router = createRouter({ routeTree, context: { auth: null, queryClient: queryClient } })
+const router = createRouter({
+    routeTree,
+    context: {
+        session: {
+            data: null,
+            isPending: true,
+            isRefetching: false,
+            error: null,
+            refetch: async () => {},
+        },
+        queryClient,
+    },
+})
 
 declare module '@tanstack/react-router' {
     interface Register {
@@ -16,22 +28,16 @@ declare module '@tanstack/react-router' {
     }
 }
 
-const App = () => {
-    const auth = useAuthStore()
+function InnerApp() {
+    const session = authClient.useSession()
 
-    useEffect(() => {
-        router.invalidate();
-    }, [auth.isAuthenticated])
+    return <RouterProvider router={router} context={{ session, queryClient }} />
+}
 
-    useEffect(() => {
-        if(!auth.session?.activeOrganizationId) {
-            router.invalidate();
-        }
-    }, [auth.session?.activeOrganizationId])
-
+function App() {
     return (
         <QueryClientProvider client={queryClient}>
-            <RouterProvider router={router} context={{ auth }} />
+            <InnerApp />
             <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>
     )

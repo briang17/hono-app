@@ -25,7 +25,8 @@
     "noUncheckedSideEffectImports": true,
     "baseUrl": "./",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@packages/auth": ["../../packages/auth/index.ts"]
     }
   },
   "include": ["src", "src/test/setup.ts"],

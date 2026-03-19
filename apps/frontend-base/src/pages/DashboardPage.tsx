@@ -1,10 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { authClient } from '@/lib/api/auth-client'
 import { useTasks } from '@/lib/queries/useTasks'
 import { cn } from '@/lib/utils'
-import { useAuthStore } from '@/lib/stores/authStore'
 
 export function DashboardPage() {
-    const user = useAuthStore((state) => state.user)
+    const { data: session } = authClient.useSession()
     const { data: tasks } = useTasks()
 
     const stats = {
@@ -45,7 +45,9 @@ export function DashboardPage() {
         <div className="w-full space-y-8">
             <div>
                 <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-                <p className="text-muted-foreground mt-1">Welcome back, {user?.email || 'User'}!</p>
+                <p className="text-muted-foreground mt-1">
+                    Welcome back, {session?.user?.email || 'User'}!
+                </p>
             </div>
 
             <div className="grid w-full gap-4 sm:grid-cols-2 lg:grid-cols-4">

@@ -32,7 +32,7 @@ export function TaskDetailError() {
 }
 
 export function TaskDetailPage() {
-    const routeApi = getRouteApi('/(protected)/tasks/$taskId')
+    const routeApi = getRouteApi('/(protected)/(organization)/tasks/$taskId')
     const navigate = useNavigate()
 
     const { taskId } = routeApi.useParams()

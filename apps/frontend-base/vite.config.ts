@@ -20,6 +20,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      '@packages/auth': path.resolve(__dirname, '../../packages/auth/index.ts'),
     },
   },
   server: {

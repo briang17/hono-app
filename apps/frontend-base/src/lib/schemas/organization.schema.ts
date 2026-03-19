@@ -1,24 +1,35 @@
-import {z} from 'zod/v4';
+import { z } from 'zod/v4'
+import { authClient } from '@/lib/api/auth-client';
 
-export const OrganizationSchema = z.object({
+export const organizationSchema = z.object({
     id: z.uuid(),
-    name: z.string().min(2, "Name is required"),
-    logoUrl: z.url()
+    name: z
+        .string()
+        .min(2, 'Organization name must be at least 2 characters'),
+    slug: z
+        .string()
+        .min(2, 'Slug must be at least 2 characters')
+        .regex(/^[a-z0-9-]+$/, 'Slug can only contain lowercase letters, numbers, and hyphens'),
+    createdAt: z.date(),
+    logo: z.url('Invalid URL format').nullish(),
+    metadata: z.any().optional()
 })
 
-export const CreateOrgSchema = OrganizationSchema.pick({
+export const orgSchema = {
+    create: organizationSchema.pick({
     name: true,
-    logoUrl: true
-}).partial({
-    logoUrl: true
+    slug: true,
+    logo: true
+})
+}
+
+export const createOrganizationSchema = organizationSchema.pick({
+    name: true,
+    slug: true,
+    logo: true
 })
 
-export const UpdateOrgSchema = OrganizationSchema.pick({
-    name: true,
-    logoUrl: true
-}).partial()
+export type CreateOrganizationInput = z.infer<typeof createOrganizationSchema>
 
-export type Organization = z.infer<typeof OrganizationSchema>;
+export type Organization = typeof authClient.$Infer.Organization
 
-export type CreateOrgInput = z.infer<typeof CreateOrgSchema>;
-export type UpdateOrgInput = z.infer<typeof UpdateOrgSchema>;

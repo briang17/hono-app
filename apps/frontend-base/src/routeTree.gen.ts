@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as protectedRouteRouteImport } from './routes/(protected)/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthIndexRouteImport } from './routes/auth/index'
+import { Route as AuthSignUpRouteImport } from './routes/auth/sign-up'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as protectedCreateOrganizationRouteImport } from './routes/(protected)/create-organization'
 import { Route as protectedorganizationRouteRouteImport } from './routes/(protected)/(organization)/route'
@@ -31,6 +32,11 @@ const IndexRoute = IndexRouteImport.update({
 const AuthIndexRoute = AuthIndexRouteImport.update({
   id: '/auth/',
   path: '/auth/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthSignUpRoute = AuthSignUpRouteImport.update({
+  id: '/auth/sign-up',
+  path: '/auth/sign-up',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthLoginRoute = AuthLoginRouteImport.update({
@@ -72,6 +78,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/create-organization': typeof protectedCreateOrganizationRoute
   '/auth/login': typeof AuthLoginRoute
+  '/auth/sign-up': typeof AuthSignUpRoute
   '/auth/': typeof AuthIndexRoute
   '/dashboard': typeof protectedorganizationDashboardRoute
   '/tasks/$taskId': typeof protectedorganizationTasksTaskIdRoute
@@ -81,6 +88,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/create-organization': typeof protectedCreateOrganizationRoute
   '/auth/login': typeof AuthLoginRoute
+  '/auth/sign-up': typeof AuthSignUpRoute
   '/auth': typeof AuthIndexRoute
   '/dashboard': typeof protectedorganizationDashboardRoute
   '/tasks/$taskId': typeof protectedorganizationTasksTaskIdRoute
@@ -93,6 +101,7 @@ export interface FileRoutesById {
   '/(protected)/(organization)': typeof protectedorganizationRouteRouteWithChildren
   '/(protected)/create-organization': typeof protectedCreateOrganizationRoute
   '/auth/login': typeof AuthLoginRoute
+  '/auth/sign-up': typeof AuthSignUpRoute
   '/auth/': typeof AuthIndexRoute
   '/(protected)/(organization)/dashboard': typeof protectedorganizationDashboardRoute
   '/(protected)/(organization)/tasks/$taskId': typeof protectedorganizationTasksTaskIdRoute
@@ -104,6 +113,7 @@ export interface FileRouteTypes {
     | '/'
     | '/create-organization'
     | '/auth/login'
+    | '/auth/sign-up'
     | '/auth/'
     | '/dashboard'
     | '/tasks/$taskId'
@@ -113,6 +123,7 @@ export interface FileRouteTypes {
     | '/'
     | '/create-organization'
     | '/auth/login'
+    | '/auth/sign-up'
     | '/auth'
     | '/dashboard'
     | '/tasks/$taskId'
@@ -124,6 +135,7 @@ export interface FileRouteTypes {
     | '/(protected)/(organization)'
     | '/(protected)/create-organization'
     | '/auth/login'
+    | '/auth/sign-up'
     | '/auth/'
     | '/(protected)/(organization)/dashboard'
     | '/(protected)/(organization)/tasks/$taskId'
@@ -134,6 +146,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   protectedRouteRoute: typeof protectedRouteRouteWithChildren
   AuthLoginRoute: typeof AuthLoginRoute
+  AuthSignUpRoute: typeof AuthSignUpRoute
   AuthIndexRoute: typeof AuthIndexRoute
 }
 
@@ -158,6 +171,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth/'
       preLoaderRoute: typeof AuthIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/sign-up': {
+      id: '/auth/sign-up'
+      path: '/auth/sign-up'
+      fullPath: '/auth/sign-up'
+      preLoaderRoute: typeof AuthSignUpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/login': {
@@ -242,6 +262,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   protectedRouteRoute: protectedRouteRouteWithChildren,
   AuthLoginRoute: AuthLoginRoute,
+  AuthSignUpRoute: AuthSignUpRoute,
   AuthIndexRoute: AuthIndexRoute,
 }
 export const routeTree = rootRouteImport

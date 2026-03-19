@@ -1,4 +1,5 @@
 import { z } from 'zod/v4'
+import type { authClient } from '@/lib/api/auth-client'
 
 export const authSchema = {
     signIn: z.object({
@@ -19,17 +20,7 @@ export const authSchema = {
         }),
 }
 
-export const userSchema = z.object({
-    id: z.string(),
-    email: z.email(),
-})
-
-export const sessionSchema = z.object({
-    id: z.string(),
-    activeOrganizationId: z.string().nullish(),
-})
-
-export type User = z.infer<typeof userSchema>
-export type Session = z.infer<typeof sessionSchema>
+export type User = typeof authClient.$Infer.Session.user
+export type Session = typeof authClient.$Infer.Session.session
 export type SignInInput = z.infer<typeof authSchema.signIn>
 export type SignUpInput = z.infer<typeof authSchema.signUp>
