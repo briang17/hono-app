@@ -1,5 +1,4 @@
-// Hono client setup (placeholder for future backend integration)
-// For now, we'll use mock data in individual API modules
-export const honoClient = {
-    // Configure Hono client here when backend is ready
-}
+import type { AppType } from '@apps/api/src'
+import { hc } from 'hono/client'
+
+const apiClient = hc<AppType>('https://api.rs.hauntednuke.com/')

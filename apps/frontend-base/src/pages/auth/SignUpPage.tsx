@@ -11,7 +11,7 @@ export function SignUpPage() {
     const routeApi = getRouteApi('/auth/sign-up')
     const { redirect } = routeApi.useSearch()
     const navigate = useNavigate()
-    const {refetch} = authClient.useSession();
+    const { refetch } = authClient.useSession()
 
     const form = useForm({
         defaultValues: {
@@ -32,7 +32,7 @@ export function SignUpPage() {
                     throw new Error(err.message ?? 'Sign up failed')
                 }
 
-                await refetch();
+                await refetch()
             },
         },
         onSubmit: () => {

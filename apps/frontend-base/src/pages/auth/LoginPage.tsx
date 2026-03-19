@@ -11,7 +11,7 @@ export function LoginPage() {
     const routeApi = getRouteApi('/auth/login')
     const { redirect } = routeApi.useSearch()
     const navigate = useNavigate()
-    const {refetch} = authClient.useSession();
+    const { refetch } = authClient.useSession()
 
     const form = useForm({
         defaultValues: {
@@ -28,7 +28,7 @@ export function LoginPage() {
                 if (err) {
                     throw new Error(err.message ?? 'Login failed')
                 }
-                await refetch();
+                await refetch()
             },
         },
         onSubmit: () => {

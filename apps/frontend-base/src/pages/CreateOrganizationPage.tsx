@@ -6,17 +6,23 @@ import { Field, FieldError } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { authClient } from '@/lib/api/auth-client'
-import { type CreateOrganizationInput, createOrganizationSchema, orgSchema } from '@/lib/schemas/organization.schema'
+import {
+    type CreateOrganizationInput,
+    createOrganizationSchema,
+    orgSchema,
+} from '@/lib/schemas/organization.schema'
 import { isFieldInvalid } from '@/lib/utils'
 
 export function CreateOrganizationPage() {
     const routeApi = getRouteApi('/(protected)/create-organization')
     const { redirect } = routeApi.useSearch()
     const navigate = useNavigate()
-    const {refetch} = authClient.useSession();
+    const { refetch } = authClient.useSession()
 
     const defaultOrg: CreateOrganizationInput = {
-        name: '', slug: '', logo: undefined
+        name: '',
+        slug: '',
+        logo: undefined,
     }
 
     const form = useForm({
@@ -32,7 +38,7 @@ export function CreateOrganizationPage() {
                 if (err) {
                     throw new Error(err.message ?? 'Failed to create organization')
                 }
-                await refetch();
+                await refetch()
             },
         },
         onSubmit: async () => {

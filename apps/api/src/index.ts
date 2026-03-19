@@ -6,7 +6,6 @@ import {
 } from "@features/openhouse/api/openhouse.routes";
 import { auth } from "@packages/auth";
 import { Hono } from "hono";
-import { hc } from "hono/client";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
 
