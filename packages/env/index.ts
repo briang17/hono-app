@@ -1,4 +1,4 @@
-import { InfisicalSDK, Secret } from "@infisical/sdk";
+import { InfisicalSDK, type Secret } from "@infisical/sdk";
 import dotenv from "dotenv";
 import { z } from "zod/v4";
 

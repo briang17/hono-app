@@ -25,7 +25,7 @@ export const auth = betterAuth({
     plugins: [organization(), admin(), openAPI()],
     advanced: {
         database: {
-            generateId: () => Bun.randomUUIDv7()
+            generateId: () => crypto.randomUUID()
         },
     },
     trustedOrigins: ["https://app.rs.hauntednuke.com"],
