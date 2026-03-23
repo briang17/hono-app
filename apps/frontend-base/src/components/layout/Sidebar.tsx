@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { ChartLine, ListChecks } from 'lucide-react'
+import { ChartLine, Home, ListChecks } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface SidebarProps {
@@ -10,6 +10,7 @@ export function Sidebar({ className }: SidebarProps) {
     const navItems = [
         { to: '/dashboard', label: 'Dashboard', icon: ChartLine },
         { to: '/tasks', label: 'Tasks', icon: ListChecks },
+        { to: '/openhouse', label: 'Open Houses', icon: Home },
     ]
 
     return (

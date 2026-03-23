@@ -1,1 +1,0 @@
-ALTER TABLE "open_house" ALTER COLUMN "listing_price" SET DATA TYPE numeric(12, 2);

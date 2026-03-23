@@ -26,8 +26,17 @@
     "baseUrl": "./",
     "paths": {
       "@/*": ["src/*"],
-      "@packages/auth": ["../../packages/auth/index.ts"]
+      "@packages/auth": ["../../packages/auth/index.ts"],
+      "@features/*": ["../api/src/features/*"],
+      "@middlewares/*": ["../api/src/middlewares/*"],
+      "@lib/*": ["./src/lib/*", "../api/src/lib/*"],
+      "@config/*": ["../api/src/config/*"],
+      "@openhouse/*": ["../api/src/features/openhouse/*"],
+      "@formconfig/*": ["../api/src/features/form-config/*"]
     }
   },
   "include": ["src", "src/test/setup.ts"],
+  "references": [
+    { "path": "../api/tsconfig.json" }
+  ]
 }

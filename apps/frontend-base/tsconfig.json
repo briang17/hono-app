@@ -1,13 +1,42 @@
 {
   "files": [],
   "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.node.json"
+    },
+    {
+      "path": "../api/tsconfig.json"
+    }
   ],
   "compilerOptions": {
+    "strict": true,
     "baseUrl": "./",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": [
+        "src/*"
+      ],
+      "@features/*": [
+        "../api/src/features/*"
+      ],
+      "@middlewares/*": [
+        "../api/src/middlewares/*"
+      ],
+      "@lib/*": [
+        "./src/lib/*",
+        "../api/src/lib/*"
+      ],
+      "@config/*": [
+        "../api/src/config/*"
+      ],
+      "@openhouse/*": [
+        "../api/src/features/openhouse/*"
+      ],
+      "@formconfig/*": [
+        "../api/src/features/form-config/*"
+      ]
     }
   }
 }

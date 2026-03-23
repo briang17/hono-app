@@ -22,6 +22,9 @@
             "@apps/api": [
                 "./apps/api/*"
             ],
+            "@apps/api/*": [
+                "./apps/api/src/*"
+            ],
             "@apps/web": [
                 "./apps/web/*"
             ]

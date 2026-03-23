@@ -24,6 +24,7 @@ export const user = pgTable("user", {
 	banned: boolean("banned").default(false),
 	banReason: text("ban_reason"),
 	banExpires: timestamp("ban_expires"),
+	defaultOrganizationId: uuid("default_organization_id").references(()=> organization.id, {onDelete: "set null"})
 });
 
 export const session = pgTable(
@@ -141,11 +142,15 @@ export const invitation = pgTable(
 	],
 );
 
-export const userRelations = relations(user, ({ many }) => ({
+export const userRelations = relations(user, ({ many, one }) => ({
 	sessions: many(session),
 	accounts: many(account),
 	members: many(member),
 	invitations: many(invitation),
+	defaultOrganization: one(organization, {
+		fields: [user.defaultOrganizationId],
+		references: [organization.id]
+	})
 }));
 
 export const sessionRelations = relations(session, ({ one }) => ({

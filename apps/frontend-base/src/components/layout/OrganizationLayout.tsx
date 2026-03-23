@@ -1,14 +1,28 @@
 import { Outlet } from '@tanstack/react-router'
+import { cn } from '@/lib/utils'
 import { Sidebar } from './Sidebar'
 import { TopBar } from './TopBar'
+import { authClient } from '@/lib/api';
 
 export function OrganizationLayout() {
+    const { isPending } = authClient.useSession()
+    
+    if (isPending) {
+        return <div className="flex h-screen items-center justify-center">Loading...</div>
+    }
+
     return (
         <div className="flex h-screen w-full flex-col bg-background">
             <TopBar />
             <div className="flex flex-1 w-full overflow-hidden">
-                <Sidebar />
-                <main className="flex-1 w-full min-w-0 overflow-y-auto p-6 lg:p-8">
+                <aside
+                    className={cn(
+                        'hidden lg:flex border-r border-border transition-all duration-200',
+                    )}
+                >
+                    <Sidebar />
+                </aside>
+                <main className="flex-1 w-full min-w-0 overflow-y-auto p-4 sm:p-6 lg:p-8">
                     <Outlet />
                 </main>
             </div>

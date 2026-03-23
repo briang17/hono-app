@@ -1,8 +1,9 @@
 import type { ToCtx } from "@lib/types";
 import {
-    type NewOpenHouseLeadInput,
-    type NewOpenHouseSchema,
+    NewOpenHouseSchema,
     OpenHouseSchema,
+    NewOpenHouseLeadSchema,
+    OpenHouseLeadSchema
 } from "@openhouse/domain/openhouse.entity";
 import { z } from "zod";
 
@@ -61,7 +62,7 @@ export type GetPublicOpenHouseCtx = ToCtx<
 export const CreateOpenHouseLeadParamsSchema = z.object({
     id: OpenHouseSchema.shape.id,
 });
-export type CreateOpenHouseLeadInput = z.infer<typeof NewOpenHouseLeadInput>;
+export type CreateOpenHouseLeadInput = z.infer<typeof NewOpenHouseLeadSchema>;
 type CreateOpenHouseLeadParams = z.infer<
     typeof CreateOpenHouseLeadParamsSchema
 >;

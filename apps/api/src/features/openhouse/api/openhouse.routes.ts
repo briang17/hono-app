@@ -1,17 +1,14 @@
 import { zValidator } from "@hono/zod-validator";
 import { authMiddleware } from "@middlewares/auth.middleware";
 import {
-    CreateOpenHouseLeadParamsSchema,
     GetOpenHouseLeadsParamsSchema,
     GetOpenHouseParamsSchema,
     GetPublicOpenHouseParamsSchema,
 } from "@openhouse/api/openhouse.schemas";
-import {
-    NewOpenHouseLeadSchema,
-    NewOpenHouseSchema,
-} from "@openhouse/domain/openhouse.entity";
+import { NewOpenHouseSchema } from "@openhouse/domain/openhouse.entity";
 import { Hono } from "hono";
 import { openhouseController } from "./openhouse.controller";
+import { createOpenHouseLead } from "./openhouse.handlers";
 
 const openhouseRoutes = new Hono()
     .use(authMiddleware)
@@ -38,11 +35,6 @@ const publicOpenHouseRoutes = new Hono()
         zValidator("param", GetPublicOpenHouseParamsSchema),
         openhouseController.getPublicOpenHouse,
     )
-    .post(
-        "/:id/sign-in",
-        zValidator("param", CreateOpenHouseLeadParamsSchema),
-        zValidator("json", NewOpenHouseLeadSchema),
-        openhouseController.createOpenHouseLead,
-    );
+    .post("/:id/sign-in", ...createOpenHouseLead);
 
 export { openhouseRoutes, publicOpenHouseRoutes };

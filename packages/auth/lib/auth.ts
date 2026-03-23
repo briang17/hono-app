@@ -2,9 +2,9 @@ import { betterAuth} from "better-auth";
 import {organization, admin, openAPI} from "better-auth/plugins";
 import {drizzleAdapter} from "better-auth/adapters/drizzle";
 import {db} from "@packages/database";
-import * as authSchema from "@packages/database/src/schemas/auth.schema"
+import {eq} from "drizzle-orm";
+import * as authSchema from "@packages/database/src/schemas/auth.schema";
 import { authEnv as env } from "@packages/env";
-
 
 export const auth = betterAuth({
     basePath: "/api/auth",
@@ -23,10 +23,46 @@ export const auth = betterAuth({
         }
     },
     plugins: [organization(), admin(), openAPI()],
+    user: {
+        additionalFields: {
+            defaultOrganizationId: {
+                type: "string",
+                required: false
+            }
+        }
+    },
     advanced: {
         database: {
             generateId: () => crypto.randomUUID()
         },
+    },
+    databaseHooks: {
+        session: {
+            create: {
+                before: async (session) => {
+                    const user = authSchema.user;
+                    const activeUser = await db.select().from(user).where(eq(user.id, session.userId)).limit(1)
+                    if(activeUser[0]?.defaultOrganizationId) {
+                        return {
+                            data: {
+                                ...session,
+                                activeOrganizationId: activeUser[0].defaultOrganizationId
+                            }
+                        }
+                    }
+                    return {data:session}
+                }
+            },
+            update: {
+                after: async (session) => {
+                    const user = authSchema.user;
+                    const activeOrgId: string = (session as any).activeOrganizationId
+                    if(activeOrgId) {
+                        await db.update(user).set({defaultOrganizationId: activeOrgId}).where(eq(user.id, session.userId))
+                    }
+                }
+            }
+        }
     },
     trustedOrigins: ["https://app.rs.hauntednuke.com"],
 })

@@ -1,5 +1,7 @@
 {
 	"name": "@apps/api",
+	"main": "./index.ts",
+	"types": "./index.ts",
 	"scripts": {
 		"dev": "bun --port 3001 src/index.ts",
 		"cq": "biome check --write",

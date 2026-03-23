@@ -6,13 +6,14 @@ import {
 } from "@features/openhouse/api/openhouse.routes";
 import { auth } from "@packages/auth";
 import { Hono } from "hono";
+import { hc } from "hono/client";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
 
 const app = new Hono();
+const authRoutes = new Hono();
 
-const routes = app
-    .use(
+app.use(
         "/api/*",
         cors({
             origin: ["http://localhost:3000", "https://app.rs.hauntednuke.com"],
@@ -22,10 +23,14 @@ const routes = app
             exposeHeaders: ["Content-Length"],
             maxAge: 600,
         }),
-    )
-    .on(["POST", "GET"], "/api/auth/**", (c) => {
-        return auth.handler(c.req.raw);
-    })
+    );
+
+authRoutes.on(["POST", "GET"], "/api/auth/**", (c) => {
+    return auth.handler(c.req.raw);
+});
+
+const apiV1 = new Hono();
+const featureRoutes = apiV1
     .route("/api/open-houses", openhouseRoutes)
     .route("/api/public/open-houses", publicOpenHouseRoutes)
     .route("/api/form-config", formConfigRoutes)
@@ -54,5 +59,8 @@ const routes = app
         );
     });
 
+app.route("/", authRoutes);
+app.route("/", featureRoutes);
+
 export default app;
-export type AppType = typeof routes;
+export type AppType = typeof featureRoutes;

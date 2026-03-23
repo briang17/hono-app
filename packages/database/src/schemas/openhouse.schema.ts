@@ -20,7 +20,7 @@ export const openHouse = pgTable("open_house", {
         .references(() => user.id, { onDelete: "cascade" }),
     propertyAddress: text("property_address").notNull(),
     listingPrice: numeric("listing_price", {
-        precision: 2,
+        precision: 10,
         scale: 2,
         mode: "number",
     }).notNull(),
