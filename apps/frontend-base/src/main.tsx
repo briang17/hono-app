@@ -18,6 +18,11 @@ const router = createRouter({
             error: null,
             refetch: async () => {},
         },
+        activeMember: {
+            data: null,
+            isPending: true,
+            error: null,
+        },
         queryClient,
     },
 })
@@ -30,8 +35,9 @@ declare module '@tanstack/react-router' {
 
 function InnerApp() {
     const session = authClient.useSession()
+    const activeMember = authClient.useActiveMember()
 
-    return <RouterProvider router={router} context={{ session, queryClient }} />
+    return <RouterProvider router={router} context={{ session, activeMember, queryClient }} />
 }
 
 function App() {

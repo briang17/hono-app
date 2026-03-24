@@ -43,7 +43,7 @@ export function OpenHouseDetailPage() {
 
     const isPast =
         new Date(openHouse.date) < new Date() &&
-        !new Date(openHouse.date).toDateString() === new Date().toDateString()
+        !(new Date(openHouse.date).toDateString() === new Date().toDateString())
 
     return (
         <div className="w-full space-y-8">

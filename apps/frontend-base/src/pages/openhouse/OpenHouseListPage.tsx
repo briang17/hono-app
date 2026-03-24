@@ -15,6 +15,7 @@ import { useOpenHouses } from '@/lib/queries/openhouse'
 import type { OpenHouse } from '@/lib/schemas/openhouse.schema'
 import { CreateOpenHouseForm } from './components/CreateOpenHouseForm'
 import { OpenHouseCard } from './components/OpenHouseCard'
+import { Can } from '@/components/Can'
 
 export function OpenHouseListPage() {
     const navigate = useNavigate()
@@ -58,7 +59,10 @@ export function OpenHouseListPage() {
                 </div>
                 <Dialog open={createFormOpen} onOpenChange={setCreateFormOpen}>
                     <DialogTrigger asChild>
-                        <Button>New Open House</Button>
+                        <Can permission={{openhouse: ["view"]}} fallback={(<p></p>)}>
+
+                            <Button>New Open House</Button>
+                        </Can>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-[500px]">
                         <DialogHeader>

@@ -11,6 +11,12 @@ export type AuthEnv = HonoEnv & {
     };
 };
 
+export type OrgEnv = AuthEnv & {
+    Variables: {
+        organizationId: string;
+    };
+};
+
 type ValidationMap = {
     json?: object;
     param?: object;

@@ -1,6 +1,8 @@
 import { codes } from "@config/constants";
 import { DbFormConfigRepository } from "@formconfig/infra/db.form-config.repository";
-import type { AppContext, AuthContext } from "@lib/types";
+import type { AppContext } from "@lib/types";
+import type { OrgVariables } from "@middlewares/org.middleware";
+import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { DbOpenHouseRepository } from "../infra/db.openhouse.repository";
 import { OpenHouseService } from "../service/openhouse.service";
@@ -13,21 +15,20 @@ import type {
     GetPublicOpenHouseCtx,
 } from "./openhouse.schemas";
 
+type OrgAuthContext<V extends Record<string, unknown> = object> = Context<
+    { Variables: OrgVariables },
+    string,
+    V
+>;
+
 const repository = new DbOpenHouseRepository();
 const formConfigRepository = new DbFormConfigRepository();
 const service = new OpenHouseService(repository, formConfigRepository);
 
 export const openhouseController = {
-    createOpenHouse: async (c: AuthContext<CreateOpenHouseCtx>) => {
+    createOpenHouse: async (c: OrgAuthContext<CreateOpenHouseCtx>) => {
         const userId = c.get("session").userId;
-        const organizationId = c.get("session").activeOrganizationId;
-
-        if (!organizationId) {
-            //LoggerService.traceRequest().info(`request with user without organizationId:`)
-            throw new HTTPException(codes.UNAUTHORIZED, {
-                message: "Unauthorized",
-            });
-        }
+        const organizationId = c.get("organizationId");
 
         const data = c.req.valid("json");
 
@@ -40,26 +41,16 @@ export const openhouseController = {
         return c.json({ data: openHouse }, codes.CREATED);
     },
 
-    getOpenHouses: async (c: AuthContext<GetOpenHousesCtx>) => {
+    getOpenHouses: async (c: OrgAuthContext<GetOpenHousesCtx>) => {
         const userId = c.get("session").userId;
-        const organizationId = c.get("session").activeOrganizationId;
+        const organizationId = c.get("organizationId");
 
-        if (!organizationId) {
-            throw new HTTPException(codes.UNAUTHORIZED, {
-                message: "Unauthorized",
-            });
-        }
         const openHouses = await service.getOpenHouses(organizationId, userId);
         return c.json({ data: openHouses });
     },
 
-    getOpenHouse: async (c: AuthContext<GetOpenHouseCtx>) => {
-        const organizationId = c.get("session").activeOrganizationId;
-        if (!organizationId) {
-            throw new HTTPException(codes.UNAUTHORIZED, {
-                message: "Unauthorized",
-            });
-        }
+    getOpenHouse: async (c: OrgAuthContext<GetOpenHouseCtx>) => {
+        const organizationId = c.get("organizationId");
 
         const { id } = c.req.valid("param");
 
@@ -116,14 +107,8 @@ export const openhouseController = {
         }
     },
 
-    getOpenHouseLeads: async (c: AuthContext<GetOpenHouseLeadsCtx>) => {
-        const organizationId = c.get("session").activeOrganizationId;
-
-        if (!organizationId) {
-            throw new HTTPException(codes.UNAUTHORIZED, {
-                message: "Unauthorized",
-            });
-        }
+    getOpenHouseLeads: async (c: OrgAuthContext<GetOpenHouseLeadsCtx>) => {
+        const organizationId = c.get("organizationId");
 
         const { id } = c.req.valid("param");
         const leads = await service.getOpenHouseLeadsOrg(id, organizationId);

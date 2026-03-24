@@ -27,6 +27,7 @@
     "paths": {
       "@/*": ["src/*"],
       "@packages/auth": ["../../packages/auth/index.ts"],
+      "@packages/auth/client": ["../../packages/auth/client"],
       "@features/*": ["../api/src/features/*"],
       "@middlewares/*": ["../api/src/middlewares/*"],
       "@lib/*": ["./src/lib/*", "../api/src/lib/*"],

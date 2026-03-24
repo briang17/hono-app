@@ -1,9 +1,8 @@
 import type { ToCtx } from "@lib/types";
 import {
-    NewOpenHouseSchema,
+    type NewOpenHouseLeadSchema,
+    type NewOpenHouseSchema,
     OpenHouseSchema,
-    NewOpenHouseLeadSchema,
-    OpenHouseLeadSchema
 } from "@openhouse/domain/openhouse.entity";
 import { z } from "zod";
 

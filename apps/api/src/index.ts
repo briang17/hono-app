@@ -6,7 +6,6 @@ import {
 } from "@features/openhouse/api/openhouse.routes";
 import { auth } from "@packages/auth";
 import { Hono } from "hono";
-import { hc } from "hono/client";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
 
@@ -14,16 +13,16 @@ const app = new Hono();
 const authRoutes = new Hono();
 
 app.use(
-        "/api/*",
-        cors({
-            origin: ["http://localhost:3000", "https://app.rs.hauntednuke.com"],
-            credentials: true,
-            allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-            allowHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
-            exposeHeaders: ["Content-Length"],
-            maxAge: 600,
-        }),
-    );
+    "/api/*",
+    cors({
+        origin: ["http://localhost:3000", "https://app.rs.hauntednuke.com"],
+        credentials: true,
+        allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allowHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+        exposeHeaders: ["Content-Length"],
+        maxAge: 600,
+    }),
+);
 
 authRoutes.on(["POST", "GET"], "/api/auth/**", (c) => {
     return auth.handler(c.req.raw);

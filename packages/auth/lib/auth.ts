@@ -5,6 +5,7 @@ import {db} from "@packages/database";
 import {eq} from "drizzle-orm";
 import * as authSchema from "@packages/database/src/schemas/auth.schema";
 import { authEnv as env } from "@packages/env";
+import { ac, owner, admin as adminRole, agent } from "./permissions";
 
 export const auth = betterAuth({
     basePath: "/api/auth",
@@ -22,7 +23,14 @@ export const auth = betterAuth({
             clientSecret: env.GITHUB_CLIENT_SECRET
         }
     },
-    plugins: [organization(), admin(), openAPI()],
+    plugins: [organization({
+        ac,
+        roles: {
+            owner,
+            admin: adminRole,
+            agent
+        }
+    }), admin(), openAPI()],
     user: {
         additionalFields: {
             defaultOrganizationId: {

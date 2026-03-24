@@ -1,5 +1,7 @@
 import { zValidator } from "@hono/zod-validator";
 import { authMiddleware } from "@middlewares/auth.middleware";
+import { orgMiddleware } from "@middlewares/org.middleware";
+import { rbacMiddleware } from "@middlewares/rbac.middleware";
 import {
     GetOpenHouseLeadsParamsSchema,
     GetOpenHouseParamsSchema,
@@ -12,20 +14,28 @@ import { createOpenHouseLead } from "./openhouse.handlers";
 
 const openhouseRoutes = new Hono()
     .use(authMiddleware)
-    .get("/", openhouseController.getOpenHouses)
+    .use(orgMiddleware)
+    .get(
+        "/",
+        rbacMiddleware({ openhouse: ["view"] }),
+        openhouseController.getOpenHouses,
+    )
     .get(
         "/:id",
         zValidator("param", GetOpenHouseParamsSchema),
+        rbacMiddleware({ openhouse: ["view"] }),
         openhouseController.getOpenHouse,
     )
     .get(
         "/:id/leads",
         zValidator("param", GetOpenHouseLeadsParamsSchema),
+        rbacMiddleware({ lead: ["view"] }),
         openhouseController.getOpenHouseLeads,
     )
     .post(
         "/",
         zValidator("json", NewOpenHouseSchema),
+        rbacMiddleware({ openhouse: ["create"] }),
         openhouseController.createOpenHouse,
     );
 
