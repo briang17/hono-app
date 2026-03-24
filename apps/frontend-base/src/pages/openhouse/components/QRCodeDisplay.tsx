@@ -3,6 +3,7 @@ import { Download, Printer } from 'lucide-react'
 import QRCode from 'qrcode'
 import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { OpenHouse } from '@/lib/schemas/openhouse.schema'
 import { formatCurrency } from '@/lib/utils'
 
@@ -13,23 +14,21 @@ interface QRCodeDisplayProps {
 
 export function QRCodeDisplay({ url, openHouse }: QRCodeDisplayProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null)
-    const [_qrDataUrl, setQrDataUrl] = useState<string>('')
+    const [qrGenerated, setQrGenerated] = useState(false)
 
     useEffect(() => {
         const generateQR = async () => {
             if (canvasRef.current) {
                 try {
-                    const _dataUrl = await QRCode.toCanvas(canvasRef.current, url, {
+                    await QRCode.toCanvas(canvasRef.current, url, {
                         width: 256,
                         margin: 2,
                         color: {
-                            dark: '#000000',
-                            light: '#FFFFFF',
+                            dark: '#0F2B5B',
+                            light: '#ffffff',
                         },
                     })
-                    if (canvasRef.current) {
-                        setQrDataUrl(canvasRef.current.toDataURL())
-                    }
+                    setQrGenerated(true)
                 } catch (error) {
                     console.error('Failed to generate QR code:', error)
                 }
@@ -51,73 +50,211 @@ export function QRCodeDisplay({ url, openHouse }: QRCodeDisplayProps) {
         if (!canvasRef.current) return
         const printWindow = window.open('', '_blank')
         if (printWindow) {
-            printWindow.document.write(`
+            const flyerHTML = `
+                <!DOCTYPE html>
                 <html>
-                    <head>
-                        <title>Open House Flyer - ${openHouse.propertyAddress}</title>
-                        <style>
-                            body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; }
-                            h1 { text-align: center; margin-bottom: 10px; }
-                            .address { text-align: center; font-size: 18px; margin-bottom: 20px; }
-                            .details { display: flex; justify-content: space-around; margin-bottom: 30px; }
-                            .detail { text-align: center; }
-                            .price { font-size: 28px; font-weight: bold; }
-                            .qr-container { text-align: center; margin-top: 40px; }
-                            .qr-label { margin-top: 10px; font-size: 14px; color: #666; }
-                        </style>
-                    </head>
-                    <body>
-                        <h1>Open House</h1>
-                        <div class="address">${openHouse.propertyAddress}</div>
-                        <div class="details">
-                            <div class="detail">
-                                <strong>Date</strong><br/>
-                                ${format(new Date(openHouse.date), 'MMMM d, yyyy')}
-                            </div>
-                            <div class="detail">
-                                <strong>Time</strong><br/>
-                                ${openHouse.startTime} - ${openHouse.endTime}
-                            </div>
-                            <div class="detail">
-                                <strong>Price</strong><br/>
-                                <span class="price">${formatCurrency(openHouse.listingPrice)}</span>
-                            </div>
+                  <head>
+                    <title>Open House Flyer - ${openHouse.propertyAddress}</title>
+                    <style>
+                      * {
+                        margin: 0;
+                        padding: 0;
+                        box-sizing: border-box;
+                      }
+                      body {
+                        font-family: 'Helvetica Neue', Arial, sans-serif;
+                        padding: 60px;
+                        max-width: 800px;
+                        margin: 0 auto;
+                        text-align: center;
+                        background-color: #f8f8f8;
+                      }
+                      .flyer-container {
+                        background: white;
+                        border: 3px solid #0F2B5B;
+                        border-radius: 8px;
+                        padding: 40px;
+                        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                      }
+                      .header {
+                        border-bottom: 3px solid #D0AC61;
+                        padding-bottom: 30px;
+                        margin-bottom: 30px;
+                      }
+                      h1 {
+                        color: #0F2B5B;
+                        font-size: 48px;
+                        font-weight: 700;
+                        letter-spacing: -1px;
+                        margin-bottom: 10px;
+                      }
+                      .address {
+                        color: #0F2B5B;
+                        font-size: 24px;
+                        font-weight: 500;
+                      }
+                      .details-grid {
+                        display: grid;
+                        grid-template-columns: repeat(3, 1fr);
+                        gap: 20px;
+                        margin-bottom: 30px;
+                      }
+                      .detail-item {
+                        padding: 15px;
+                        background: #f5f5f5;
+                        border-radius: 4px;
+                      }
+                      .detail-label {
+                        color: #666;
+                        font-size: 14px;
+                        text-transform: uppercase;
+                        letter-spacing: 1px;
+                        margin-bottom: 8px;
+                      }
+                      .detail-value {
+                        color: #0F2B5B;
+                        font-size: 20px;
+                        font-weight: 600;
+                      }
+                      .price-value {
+                        color: #D0AC61;
+                        font-size: 24px;
+                        font-weight: 700;
+                      }
+                      .qr-container {
+                        margin: 40px auto;
+                        padding: 20px;
+                        border: 2px solid #D0AC61;
+                        border-radius: 8px;
+                        background: white;
+                        display: inline-block;
+                      }
+                      .scan-text {
+                        color: #D0AC61;
+                        font-size: 28px;
+                        font-weight: 600;
+                        margin: 40px 0 20px;
+                        letter-spacing: 2px;
+                        text-transform: uppercase;
+                      }
+                      .footer {
+                        margin-top: 50px;
+                        color: #0F2B5B;
+                        font-size: 18px;
+                        font-weight: 500;
+                      }
+                      @media print {
+                        body {
+                          padding: 20px;
+                        }
+                        .flyer-container {
+                          padding: 20px;
+                        }
+                        h1 {
+                          font-size: 36px;
+                        }
+                        .details-grid {
+                          grid-template-columns: 1fr;
+                          gap: 10px;
+                        }
+                      }
+                    </style>
+                  </head>
+                  <body>
+                    <div class="flyer-container">
+                      <div class="header">
+                        <h1>OPEN HOUSE</h1>
+                        <p class="address">${openHouse.propertyAddress}</p>
+                      </div>
+                      <div class="details-grid">
+                        <div class="detail-item">
+                          <div class="detail-label">Date</div>
+                          <div class="detail-value">${format(new Date(openHouse.date), 'MMMM d, yyyy')}</div>
                         </div>
-                        <div class="qr-container">
-                            <img src="${canvasRef.current.toDataURL()}" width="256" height="256" />
-                            <div class="qr-label">Scan to sign in</div>
+                        <div class="detail-item">
+                          <div class="detail-label">Time</div>
+                          <div class="detail-value">${openHouse.startTime} - ${openHouse.endTime}</div>
                         </div>
-                    </body>
+                        <div class="detail-item">
+                          <div class="detail-label">Price</div>
+                          <div class="detail-value price-value">${formatCurrency(openHouse.listingPrice)}</div>
+                        </div>
+                      </div>
+                      <div class="qr-container">
+                        <canvas id="qr-code" width="300" height="300"></canvas>
+                      </div>
+                      <p class="scan-text">SCAN TO SIGN IN</p>
+                      <div class="footer">
+                        Paperless Sign-In
+                      </div>
+                    </div>
+                    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+                    <script>
+                      const canvas = document.getElementById('qr-code');
+                      QRCode.toCanvas(canvas, '${url}', {
+                        width: 300,
+                        margin: 2,
+                        color: {
+                          dark: '#0F2B5B',
+                          light: '#ffffff'
+                        }
+                      });
+                    </script>
+                  </body>
                 </html>
-            `)
+              `
+            printWindow.document.write(flyerHTML)
             printWindow.document.close()
-            printWindow.onload = () => {
+            setTimeout(() => {
                 printWindow.print()
-            }
+            }, 500)
         }
     }
 
     return (
         <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <Button onClick={handleDownload} variant="outline">
-                    <Download className="mr-2 h-4 w-4" />
-                    Download QR Code
-                </Button>
-                <Button onClick={handlePrint} variant="outline">
-                    <Printer className="mr-2 h-4 w-4" />
-                    Print Flyer
-                </Button>
-            </div>
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-lg text-re-navy">QR Code</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    <div className="flex justify-center">
+                        <div className="border-2 border-re-gold rounded-lg p-4">
+                            <canvas ref={canvasRef} className="block" width={256} height={256} />
+                        </div>
+                    </div>
+                    <div className="text-center text-sm text-muted-foreground">
+                        Visitors can scan this code to sign in
+                    </div>
+                </CardContent>
+            </Card>
 
-            <div className="flex flex-col items-center space-y-4">
-                <div className="p-4 bg-white rounded-lg border">
-                    <canvas ref={canvasRef} className="w-64 h-64" />
-                </div>
-                <p className="text-sm text-muted-foreground">
-                    Scan this QR code to sign in as a visitor
-                </p>
-            </div>
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-lg text-re-navy">Export Options</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                        <Button
+                            onClick={handleDownload}
+                            disabled={!qrGenerated}
+                            className="flex-1 sm:flex-none"
+                        >
+                            <Download className="w-4 h-4 mr-2" />
+                            Download QR
+                        </Button>
+                        <Button
+                            onClick={handlePrint}
+                            disabled={!qrGenerated}
+                            variant="outline"
+                            className="flex-1 sm:flex-none"
+                        >
+                            <Printer className="w-4 h-4 mr-2" />
+                            Print Flyer
+                        </Button>
+                    </div>
+                </CardContent>
+            </Card>
         </div>
     )
 }

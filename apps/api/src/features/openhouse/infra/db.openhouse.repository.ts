@@ -75,6 +75,7 @@ export class DbOpenHouseRepository implements IOpenHouseRepository {
                 startTime: openHouse.startTime,
                 endTime: openHouse.endTime,
                 formConfig: organizationFormConfig,
+                listingImageUrl: openHouse.listingImageUrl
             })
             .from(openHouse)
             .leftJoin(
@@ -105,6 +106,7 @@ export class DbOpenHouseRepository implements IOpenHouseRepository {
                       updatedAt: result.formConfig.updatedAt,
                   }
                 : null,
+                listingImageUrl: result.listingImageUrl ?? null
         };
     }
 

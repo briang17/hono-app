@@ -51,6 +51,14 @@
     --info-foreground: oklch(0.985 0 0);
     --info-hover: oklch(0.584 0.183 251.813);
 
+    /* Real Estate Premium Colors */
+    --re-gold: oklch(0.7212 0.1144 67.5);
+    --re-gold-foreground: oklch(0.2138 0.0019 286.2347);
+    --re-gold-hover: oklch(0.6762 0.1294 67.5);
+    --re-navy: oklch(0.36 0.04 267);
+    --re-navy-foreground: oklch(0.9851 0 0);
+    --re-navy-hover: oklch(0.31 0.045 267);
+
     /* Chart Colors */
     --chart-1: oklch(0.7089 0.1164 263.4216);
     --chart-2: oklch(56.306% 0.13687 262.949);
@@ -150,6 +158,14 @@
     --info-foreground: oklch(0.985 0 0);
     --info-hover: oklch(0.684 0.203 251.813);
 
+    /* Real Estate Premium Colors */
+    --re-gold: oklch(0.7212 0.1144 67.5);
+    --re-gold-foreground: oklch(0.2138 0.0019 286.2347);
+    --re-gold-hover: oklch(0.6762 0.1294 67.5);
+    --re-navy: oklch(0.36 0.04 267);
+    --re-navy-foreground: oklch(0.9851 0 0);
+    --re-navy-hover: oklch(0.31 0.045 267);
+
     /* Chart Colors */
     --chart-1: oklch(0.7089 0.1164 263.4216);
     --chart-2: oklch(0.5631 0.1369 262.949);
@@ -218,6 +234,14 @@
     --color-warning-foreground: var(--warning-foreground);
     --color-info: var(--info);
     --color-info-foreground: var(--info-foreground);
+
+    /* Real Estate Premium Colors */
+    --color-re-gold: var(--re-gold);
+    --color-re-gold-foreground: var(--re-gold-foreground);
+    --color-re-gold-hover: var(--re-gold-hover);
+    --color-re-navy: var(--re-navy);
+    --color-re-navy-foreground: var(--re-navy-foreground);
+    --color-re-navy-hover: var(--re-navy-hover);
 
     /* Chart Colors */
     --color-chart-1: var(--chart-1);

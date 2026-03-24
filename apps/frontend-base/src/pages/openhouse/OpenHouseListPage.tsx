@@ -1,3 +1,4 @@
+import { useSuspenseQuery } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { isPast, isToday } from 'date-fns'
 import { useState } from 'react'
@@ -14,11 +15,10 @@ import { useOpenHouses } from '@/lib/queries/openhouse'
 import type { OpenHouse } from '@/lib/schemas/openhouse.schema'
 import { CreateOpenHouseForm } from './components/CreateOpenHouseForm'
 import { OpenHouseCard } from './components/OpenHouseCard'
-import { useSuspenseQuery } from '@tanstack/react-query'
 
 export function OpenHouseListPage() {
     const navigate = useNavigate()
-    const { data: openhouses } = useSuspenseQuery(useOpenHouses());
+    const { data: openhouses } = useSuspenseQuery(useOpenHouses())
     const createOpenHouse = useCreateOpenHouse()
     const [createFormOpen, setCreateFormOpen] = useState(false)
 

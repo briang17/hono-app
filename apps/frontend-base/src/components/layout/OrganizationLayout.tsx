@@ -1,12 +1,12 @@
 import { Outlet } from '@tanstack/react-router'
+import { authClient } from '@/lib/api'
 import { cn } from '@/lib/utils'
 import { Sidebar } from './Sidebar'
 import { TopBar } from './TopBar'
-import { authClient } from '@/lib/api';
 
 export function OrganizationLayout() {
     const { isPending } = authClient.useSession()
-    
+
     if (isPending) {
         return <div className="flex h-screen items-center justify-center">Loading...</div>
     }

@@ -1,5 +1,5 @@
 import { format } from 'date-fns'
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, Home } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import type { OpenHouse } from '@/lib/schemas/openhouse.schema'
@@ -13,20 +13,33 @@ interface OpenHouseCardProps {
 export function OpenHouseCard({ openHouse, onClick }: OpenHouseCardProps) {
     return (
         <Card
-            className="overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+            className="overflow-hidden hover:shadow-lg hover:border-re-gold/30 transition-all duration-200 cursor-pointer group"
             onClick={onClick}
         >
-            <CardContent className="p-4 space-y-3">
-                <div>
-                    <h3 className="font-semibold text-lg line-clamp-2">
-                        {openHouse.propertyAddress}
-                    </h3>
-                    <p className="text-sm text-muted-foreground mt-1">
-                        {format(new Date(openHouse.date), 'MMMM d, yyyy')}
-                    </p>
+            <div className="relative h-48 overflow-hidden bg-muted">
+                {openHouse.listingImageUrl ? (
+                    <img
+                        src={openHouse.listingImageUrl}
+                        alt={openHouse.propertyAddress}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-muted">
+                        <Home className="h-16 w-16 text-muted-foreground/30" />
+                    </div>
+                )}
+                <div className="absolute top-3 right-3">
+                    <span className="px-3 py-1 text-xs font-medium text-white bg-re-navy/90 backdrop-blur-sm rounded-full">
+                        {format(new Date(openHouse.date), 'MMM d')}
+                    </span>
                 </div>
-                <div className="flex items-baseline gap-2">
-                    <span className="text-2xl font-bold">
+            </div>
+            <CardContent className="p-4 space-y-3">
+                <h3 className="font-semibold text-base text-re-navy line-clamp-2 group-hover:text-re-gold transition-colors">
+                    {openHouse.propertyAddress}
+                </h3>
+                <div className="flex items-baseline gap-1">
+                    <span className="text-2xl font-bold text-re-gold">
                         {formatCurrency(openHouse.listingPrice)}
                     </span>
                 </div>
@@ -35,7 +48,10 @@ export function OpenHouseCard({ openHouse, onClick }: OpenHouseCardProps) {
                 </div>
             </CardContent>
             <CardFooter className="p-4 pt-0">
-                <Button variant="ghost" className="w-full justify-between">
+                <Button
+                    variant="ghost"
+                    className="w-full justify-between hover:text-re-gold hover:bg-re-gold/10"
+                >
                     View Details
                     <ChevronRight className="h-4 w-4" />
                 </Button>

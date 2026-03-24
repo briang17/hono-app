@@ -75,6 +75,7 @@ export const PublicOpenHouseSchema = z.object({
     startTime: z.string().regex(/^\d{2}:\d{2}$/, "Invalid time format"),
     endTime: z.string().regex(/^\d{2}:\d{2}$/, "Invalid time format"),
     formConfig: FormConfigSchema.nullable(),
+    listingImageUrl: z.union([z.url().nullish(), z.literal("")]),
 });
 
 export type PublicOpenHouse = z.infer<typeof PublicOpenHouseSchema>;

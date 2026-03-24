@@ -15,7 +15,8 @@ export const openHouseSchema = z.object({
     updatedAt: z.date(),
 })
 
-export const createOpenHouseSchema = openHouseSchema.pick({
+export const createOpenHouseSchema = openHouseSchema
+    .pick({
         propertyAddress: true,
         listingPrice: true,
         date: true,
@@ -41,16 +42,18 @@ export const openHouseLeadSchema = z.object({
     submittedAt: z.date(),
 })
 
-export const createOpenHouseLeadSchema = openHouseLeadSchema.pick({
-    firstName: true,
-    lastName: true,
-    email: true,
-    phone: true,
-    workingWithAgent: true
-}).refine((data) => data.email || data.phone, {
-    message: 'Either email or phone is required',
-    path: ['email'],
-})
+export const createOpenHouseLeadSchema = openHouseLeadSchema
+    .pick({
+        firstName: true,
+        lastName: true,
+        email: true,
+        phone: true,
+        workingWithAgent: true,
+    })
+    .refine((data) => data.email || data.phone, {
+        message: 'Either email or phone is required',
+        path: ['email'],
+    })
 
 export const publicOpenHouseSchema = z.object({
     id: z.uuid(),
@@ -58,6 +61,7 @@ export const publicOpenHouseSchema = z.object({
     date: z.date(),
     startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format'),
     endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format'),
+    listingImageUrl: z.url().nullish(),
     formConfig: z.any().nullable(),
 })
 
