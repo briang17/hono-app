@@ -189,6 +189,30 @@ throw new HTTPException(404, { message: "Not found" });
 **Time Zone**
 `process.env.TZ = "UTC"` set in apps/api/src/index.ts
 
+**RBAC (Role-Based Access Control)**
+We use better-auth's native access control system (`createAccessControl` from `better-auth/plugins/access`) instead of hand-rolled permissions maps. This integrates directly with the organization plugin and avoids duplication between backend and frontend.
+
+**Backend (apps/api)**:
+- Permissions and roles are defined in `packages/auth/lib/permissions.ts` using `createAccessControl`
+- Pass `ac` and `roles` to the `organization()` plugin in `packages/auth/lib/auth.ts`
+- `orgMiddleware` validates `activeOrganizationId` in the session and sets it in context
+- `rbacMiddleware` calls `auth.api.hasPermission()` with request headers — no manual DB query needed
+- Route pattern: `app.use(authMiddleware).use(orgMiddleware).get("/", rbacMiddleware({ openhouse: ["view"] }), handler)`
+
+**Frontend (apps/frontend-base)**:
+- Pass the same `ac` and `roles` to `organizationClient({ ac, roles })` in `auth-client.ts`
+- Query active member role via `authClient.organization.getActiveMember()` (cached in router context at org layout level)
+- Use `<Can permission={{ openhouse: ["create"] }}>` component for conditional UI rendering
+- `<Can>` uses `authClient.organization.checkRolePermission()` synchronously with the role from router context
+
+**Adding New Permissions**:
+1. Add resource + actions to `statement` in `packages/auth/lib/permissions.ts`
+2. Update role permissions with `ac.newRole()`
+3. Use `rbacMiddleware({ resource: ["action"] })` in backend routes
+4. Use `<Can permission={{ resource: ["action"] }}>` in frontend
+
+*Added 2025-03-24: RBAC implementation using better-auth native AC*
+
 ---
 
 ## Database

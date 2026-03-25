@@ -17,6 +17,9 @@
 			"@formconfig/*": [
 				"src/features/form-config/*"
 			],
+			"@agent/*": [
+				"src/features/agent/*"
+			],
 			"@middlewares/*": [
 				"src/middlewares/*"
 			],

@@ -1,4 +1,3 @@
-import { useRouteContext } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 import { authClient } from '@/lib/api/auth-client'
 
@@ -8,15 +7,28 @@ interface Props {
     fallback?: ReactNode
 }
 
-export const Can = ({ permission, children, fallback = null }: Props) => {
-    const { activeMember } = useRouteContext({ strict: false })
-    const role = activeMember.data?.role ?? 'member'
+type OrgRole = 'owner' | 'admin' | 'agent'
 
+const VALID_ROLES: OrgRole[] = ['owner', 'admin', 'agent']
+
+function toOrgRole(role: string | undefined): OrgRole {
+    if (role && (VALID_ROLES as string[]).includes(role)) {
+        return role as OrgRole
+    }
+    return 'agent'
+}
+
+export const Can = ({ permission, children, fallback = null }: Props) => {
+    const activeMember = authClient.useActiveMember()
+    const role = toOrgRole(activeMember.data?.role)
+    console.log("ROLEEE IN CANN!!!");
+    console.log(role);
     const can = authClient.organization.checkRolePermission({
         permissions: permission,
         role,
     })
-
+    console.log("CAN???:", can);
+    console.log(children);
     if (can) {
         return <>{children}</>
     }

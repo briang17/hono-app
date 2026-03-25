@@ -29,7 +29,10 @@ export const auth = betterAuth({
             owner,
             admin: adminRole,
             agent
-        }
+        },
+        async sendInvitationEmail(data) {
+            console.log(`[invitation] send to ${data.email} for org ${data.organization.name}, id: ${data.id}`);
+        },
     }), admin(), openAPI()],
     user: {
         additionalFields: {

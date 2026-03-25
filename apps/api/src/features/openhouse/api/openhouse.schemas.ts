@@ -21,7 +21,9 @@ export const GetOpenHouseLeadsParamsSchema = z.object({
     id: OpenHouseSchema.shape.id,
 });
 export type GetOpenHouseLeadsInput = undefined;
-export type GetOpenHouseLeadsParams = z.infer<typeof GetOpenHouseLeadsParamsSchema>;
+export type GetOpenHouseLeadsParams = z.infer<
+    typeof GetOpenHouseLeadsParamsSchema
+>;
 export type GetOpenHouseLeadsQuery = undefined;
 
 /* POST /api/open-houses/ -> createOpenHouse() */
@@ -32,7 +34,9 @@ export type CreateOpenHouseInput = z.infer<typeof NewOpenHouseSchema>;
 export const GetPublicOpenHouseParamsSchema = z.object({
     id: OpenHouseSchema.shape.id,
 });
-export type GetPublicOpenHouseParams = z.infer<typeof GetPublicOpenHouseParamsSchema>;
+export type GetPublicOpenHouseParams = z.infer<
+    typeof GetPublicOpenHouseParamsSchema
+>;
 //no query or json for now
 
 /* POST /api/open-houses/:id/sign-in */

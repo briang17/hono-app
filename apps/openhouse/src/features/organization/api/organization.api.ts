@@ -24,7 +24,7 @@ export type CreateOrganizationInput = {
 	slug: string;
 };
 
-const organizationApi = {
+export const organizationApi = {
 	createOrganization: async (data: CreateOrganizationInput) => {
 		const response = await apiClient.post<{ data: Organization }>("/auth/organization/create", data);
 		return response.data.data;

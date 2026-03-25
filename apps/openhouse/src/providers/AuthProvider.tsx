@@ -22,6 +22,31 @@ interface AuthState {
   logout: () => Promise<void>;
 }
 
+type SessionData = Record<string, string>;
+
+interface SessionState {
+  session: SessionData | null;
+  setSession: (newSession: SessionData) => void;
+  closeSession: () => void;
+}
+
+const useSessionStore = create<SessionState>((set, get) => ({
+  session: null,
+  setSession: (newSession: SessionData) => {
+    set(() => ({session: newSession}))
+  },
+  isAuthenticated: () => {
+    const session = get().session;
+    if(!session) {
+      return false;
+    };
+    return true;
+  },
+  closeSession: () => {
+    set(() => ({session: null}))
+  }
+}))
+
 export const useAuthStore = create<AuthState>((set) => ({
   session: null,
   isLoading: true,

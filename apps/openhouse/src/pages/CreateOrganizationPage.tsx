@@ -1,6 +1,6 @@
 import { useForm } from "@tanstack/react-form";
 import { useNavigate } from "@tanstack/react-router";
-import { useCreateOrganization, useSetActiveOrganization } from "../features/organization/api/organization.api";
+import { organizationApi } from "../features/organization/api/organization.api";
 import { zodValidator } from "@tanstack/zod-form-adapter";
 import { z } from "zod";
 import { Button } from "../components/ui/button";
@@ -15,26 +15,23 @@ const createOrganizationSchema = z.object({
 
 export default function CreateOrganizationPage() {
 	const navigate = useNavigate();
-	const createOrg = useCreateOrganization();
-	const setActiveOrg = useSetActiveOrganization();
 
 	const form = useForm({
 		defaultValues: {
 			name: "",
 			slug: "",
 		},
-		onSubmit: async ({ value }) => {
-			try {
-				const org = await createOrg.mutateAsync(value);
-
-				if (org?.id) {
-					await setActiveOrg.mutateAsync(org.id);
+		validators: {
+			onSubmitAsync: async ({ value }) => {
+				const org = await organizationApi.createOrganization(value);
+				if (!org?.id) {
+					throw new Error('Failed to create organization')
 				}
-
-				navigate({ to: "/open-houses" });
-			} catch (error) {
-				console.error("Failed to create organization:", error);
-			}
+				await organizationApi.setActiveOrganization(org.id);
+			},
+		},
+		onSubmit: () => {
+			navigate({ to: "/open-houses" });
 		},
 		validatorAdapter: zodValidator(),
 	});
@@ -58,6 +55,15 @@ export default function CreateOrganizationPage() {
 					</p>
 				</CardHeader>
 				<CardContent>
+					<form.Subscribe selector={(state) => state.errorMap}>
+						{(errorMap) =>
+							errorMap.onSubmit ? (
+								<div className="mb-4 p-2 text-sm text-red-600 bg-red-50 rounded">
+									{errorMap.onSubmit.toString()}
+								</div>
+							) : null
+						}
+					</form.Subscribe>
 					<form
 						onSubmit={(e) => {
 							e.preventDefault();
@@ -119,15 +125,17 @@ export default function CreateOrganizationPage() {
 								)}
 							</form.Field>
 
-							<Button
-								type="submit"
-								className="w-full"
-								disabled={createOrg.isPending || setActiveOrg.isPending}
-							>
-								{createOrg.isPending || setActiveOrg.isPending
-									? "Creating..."
-									: "Create Organization"}
-							</Button>
+							<form.Subscribe selector={(state) => state.isSubmitting}>
+								{(isSubmitting) => (
+									<Button
+										type="submit"
+										className="w-full"
+										disabled={isSubmitting}
+									>
+										{isSubmitting ? "Creating..." : "Create Organization"}
+									</Button>
+								)}
+							</form.Subscribe>
 						</form>
 				</CardContent>
 			</Card>

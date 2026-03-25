@@ -19,7 +19,7 @@ export const OpenHouseSchema = z.object({
     startTime: z.string().regex(/^\d{2}:\d{2}$/, "Invalid time format (HH:MM)"),
     endTime: z.string().regex(/^\d{2}:\d{2}$/, "Invalid time format (HH:MM)"),
     listingImageUrl: z.union([z.url().nullish(), z.literal("")]),
-    notes: z.string().nullable(),
+    notes: z.string().nullish(),
     createdAt: DateSchema,
     updatedAt: DateSchema,
 });

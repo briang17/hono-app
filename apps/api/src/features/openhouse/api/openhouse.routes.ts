@@ -1,6 +1,6 @@
 import { authMiddleware } from "@middlewares/auth.middleware";
 import { orgMiddleware } from "@middlewares/org.middleware";
-import {Hono} from "hono";
+import { Hono } from "hono";
 import {
     createOpenHouseHandlers,
     createOpenHouseLeadHandlers,

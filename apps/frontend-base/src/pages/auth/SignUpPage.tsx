@@ -9,14 +9,14 @@ import { authSchema } from '@/lib/schemas/auth.schema'
 
 export function SignUpPage() {
     const routeApi = getRouteApi('/auth/sign-up')
-    const { redirect } = routeApi.useSearch()
+    const { redirect, invitationId, email } = routeApi.useSearch()
     const navigate = useNavigate()
     const { refetch } = authClient.useSession()
 
     const form = useForm({
         defaultValues: {
             name: '',
-            email: '',
+            email: email ?? '',
             password: '',
             confirmPassword: '',
         },
@@ -36,7 +36,11 @@ export function SignUpPage() {
             },
         },
         onSubmit: () => {
-            navigate({ to: redirect || '/dashboard' })
+            if (invitationId) {
+                navigate({ to: `/invite/accept?invitationId=${invitationId}` })
+            } else {
+                navigate({ to: redirect || '/dashboard' })
+            }
         },
     })
 
@@ -107,6 +111,7 @@ export function SignUpPage() {
                                         placeholder="m@example.com"
                                         value={field.state.value}
                                         onChange={(e) => field.handleChange(e.target.value)}
+                                        disabled={!!email}
                                         className="transition-all duration-200"
                                     />
                                     {field.state.meta.errors && (

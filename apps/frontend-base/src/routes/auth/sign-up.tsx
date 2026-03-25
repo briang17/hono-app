@@ -5,6 +5,8 @@ import { SignUpPage } from '../../pages/auth/SignUpPage'
 
 const SignUpSearchSchema = z.object({
     redirect: z.string('').default('').catch(''),
+    invitationId: z.string().optional().catch(undefined),
+    email: z.string().optional().catch(undefined),
 })
 
 export const Route = createFileRoute('/auth/sign-up')({

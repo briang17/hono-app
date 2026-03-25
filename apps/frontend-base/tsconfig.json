@@ -18,24 +18,8 @@
       "@/*": [
         "src/*"
       ],
-      "@features/*": [
-        "../api/src/features/*"
-      ],
-      "@middlewares/*": [
-        "../api/src/middlewares/*"
-      ],
       "@lib/*": [
-        "./src/lib/*",
-        "../api/src/lib/*"
-      ],
-      "@config/*": [
-        "../api/src/config/*"
-      ],
-      "@openhouse/*": [
-        "../api/src/features/openhouse/*"
-      ],
-      "@formconfig/*": [
-        "../api/src/features/form-config/*"
+        "./src/lib/*"
       ]
     }
   }

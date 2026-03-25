@@ -5,6 +5,7 @@ const statement = {
     ...defaultStatements,
     openhouse: ["create", "view", "delete", "update"],
     lead: ["view", "export"],
+    agent: ["create", "view", "update", "delete", "deactivate"],
 } as const;
 
 type ExtractValuesMap<T> = {
@@ -19,12 +20,14 @@ export const owner = ac.newRole({
     ...adminAc.statements,
     openhouse: ["create", "view", "delete"],
     lead: ["view", "export"],
+    agent: ["create", "view", "update", "delete", "deactivate"],
 });
 
 export const admin = ac.newRole({
     ...adminAc.statements,
     openhouse: ["create", "view", "delete"],
     lead: ["view", "export"],
+    agent: ["create", "view", "update", "delete", "deactivate"],
 });
 
 export const agent = ac.newRole({

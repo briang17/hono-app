@@ -1,4 +1,5 @@
 import { codes } from "@config/constants";
+import { agentRoutes } from "@features/agent/api/agent.routes";
 import { formConfigRoutes } from "@features/form-config/api/form-config.routes";
 import {
     openhouseRoutes,
@@ -33,6 +34,7 @@ const featureRoutes = apiV1
     .route("/api/open-houses", openhouseRoutes)
     .route("/api/public/open-houses", publicOpenHouseRoutes)
     .route("/api/form-config", formConfigRoutes)
+    .route("/api/agents", agentRoutes)
     .get("/health", (c) => {
         const toSeconds = 1000000000;
         return c.json({

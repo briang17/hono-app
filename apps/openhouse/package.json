@@ -14,6 +14,7 @@
     "@tanstack/react-router": "^1.108.2",
     "@tanstack/zod-form-adapter": "^0.42.0",
     "axios": "^1.7.9",
+    "better-auth": "1.4.18",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "lucide-react": "^0.468.0",
