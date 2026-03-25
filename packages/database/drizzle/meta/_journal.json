@@ -8,6 +8,20 @@
       "when": 1773956550116,
       "tag": "0000_same_junta",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1774372221604,
+      "tag": "0001_living_klaw",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1774450708964,
+      "tag": "0002_flawless_steve_rogers",
+      "breakpoints": true
     }
   ]
 }

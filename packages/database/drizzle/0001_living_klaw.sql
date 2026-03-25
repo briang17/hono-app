@@ -1,0 +1,1 @@
+ALTER TABLE "open_house_lead" ADD COLUMN "consent" boolean DEFAULT false NOT NULL;

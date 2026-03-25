@@ -1,18 +1,102 @@
 import { codes } from "@config/constants";
 import { DbFormConfigRepository } from "@formconfig/infra/db.form-config.repository";
 import { zValidator } from "@hono/zod-validator";
-import { publicFactory } from "@lib/factory";
-import { NewOpenHouseLeadSchema } from "@openhouse/domain/openhouse.entity";
+import { orgFactory, publicFactory } from "@lib/factory";
+import { rbacMiddleware } from "@middlewares/rbac.middleware";
+import {
+    CreateOpenHouseLeadParamsSchema,
+    GetOpenHouseLeadsParamsSchema,
+    GetOpenHouseParamsSchema,
+    GetPublicOpenHouseParamsSchema,
+} from "@openhouse/api/openhouse.schemas";
+import { NewOpenHouseLeadSchema, NewOpenHouseSchema } from "@openhouse/domain/openhouse.entity";
 import { DbOpenHouseRepository } from "@openhouse/infra/db.openhouse.repository";
 import { OpenHouseService } from "@openhouse/service/openhouse.service";
 import { HTTPException } from "hono/http-exception";
-import { CreateOpenHouseLeadParamsSchema } from "./openhouse.schemas";
 
 const repository = new DbOpenHouseRepository();
 const formConfigRepository = new DbFormConfigRepository();
 const service = new OpenHouseService(repository, formConfigRepository);
 
-export const createOpenHouseLead = publicFactory.createHandlers(
+export const createOpenHouseHandlers = orgFactory.createHandlers(
+    zValidator("json", NewOpenHouseSchema),
+    rbacMiddleware({ openhouse: ["create"] }),
+    async (c) => {
+        const userId = c.get("session").userId;
+        const organizationId = c.get("organizationId");
+
+        const data = c.req.valid("json");
+
+        const openHouse = await service.createOpenHouse(
+            data,
+            organizationId,
+            userId,
+        );
+
+        return c.json({ data: openHouse }, codes.CREATED);
+    },
+);
+
+export const getOpenHousesHandlers = orgFactory.createHandlers(
+    rbacMiddleware({ openhouse: ["view"] }),
+    async (c) => {
+        const userId = c.get("session").userId;
+        const organizationId = c.get("organizationId");
+
+        const openHouses = await service.getOpenHouses(organizationId, userId);
+        return c.json({ data: openHouses });
+    },
+);
+
+export const getOpenHouseHandlers = orgFactory.createHandlers(
+    zValidator("param", GetOpenHouseParamsSchema),
+    rbacMiddleware({ openhouse: ["view"] }),
+    async (c) => {
+        const organizationId = c.get("organizationId");
+
+        const { id } = c.req.valid("param");
+
+        const openHouse = await service.getOpenHouse(id);
+        if (!openHouse || openHouse.organizationId !== organizationId) {
+            throw new HTTPException(codes.NOT_FOUND, {
+                message: "Open house not found",
+            });
+        }
+
+        return c.json({ data: openHouse });
+    },
+);
+
+export const getOpenHouseLeadsHandlers = orgFactory.createHandlers(
+    zValidator("param", GetOpenHouseLeadsParamsSchema),
+    rbacMiddleware({ lead: ["view"] }),
+    async (c) => {
+        const organizationId = c.get("organizationId");
+
+        const { id } = c.req.valid("param");
+        const leads = await service.getOpenHouseLeadsOrg(id, organizationId);
+
+        return c.json({ data: leads });
+    },
+);
+
+export const getPublicOpenHouseHandlers = publicFactory.createHandlers(
+    zValidator("param", GetPublicOpenHouseParamsSchema),
+    async (c) => {
+        const { id } = c.req.valid("param");
+        const openHouse = await service.getPublicOpenHouseWithFormConfig(id);
+
+        if (!openHouse) {
+            throw new HTTPException(codes.NOT_FOUND, {
+                message: "Open house not found",
+            });
+        }
+
+        return c.json({ data: openHouse });
+    },
+);
+
+export const createOpenHouseLeadHandlers = publicFactory.createHandlers(
     zValidator("param", CreateOpenHouseLeadParamsSchema),
     zValidator("json", NewOpenHouseLeadSchema),
     async (c) => {

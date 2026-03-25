@@ -3,9 +3,15 @@ import { adminAc, defaultStatements, memberAc } from "better-auth/plugins/organi
 
 const statement = {
     ...defaultStatements,
-    openhouse: ["create", "view", "delete"],
+    openhouse: ["create", "view", "delete", "update"],
     lead: ["view", "export"],
 } as const;
+
+type ExtractValuesMap<T> = {
+  -readonly [K in keyof T]?: T[K] extends readonly (infer U)[] ? U[] : never;
+};
+
+export type RBACParams = ExtractValuesMap<typeof statement>;
 
 export const ac = createAccessControl(statement);
 

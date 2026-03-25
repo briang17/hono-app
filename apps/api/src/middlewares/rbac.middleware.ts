@@ -1,10 +1,11 @@
 import { codes } from "@config/constants";
 import { auth } from "@packages/auth";
+import type { RBACParams } from "@packages/auth/lib/permissions";
 import { createMiddleware } from "hono/factory";
 import { HTTPException } from "hono/http-exception";
 import type { OrgVariables } from "./org.middleware";
 
-export const rbacMiddleware = (permissions: Record<string, string[]>) =>
+export const rbacMiddleware = (permissions: RBACParams) =>
     createMiddleware<{ Variables: OrgVariables }>(async (c, next) => {
         const result = await auth.api.hasPermission({
             headers: c.req.raw.headers,
@@ -17,5 +18,5 @@ export const rbacMiddleware = (permissions: Record<string, string[]>) =>
             });
         }
 
-        return next();
+        return await next();
     });

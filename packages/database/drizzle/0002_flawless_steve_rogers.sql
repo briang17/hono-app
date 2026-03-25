@@ -1,0 +1,1 @@
+ALTER TABLE "open_house_lead" DROP COLUMN "consent";

@@ -47,6 +47,7 @@ export const OpenHouseLeadSchema = z.object({
     phone: z.union([PhoneSchema.nullish(), z.literal("")]),
     workingWithAgent: z.boolean().default(false),
     submittedAt: DateSchema,
+    consent: z.boolean().default(false),
     responses: z
         .record(z.union([z.string(), z.number(), z.array(z.string())]))
         .nullable()
@@ -59,6 +60,7 @@ export const NewOpenHouseLeadSchema = OpenHouseLeadSchema.pick({
     email: true,
     phone: true,
     workingWithAgent: true,
+    consent: true,
     responses: true,
 }).refine((data) => data.email || data.phone, {
     message: "Email or phone is required",

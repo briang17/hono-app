@@ -7,6 +7,7 @@ import { useCreateOpenHouseLead } from '@/lib/mutations/openhouse'
 import { usePublicOpenHouse } from '@/lib/queries/openhouse'
 import { cn } from '@/lib/utils'
 import { CreateOpenHouseLeadForm } from './components/CreateOpenHouseLeadForm'
+import type { CreateOpenHouseLeadInput } from '@/lib/schemas/openhouse.schema'
 
 export function VisitorSignInError() {
     return (
@@ -31,8 +32,8 @@ export function VisitorSignInPage() {
     const createLead = useCreateOpenHouseLead(openHouseId)
     const [submitted, setSubmitted] = useState(false)
 
-    const handleSubmit = async (values: { [key: string]: unknown }) => {
-        await createLead.mutateAsync(values as never)
+    const handleSubmit = async (values: CreateOpenHouseLeadInput) => {
+        await createLead.mutateAsync(values)
         setSubmitted(true)
     }
 

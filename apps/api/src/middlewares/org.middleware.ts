@@ -8,10 +8,9 @@ export type OrgVariables = AuthVariables & {
 };
 
 export const orgMiddleware = createMiddleware<{ Variables: OrgVariables }>(
-    (c, next) => {
+    async (c, next) => {
         const session = c.get("session");
         const organizationId = session.activeOrganizationId;
-
         if (!organizationId) {
             throw new HTTPException(codes.FORBIDDEN, {
                 message:
@@ -20,6 +19,6 @@ export const orgMiddleware = createMiddleware<{ Variables: OrgVariables }>(
         }
 
         c.set("organizationId", organizationId);
-        return next();
+        return await next();
     },
 );

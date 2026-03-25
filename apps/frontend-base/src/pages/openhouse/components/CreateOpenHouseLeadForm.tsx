@@ -10,7 +10,7 @@ import {
 import { isFieldInvalid } from '@/lib/utils'
 
 interface CreateOpenHouseLeadFormProps {
-    onSubmit: (values: { [key: string]: unknown }) => Promise<void>
+    onSubmit: (values: CreateOpenHouseLeadInput) => Promise<void>
     submitLabel: string
 }
 
@@ -20,7 +20,7 @@ export function CreateOpenHouseLeadForm({ onSubmit, submitLabel }: CreateOpenHou
         lastName: '',
         email: '',
         phone: '',
-        workingWithAgent: false,
+        workingWithAgent: false
     }
 
     const form = useForm({
