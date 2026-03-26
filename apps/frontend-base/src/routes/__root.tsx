@@ -15,6 +15,7 @@ const RootLayout = () => (
 interface RouterContext {
     session: ReturnType<typeof authClient.useSession>
     queryClient: QueryClient
+    activeMember: ReturnType<typeof authClient.useActiveMember>
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({

@@ -8,7 +8,7 @@ import { type CreateOpenHouseInput, createOpenHouseSchema } from '@/lib/schemas/
 import { isFieldInvalid } from '@/lib/utils'
 
 interface CreateOpenHouseFormProps {
-    onSubmit: (values: { [key: string]: unknown }) => Promise<void>
+    onSubmit: (values: CreateOpenHouseInput) => Promise<void>
     submitLabel: string
 }
 

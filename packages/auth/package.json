@@ -13,6 +13,7 @@
   "packageManager": "pnpm@10.28.1",
   "dependencies": {
     "@packages/database": "workspace:*",
+    "@packages/emailer": "workspace:*",
     "@packages/env": "workspace:*",
     "better-auth": "1.5.6",
     "drizzle-orm": "^0.45.1"

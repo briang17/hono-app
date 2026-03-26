@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/dialog'
 import { useCreateOpenHouse } from '@/lib/mutations/openhouse'
 import { useOpenHouses } from '@/lib/queries/openhouse'
-import type { OpenHouse } from '@/lib/schemas/openhouse.schema'
+import type { CreateOpenHouseInput, OpenHouse } from '@/lib/schemas/openhouse.schema'
 import { CreateOpenHouseForm } from './components/CreateOpenHouseForm'
 import { OpenHouseCard } from './components/OpenHouseCard'
 import { Can } from '@/components/Can'
@@ -23,8 +23,8 @@ export function OpenHouseListPage() {
     const createOpenHouse = useCreateOpenHouse()
     const [createFormOpen, setCreateFormOpen] = useState(false)
 
-    const handleCreateOpenHouse = async (values: { [key: string]: unknown }) => {
-        await createOpenHouse.mutateAsync(values as never)
+    const handleCreateOpenHouse = async (values: CreateOpenHouseInput) => {
+        await createOpenHouse.mutateAsync(values)
         setCreateFormOpen(false)
     }
 
@@ -58,12 +58,11 @@ export function OpenHouseListPage() {
                     <p className="text-muted-foreground mt-1">Manage your open houses</p>
                 </div>
                 <Dialog open={createFormOpen} onOpenChange={setCreateFormOpen}>
-                    <DialogTrigger asChild>
-                        <Can permission={{openhouse: ["view"]}} fallback={(<p></p>)}>
-
-                            <Button>New Open House</Button>
-                        </Can>
-                    </DialogTrigger>
+                    <Can permission={{openhouse: ["create"]}} fallback={(<p></p>)}>
+                        <DialogTrigger asChild>
+                                <Button>New Open House</Button>
+                        </DialogTrigger>
+                    </Can>
                     <DialogContent className="sm:max-w-[500px]">
                         <DialogHeader>
                             <DialogTitle>Create Open House</DialogTitle>

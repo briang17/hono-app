@@ -1,8 +1,14 @@
 import type { Id } from "@features/common/values";
 import { db } from "@packages/database";
 import { agent as agentTable } from "@packages/database/src/schemas/agent.schema";
-import { user } from "@packages/database/src/schemas/auth.schema";
+import {
+    invitation,
+    member,
+    user,
+} from "@packages/database/src/schemas/auth.schema";
+import type { Transaction } from "drizzle-orm";
 import { and, eq } from "drizzle-orm";
+import type { PgTransaction } from "drizzle-orm/pg-core";
 import {
     type Agent,
     AgentFactory,
@@ -107,13 +113,52 @@ export class DbAgentRepository implements IAgentRepository {
         return AgentFactory.fromDb(result);
     }
 
-    async delete(id: Id, organizationId: Id): Promise<void> {
-        await db
+    async delete(
+        id: Id,
+        organizationId: Id,
+        tx?: Transaction<PgTransaction<"readwrite">>,
+    ): Promise<void> {
+        const dbOrTx = tx ?? db;
+        await dbOrTx
             .delete(agentTable)
             .where(
                 and(
                     eq(agentTable.id, id),
                     eq(agentTable.organizationId, organizationId),
+                ),
+            );
+    }
+
+    async deleteInvitationForAgent(
+        organizationId: Id,
+        email: string,
+        tx?: Transaction<PgTransaction<"readwrite">>,
+    ): Promise<void> {
+        const dbOrTx = tx ?? db;
+        await dbOrTx
+            .delete(invitation)
+            .where(
+                and(
+                    eq(invitation.organizationId, organizationId),
+                    eq(invitation.email, email),
+                ),
+            );
+    }
+
+    async deleteMemberForAgent(
+        organizationId: Id,
+        userId: Id | null,
+        tx?: Transaction<PgTransaction<"readwrite">>,
+    ): Promise<void> {
+        if (!userId) return;
+
+        const dbOrTx = tx ?? db;
+        await dbOrTx
+            .delete(member)
+            .where(
+                and(
+                    eq(member.organizationId, organizationId),
+                    eq(member.userId, userId),
                 ),
             );
     }

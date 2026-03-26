@@ -27,6 +27,7 @@ import {
 import { useAgents } from '@/lib/queries/agent'
 import type { AgentWithUser, UpdateAgentInput } from '@/lib/schemas/agent.schema'
 import { AgentForm } from './components/AgentForm'
+import { useRouteContext } from '@tanstack/react-router'
 
 function EditAgentDialog({
     agent,

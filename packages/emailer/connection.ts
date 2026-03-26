@@ -1,7 +1,9 @@
 import { RedisOptions } from "ioredis";
+import { emailerEnv } from "@packages/env";
+
+console.log(emailerEnv);
 
 export const connection: RedisOptions = {
-  host: "localhost",
-  port: 6379,
-  // password: "your-password" // if needed
+	host: emailerEnv.REDIS_HOST,
+	port: emailerEnv.REDIS_PORT,
 };

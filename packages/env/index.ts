@@ -55,6 +55,16 @@ const fubClientEnvScope = {
 	}),
 };
 
+const emailerEnvScope = {
+	name: "emailer",
+	schema: z.object({
+		RESEND_API_KEY: z.string(),
+		RESEND_FROM_EMAIL: z.string().email(),
+		REDIS_HOST: z.string().default("localhost"),
+		REDIS_PORT: z.coerce.number().default(6380),
+	}),
+};
+
 function validate<T>(name: string, schema: z.ZodType<T>, source: unknown): T {
 	const result = schema.safeParse(source);
 	if (!result.success) {
@@ -87,6 +97,11 @@ const authEnv = validate(authEnvScope.name, authEnvScope.schema, envSource);
 const fubClientEnv = validate(
 	fubClientEnvScope.name,
 	fubClientEnvScope.schema,
+	envSource,
+);
+const emailerEnv = validate(
+	emailerEnvScope.name,
+	emailerEnvScope.schema,
 	envSource,
 );
 
@@ -156,5 +171,6 @@ export {
 	infisicalEnv,
 	authEnv,
 	fubClientEnv,
+	emailerEnv,
 	loadSecrets,
 };

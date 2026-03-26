@@ -11,8 +11,8 @@ export const authClient = createAuthClient({
             roles: {
                 owner,
                 admin,
-                agent
-            }
+                agent,
+            },
         }),
         inferAdditionalFields<typeof auth>(),
     ],
@@ -21,6 +21,7 @@ export const authClient = createAuthClient({
 export const {
     useSession,
     useActiveMember,
+    useActiveMemberRole,
     signIn,
     signUp,
     signOut,

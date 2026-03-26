@@ -2,10 +2,12 @@ import { betterAuth} from "better-auth";
 import {organization, admin, openAPI} from "better-auth/plugins";
 import {drizzleAdapter} from "better-auth/adapters/drizzle";
 import {db} from "@packages/database";
-import {eq} from "drizzle-orm";
+import {eq, and} from "drizzle-orm";
 import * as authSchema from "@packages/database/src/schemas/auth.schema";
+import { agent } from "@packages/database/src/schemas/agent.schema";
 import { authEnv as env } from "@packages/env";
-import { ac, owner, admin as adminRole, agent } from "./permissions";
+import { ac, owner, admin as adminRole, agent as agentRole } from "./permissions";
+import { addInvitationEmailJob } from "@packages/emailer";
 
 export const auth = betterAuth({
     basePath: "/api/auth",
@@ -28,11 +30,30 @@ export const auth = betterAuth({
         roles: {
             owner,
             admin: adminRole,
-            agent
+            agent: agentRole
         },
         async sendInvitationEmail(data) {
-            console.log(`[invitation] send to ${data.email} for org ${data.organization.name}, id: ${data.id}`);
+            addInvitationEmailJob({
+                invitationId: data.id,
+                email: data.email,
+                organizationName: data.organization.name,
+                inviterName: data.inviter?.name,
+            }).catch((err) => {
+                console.error("[emailer] Failed to queue invitation email:", err);
+            });
         },
+        organizationHooks: {
+            afterAcceptInvitation: async ({ invitation, user, organization }) => {
+                await db.update(agent)
+                    .set({ userId: user.id })
+                    .where(
+                        and(
+                            eq(agent.organizationId, organization.id),
+                            eq(agent.email, invitation.email)
+                        )
+                    );
+            }
+        }
     }), admin(), openAPI()],
     user: {
         additionalFields: {

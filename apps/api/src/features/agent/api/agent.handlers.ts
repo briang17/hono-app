@@ -74,10 +74,10 @@ export const deleteAgentHandlers = orgFactory.createHandlers(
     async (c) => {
         const organizationId = c.get("organizationId");
         const { id } = c.req.valid("param");
-        console.log("DELETING AGENT:@@@@@")
-        console.log({organizationId, id});
+        console.log("DELETING AGENT:@@@@@");
+        console.log({ organizationId, id });
         await service.deleteAgent(id, organizationId);
-        return c.status(codes.OK).body("");
+        return c.body(null, codes.OK);
     },
 );
 

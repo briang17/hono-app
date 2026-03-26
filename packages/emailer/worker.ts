@@ -1,47 +1,52 @@
-import { Worker, Job } from "bullmq";
+import { Job, Worker } from "bullmq";
+import { Resend } from "resend";
 import { connection } from "./connection";
+import { renderInvitationEmail, type InvitationEmailData } from "./lib/render-email";
+import { emailerEnv } from "@packages/env";
 
-// define the shape of your job data
-interface EmailJobData {
-  email: string;
-  subject: string;
-  body: string;
-}
+const resend = new Resend(emailerEnv.RESEND_API_KEY);
 
 const workerName = "email-queue";
 
-const worker = new Worker<EmailJobData>(
-  workerName,
-  async (job: Job<EmailJobData>) => {
-    console.log(`[Job ${job.id}] Processing email for ${job.data.email}...`);
-    
-    // Simulate async work (e.g., sending an email)
-    await new Promise((resolve) => setTimeout(resolve, 700));
-    
-    if (Math.random() > 0.91) {
-        throw new Error("Random email service failure!");
-    }
+const worker = new Worker<InvitationEmailData>(
+	workerName,
+	async (job: Job<InvitationEmailData>) => {
+		const { email, organizationName} = job.data;
 
-    console.log(`[Job ${job.id}] Email sent successfully!`);
-    return { status: "sent", timestamp: Date.now() };
-  },
-  {
-    connection,
-    concurrency: 5, // Process 5 jobs at the same time
-    limiter: {
-        max: 10,
-        duration: 1000 // Rate limit: Max 10 jobs per second
-    }
-  }
+		console.log(`[Worker ${job.id}] Processing invitation email for ${email}...`);
+
+		const html = await renderInvitationEmail(job.data);
+
+		const { error } = await resend.emails.send({
+			from: emailerEnv.RESEND_FROM_EMAIL,
+			to: email,
+			subject: `You're invited to join ${organizationName}`,
+			html,
+		});
+
+		if (error) {
+			throw new Error(`Resend error: ${error.message}`);
+		}
+
+		console.log(`[Worker ${job.id}] Email sent successfully to ${email}`);
+		return { success: true };
+	},
+	{
+		connection,
+		concurrency: 5,
+		limiter: {
+			max: 10,
+			duration: 1000,
+		},
+	},
 );
 
-// Event listeners for logging
 worker.on("completed", (job) => {
-  console.log(`[Job ${job.id}] Completed!`);
+	console.log(`[Worker ${job.id}] Completed!`);
 });
 
 worker.on("failed", (job, err) => {
-  console.error(`[Job ${job?.id}] Failed: ${err.message}`);
+	console.error(`[Worker ${job?.id}] Failed: ${err.message}`);
 });
 
-console.log(`Worker listening on queue: ${workerName}`);
+console.log(`[Worker] Worker started on queue: ${workerName}`);

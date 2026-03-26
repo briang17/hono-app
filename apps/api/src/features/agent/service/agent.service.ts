@@ -1,7 +1,8 @@
 import { codes } from "@config/constants";
+import { db } from "@packages/database";
 import { HTTPException } from "hono/http-exception";
 import type { NewAgentInput, UpdateAgentInput } from "../domain/agent.entity";
-import { AgentFactory } from "../domain/agent.entity";
+import { type Agent, AgentFactory } from "../domain/agent.entity";
 import type { IAgentRepository } from "../domain/interface.agent.repository";
 
 export class AgentService {
@@ -45,8 +46,21 @@ export class AgentService {
     }
 
     async deleteAgent(id: string, organizationId: string) {
-        await this.getAgent(id, organizationId);
-        await this.repository.delete(id, organizationId);
+        const agent = await this.getAgent(id, organizationId);
+
+        await db.transaction(async (tx) => {
+            await this.repository.deleteInvitationForAgent(
+                organizationId,
+                agent.email,
+                tx,
+            );
+            await this.repository.deleteMemberForAgent(
+                organizationId,
+                agent.userId,
+                tx,
+            );
+            await this.repository.delete(id, organizationId, tx);
+        });
     }
 
     async deactivateAgent(id: string, organizationId: string) {

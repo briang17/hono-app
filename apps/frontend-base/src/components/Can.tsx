@@ -1,5 +1,7 @@
+import type { OrgRole } from '@packages/auth/client/index'
 import type { ReactNode } from 'react'
 import { authClient } from '@/lib/api/auth-client'
+import { useRouteContext } from '@tanstack/react-router'
 
 interface Props {
     permission: Record<string, string[]>
@@ -7,30 +9,20 @@ interface Props {
     fallback?: ReactNode
 }
 
-type OrgRole = 'owner' | 'admin' | 'agent'
+export const Can = ({ permission, children, fallback = null}: Props) => {
+    
+    const {data: member} = useRouteContext({
+        from: '/(protected)/(organization)',
+        select: (context) => context.activeMember
+    })
 
-const VALID_ROLES: OrgRole[] = ['owner', 'admin', 'agent']
-
-function toOrgRole(role: string | undefined): OrgRole {
-    if (role && (VALID_ROLES as string[]).includes(role)) {
-        return role as OrgRole
-    }
-    return 'agent'
-}
-
-export const Can = ({ permission, children, fallback = null }: Props) => {
-    const activeMember = authClient.useActiveMember()
-    const role = toOrgRole(activeMember.data?.role)
-    console.log("ROLEEE IN CANN!!!");
-    console.log(role);
+    console.log(`permission to check: ${JSON.stringify(permission)}. role: ${member?.role}`)
     const can = authClient.organization.checkRolePermission({
         permissions: permission,
-        role,
+        role: member?.role as OrgRole ?? 'agent',
     })
-    console.log("CAN???:", can);
-    console.log(children);
-    if (can) {
-        return <>{children}</>
-    }
-    return <>{fallback}</>
+
+    console.log(can);
+
+    return  can ? <>{children}</> : <>{fallback}</>
 }
