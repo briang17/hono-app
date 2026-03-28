@@ -1,0 +1,57 @@
+import { DateSchema, IdSchema } from "@features/common/values";
+import { z } from "zod";
+export const QuestionTypeSchema = z.enum([
+    "short_text",
+    "long_text",
+    "number",
+    "multiple_choice",
+    "checkboxes",
+]);
+export const QuestionValidationSchema = z.object({
+    minLength: z.number().optional(),
+    maxLength: z.number().optional(),
+    min: z.number().optional(),
+    max: z.number().optional(),
+});
+export const QuestionSchema = z.object({
+    id: IdSchema,
+    type: QuestionTypeSchema,
+    label: z.string().min(1, "Question label is required"),
+    placeholder: z.string().optional(),
+    required: z.boolean(),
+    options: z.array(z.string()).optional(),
+    validation: QuestionValidationSchema.optional(),
+    order: z.number().int(),
+});
+export const FormConfigSchema = z.object({
+    id: IdSchema,
+    organizationId: IdSchema,
+    questions: z.array(QuestionSchema),
+    createdAt: DateSchema,
+    updatedAt: DateSchema,
+});
+export const NewFormConfigSchema = z
+    .object({
+    questions: z.array(QuestionSchema),
+})
+    .refine((data) => {
+    const ids = data.questions.map((q) => q.id);
+    return ids.length === new Set(ids).size;
+}, "Question IDs must be unique");
+export const FormConfigFactory = {
+    create: (params, organizationId) => {
+        const now = new Date();
+        const result = FormConfigSchema.parse({
+            ...params,
+            id: Bun.randomUUIDv7(),
+            organizationId,
+            createdAt: now,
+            updatedAt: now,
+        });
+        return result;
+    },
+    fromDb: (params) => {
+        const result = FormConfigSchema.parse(params);
+        return result;
+    },
+};

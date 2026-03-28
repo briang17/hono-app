@@ -32,6 +32,9 @@ export const auth = betterAuth({
             admin: adminRole,
             agent: agentRole
         },
+        allowUserToCreateOrganization: async (user) => {
+            return user.role === "admin" || user.role === "tenant";
+        },
         async sendInvitationEmail(data) {
             addInvitationEmailJob({
                 invitationId: data.id,
@@ -54,7 +57,14 @@ export const auth = betterAuth({
                     );
             }
         }
-    }), admin(), openAPI()],
+    }), admin({
+        ac,
+        roles: {
+            owner,
+            admin: adminRole,
+            agent: agentRole
+        }
+    }), openAPI()],
     user: {
         additionalFields: {
             defaultOrganizationId: {
