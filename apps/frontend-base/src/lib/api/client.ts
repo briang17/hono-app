@@ -6,3 +6,5 @@ export const apiClient = hc<AppType>('https://api.rs.hauntednuke.com/', {
         credentials: 'include',
     },
 })
+
+

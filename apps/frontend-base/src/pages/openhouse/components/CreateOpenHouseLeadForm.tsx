@@ -8,6 +8,8 @@ import {
     createOpenHouseLeadSchema,
 } from '@/lib/schemas/openhouse.schema'
 import { isFieldInvalid } from '@/lib/utils'
+import { Item, ItemContent, ItemDescription, ItemMedia } from '@/components/ui/item'
+import { Info } from 'lucide-react';
 
 interface CreateOpenHouseLeadFormProps {
     onSubmit: (values: CreateOpenHouseLeadInput) => Promise<void>
@@ -152,6 +154,16 @@ export function CreateOpenHouseLeadForm({ onSubmit, submitLabel }: CreateOpenHou
                     </Button>
                 )}
             </form.Subscribe>
+            <Item size={'xs'}>
+                <ItemMedia>
+                    <Info strokeWidth={1.5} className='text-re-gold'/>
+                </ItemMedia>
+                <ItemContent>
+                    <ItemDescription className='text-re-gold-foreground/80 whitespace-normal line-clamp-none'>
+                        By clicking Sign In, you consent to receive calls, texts, and emails from ANEW Collective at LPT Realty about real estate matters. This includes marketing by autodialer and prerecorded voice. Msg/data rates may apply. Your consent is not a condition of any purchase and applies even if you are on a corporate, state, or national Do Not Call list.
+                    </ItemDescription>
+                </ItemContent>
+            </Item>
         </form>
     )
 }
