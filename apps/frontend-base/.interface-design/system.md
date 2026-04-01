@@ -116,13 +116,13 @@
 
 ### Lead Card with Gold Accent
 ```tsx
-<Card className="border-l-4 border-l-re-gold hover:shadow-md transition-all duration-200">
+<Card className="border-l-4 border-l-re-gold hover:border-primary/40 transition-colors duration-200">
   <CardHeader className="pb-3">
     <div className="flex items-start justify-between">
       <CardTitle className="text-base text-re-navy">
         {firstName} {lastName}
       </CardTitle>
-      <Badge className={workingWithAgent ? "bg-re-gold text-re-gold-foreground" : ""}>
+      <Badge className={workingWithAgent ? "bg-re-gold text-re-gold-foreground" : "bg-muted text-muted-foreground"}>
         {workingWithAgent ? "Has Agent" : "No Agent"}
       </Badge>
     </div>
@@ -140,6 +140,8 @@
         <span className="text-foreground">{phone}</span>
       </div>
     )}
+    {/* Custom form responses — border separator, label:value rows */}
+    <ResponseViewer responses={lead.responses} questions={questions} />
     <div className="pt-2 border-t border-border">
       <span className="text-muted-foreground text-xs">
         Signed in {formatDistanceToNow(new Date(submittedAt), { addSuffix: true })}
@@ -148,6 +150,26 @@
   </CardContent>
 </Card>
 ```
+
+### Response Viewer (Custom Form Responses)
+```tsx
+{/* Renders within lead card, between contact info and timestamp */}
+<div className="space-y-2 pt-2 border-t border-border">
+  {entries.map(({ question, value }) => (
+    <div key={question.id} className="flex justify-between gap-4">
+      <span className="text-muted-foreground">{question.label}:</span>
+      <span className="text-foreground text-right">{formatResponseValue(question, value)}</span>
+    </div>
+  ))}
+</div>
+```
+
+Response value formatting:
+- text/textarea/number → plain string
+- select/radio → option label (not value)
+- checkbox → comma-separated option labels
+- date → formatted date string
+- range → "min — max"
 
 ### Status/Priority Badges
 ```tsx

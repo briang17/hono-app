@@ -77,9 +77,12 @@ export const getOpenHouseLeadsHandlers = orgFactory.createHandlers(
         const organizationId = c.get("organizationId");
 
         const { id } = c.req.valid("param");
-        const leads = await service.getOpenHouseLeadsOrg(id, organizationId);
+        const result = await service.getOpenHouseLeadsWithFormConfig(
+            id,
+            organizationId,
+        );
 
-        return c.json({ data: leads });
+        return c.json({ data: result });
     },
 );
 

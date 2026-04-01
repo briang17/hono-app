@@ -5,7 +5,13 @@ export declare class FormConfigService {
     private repository;
     constructor(repository: IFormConfigRepository);
     getFormConfig(organizationId: Id): Promise<FormConfig | null>;
-    createFormConfig(organizationId: Id, questions: FormConfig["questions"]): Promise<FormConfig>;
-    updateFormConfig(id: Id, questions: FormConfig["questions"]): Promise<FormConfig | null>;
+    createFormConfig(
+        organizationId: Id,
+        questions: FormConfig["questions"],
+    ): Promise<FormConfig>;
+    updateFormConfig(
+        id: Id,
+        questions: FormConfig["questions"],
+    ): Promise<FormConfig | null>;
     deleteFormConfig(id: Id): Promise<void>;
 }

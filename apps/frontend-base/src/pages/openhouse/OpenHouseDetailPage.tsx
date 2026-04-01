@@ -37,7 +37,9 @@ export function OpenHouseDetailPage() {
 
     const { openHouseId } = routeApi.useParams()
     const { data: openHouse } = useSuspenseQuery(useOpenHouse(openHouseId))
-    const { data: leads } = useSuspenseQuery(useOpenHouseLeads(openHouseId))
+    const { data: leadsResult } = useSuspenseQuery(useOpenHouseLeads(openHouseId))
+    const leads = leadsResult.leads
+    const formConfig = leadsResult.formConfig
 
     const signInUrl = `${window.location.origin}/public/open-houses/sign-in/${openHouseId}`
 
@@ -171,7 +173,7 @@ export function OpenHouseDetailPage() {
                 </TabsContent>
 
                 <TabsContent value="leads" className="mt-6">
-                    <LeadList leads={leads} />
+                    <LeadList leads={leads} formConfig={formConfig} />
                 </TabsContent>
             </Tabs>
         </div>

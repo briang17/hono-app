@@ -9,7 +9,6 @@ import { authClient } from '@/lib/api/auth-client'
 import {
     type CreateOrganizationInput,
     createOrganizationSchema,
-    orgSchema,
 } from '@/lib/schemas/organization.schema'
 import { isFieldInvalid } from '@/lib/utils'
 
@@ -28,7 +27,7 @@ export function CreateOrganizationPage() {
     const form = useForm({
         defaultValues: defaultOrg,
         validators: {
-            onSubmit: orgSchema.create,
+            onSubmit: createOrganizationSchema,
             onSubmitAsync: async ({ value }) => {
                 const { error: err } = await authClient.organization.create({
                     name: value.name,

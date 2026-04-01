@@ -2,12 +2,20 @@ import { DateSchema, type Id, IdSchema } from "@features/common/values";
 import { z } from "zod";
 
 export const QuestionTypeSchema = z.enum([
-    "short_text",
-    "long_text",
+    "text",
+    "textarea",
     "number",
-    "multiple_choice",
-    "checkboxes",
+    "select",
+    "checkbox",
+    "radio",
+    "date",
+    "range",
 ]);
+
+export const OptionSchema = z.object({
+    label: z.string().min(1),
+    value: z.string().min(1),
+});
 
 export const QuestionValidationSchema = z.object({
     minLength: z.number().optional(),
@@ -22,9 +30,9 @@ export const QuestionSchema = z.object({
     label: z.string().min(1, "Question label is required"),
     placeholder: z.string().optional(),
     required: z.boolean(),
-    options: z.array(z.string()).optional(),
+    options: z.array(OptionSchema).optional(),
     validation: QuestionValidationSchema.optional(),
-    order: z.number().int(),
+    step: z.number().positive().optional(),
 });
 
 export type Question = z.infer<typeof QuestionSchema>;

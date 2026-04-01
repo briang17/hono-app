@@ -1,9 +1,10 @@
 import { codes } from "@config/constants";
+import type { FormConfig } from "@formconfig/domain/form-config.entity";
 import type { IFormConfigRepository } from "@formconfig/domain/interface.form-config.repository";
 import { HTTPException } from "hono/http-exception";
 import type { CreateOpenHouseInput } from "../api/openhouse.schemas";
 import type { IOpenHouseRepository } from "../domain/interface.openhouse.repository";
-import type { NewOpenHouseLeadInput } from "../domain/openhouse.entity";
+import type { NewOpenHouseLeadInput, PublicOpenHouse } from "../domain/openhouse.entity";
 import {
     type OpenHouse,
     OpenHouseFactory,
@@ -45,7 +46,7 @@ export class OpenHouseService {
 
     async getPublicOpenHouseWithFormConfig(
         id: string,
-    ): Promise<OpenHouse | null> {
+    ): Promise<PublicOpenHouse | null> {
         return await this.repository.findPublicByIdWithFormConfig(id);
     }
 
@@ -69,7 +70,7 @@ export class OpenHouseService {
 
             throw new HTTPException(codes.BAD_REQUEST, {
                 message: "Invalid responses",
-                details: validation.errors,
+                cause: validation.errors,
             });
         }
 
@@ -94,5 +95,20 @@ export class OpenHouseService {
             openHouseId,
             organizationId,
         );
+    }
+
+    async getOpenHouseLeadsWithFormConfig(
+        openHouseId: string,
+        organizationId: string,
+    ): Promise<{ leads: OpenHouseLead[]; formConfig: FormConfig | null }> {
+        const [leads, formConfig] = await Promise.all([
+            this.repository.findLeadsByOpenHouseIdAndOrg(
+                openHouseId,
+                organizationId,
+            ),
+            this.formConfigRepository.getByOrg(organizationId),
+        ]);
+
+        return { leads, formConfig };
     }
 }

@@ -25,6 +25,7 @@ import { Route as protectedorganizationAgentsIndexRouteImport } from './routes/(
 import { Route as PublicOpenHousesSignInOpenHouseIdRouteImport } from './routes/public/open-houses/sign-in/$openHouseId'
 import { Route as protectedorganizationTasksTaskIdRouteImport } from './routes/(protected)/(organization)/tasks/$taskId'
 import { Route as protectedorganizationOpenhouseNewRouteImport } from './routes/(protected)/(organization)/openhouse/new'
+import { Route as protectedorganizationOpenhouseFormBuilderRouteImport } from './routes/(protected)/(organization)/openhouse/form-builder'
 import { Route as protectedorganizationOpenhouseOpenHouseIdRouteImport } from './routes/(protected)/(organization)/openhouse/$openHouseId'
 
 const ErrorRoute = ErrorRouteImport.update({
@@ -114,6 +115,12 @@ const protectedorganizationOpenhouseNewRoute =
     path: '/openhouse/new',
     getParentRoute: () => protectedorganizationRouteRoute,
   } as any)
+const protectedorganizationOpenhouseFormBuilderRoute =
+  protectedorganizationOpenhouseFormBuilderRouteImport.update({
+    id: '/openhouse/form-builder',
+    path: '/openhouse/form-builder',
+    getParentRoute: () => protectedorganizationRouteRoute,
+  } as any)
 const protectedorganizationOpenhouseOpenHouseIdRoute =
   protectedorganizationOpenhouseOpenHouseIdRouteImport.update({
     id: '/openhouse/$openHouseId',
@@ -131,6 +138,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof protectedorganizationDashboardRoute
   '/invite/accept': typeof protectedInviteAcceptRoute
   '/openhouse/$openHouseId': typeof protectedorganizationOpenhouseOpenHouseIdRoute
+  '/openhouse/form-builder': typeof protectedorganizationOpenhouseFormBuilderRoute
   '/openhouse/new': typeof protectedorganizationOpenhouseNewRoute
   '/tasks/$taskId': typeof protectedorganizationTasksTaskIdRoute
   '/public/open-houses/sign-in/$openHouseId': typeof PublicOpenHousesSignInOpenHouseIdRoute
@@ -148,6 +156,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof protectedorganizationDashboardRoute
   '/invite/accept': typeof protectedInviteAcceptRoute
   '/openhouse/$openHouseId': typeof protectedorganizationOpenhouseOpenHouseIdRoute
+  '/openhouse/form-builder': typeof protectedorganizationOpenhouseFormBuilderRoute
   '/openhouse/new': typeof protectedorganizationOpenhouseNewRoute
   '/tasks/$taskId': typeof protectedorganizationTasksTaskIdRoute
   '/public/open-houses/sign-in/$openHouseId': typeof PublicOpenHousesSignInOpenHouseIdRoute
@@ -168,6 +177,7 @@ export interface FileRoutesById {
   '/(protected)/(organization)/dashboard': typeof protectedorganizationDashboardRoute
   '/(protected)/invite/accept': typeof protectedInviteAcceptRoute
   '/(protected)/(organization)/openhouse/$openHouseId': typeof protectedorganizationOpenhouseOpenHouseIdRoute
+  '/(protected)/(organization)/openhouse/form-builder': typeof protectedorganizationOpenhouseFormBuilderRoute
   '/(protected)/(organization)/openhouse/new': typeof protectedorganizationOpenhouseNewRoute
   '/(protected)/(organization)/tasks/$taskId': typeof protectedorganizationTasksTaskIdRoute
   '/public/open-houses/sign-in/$openHouseId': typeof PublicOpenHousesSignInOpenHouseIdRoute
@@ -187,6 +197,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/invite/accept'
     | '/openhouse/$openHouseId'
+    | '/openhouse/form-builder'
     | '/openhouse/new'
     | '/tasks/$taskId'
     | '/public/open-houses/sign-in/$openHouseId'
@@ -204,6 +215,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/invite/accept'
     | '/openhouse/$openHouseId'
+    | '/openhouse/form-builder'
     | '/openhouse/new'
     | '/tasks/$taskId'
     | '/public/open-houses/sign-in/$openHouseId'
@@ -223,6 +235,7 @@ export interface FileRouteTypes {
     | '/(protected)/(organization)/dashboard'
     | '/(protected)/invite/accept'
     | '/(protected)/(organization)/openhouse/$openHouseId'
+    | '/(protected)/(organization)/openhouse/form-builder'
     | '/(protected)/(organization)/openhouse/new'
     | '/(protected)/(organization)/tasks/$taskId'
     | '/public/open-houses/sign-in/$openHouseId'
@@ -355,6 +368,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof protectedorganizationOpenhouseNewRouteImport
       parentRoute: typeof protectedorganizationRouteRoute
     }
+    '/(protected)/(organization)/openhouse/form-builder': {
+      id: '/(protected)/(organization)/openhouse/form-builder'
+      path: '/openhouse/form-builder'
+      fullPath: '/openhouse/form-builder'
+      preLoaderRoute: typeof protectedorganizationOpenhouseFormBuilderRouteImport
+      parentRoute: typeof protectedorganizationRouteRoute
+    }
     '/(protected)/(organization)/openhouse/$openHouseId': {
       id: '/(protected)/(organization)/openhouse/$openHouseId'
       path: '/openhouse/$openHouseId'
@@ -368,6 +388,7 @@ declare module '@tanstack/react-router' {
 interface protectedorganizationRouteRouteChildren {
   protectedorganizationDashboardRoute: typeof protectedorganizationDashboardRoute
   protectedorganizationOpenhouseOpenHouseIdRoute: typeof protectedorganizationOpenhouseOpenHouseIdRoute
+  protectedorganizationOpenhouseFormBuilderRoute: typeof protectedorganizationOpenhouseFormBuilderRoute
   protectedorganizationOpenhouseNewRoute: typeof protectedorganizationOpenhouseNewRoute
   protectedorganizationTasksTaskIdRoute: typeof protectedorganizationTasksTaskIdRoute
   protectedorganizationAgentsIndexRoute: typeof protectedorganizationAgentsIndexRoute
@@ -380,6 +401,8 @@ const protectedorganizationRouteRouteChildren: protectedorganizationRouteRouteCh
     protectedorganizationDashboardRoute: protectedorganizationDashboardRoute,
     protectedorganizationOpenhouseOpenHouseIdRoute:
       protectedorganizationOpenhouseOpenHouseIdRoute,
+    protectedorganizationOpenhouseFormBuilderRoute:
+      protectedorganizationOpenhouseFormBuilderRoute,
     protectedorganizationOpenhouseNewRoute:
       protectedorganizationOpenhouseNewRoute,
     protectedorganizationTasksTaskIdRoute:

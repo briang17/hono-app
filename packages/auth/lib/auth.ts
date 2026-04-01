@@ -40,7 +40,7 @@ export const auth = betterAuth({
                 invitationId: data.id,
                 email: data.email,
                 organizationName: data.organization.name,
-                inviterName: data.inviter?.name,
+                inviterName: data.inviter.user.name
             }).catch((err) => {
                 console.error("[emailer] Failed to queue invitation email:", err);
             });

@@ -1,13 +1,16 @@
 import { formatDistanceToNow } from 'date-fns'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import type { FormConfig } from '@/lib/schemas/form-builder.schema'
 import type { OpenHouseLead } from '@/lib/schemas/openhouse.schema'
+import { ResponseViewer } from './ResponseViewer'
 
 interface LeadListProps {
     leads: OpenHouseLead[]
+    formConfig: FormConfig | null
 }
 
-export function LeadList({ leads }: LeadListProps) {
+export function LeadList({ leads, formConfig }: LeadListProps) {
     if (leads.length === 0) {
         return (
             <Card className="border-dashed">
@@ -21,12 +24,14 @@ export function LeadList({ leads }: LeadListProps) {
         )
     }
 
+    const questions = formConfig?.questions ?? []
+
     return (
         <div className="space-y-3">
             {leads.map((lead) => (
                 <Card
                     key={lead.id}
-                    className="border-l-4 border-l-re-gold hover:shadow-md transition-all duration-200"
+                    className="border-l-4 border-l-re-gold hover:border-primary/40 transition-colors duration-200"
                 >
                     <CardHeader className="pb-3">
                         <div className="flex items-start justify-between">
@@ -57,6 +62,7 @@ export function LeadList({ leads }: LeadListProps) {
                                 <span className="text-foreground">{lead.phone}</span>
                             </div>
                         )}
+                        <ResponseViewer responses={lead.responses} questions={questions} />
                         <div className="pt-2 border-t border-border">
                             <span className="text-muted-foreground text-xs">
                                 Signed in{' '}

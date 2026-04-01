@@ -24,11 +24,18 @@ type ToHonoInput<V extends ValidationMap> = {
         [K in keyof V]: V[K];
     };
 };
-export type AppContext<V extends ValidationMap = object> = Context<HonoEnv, string, ToHonoInput<V>>;
-export type AuthContext<V extends ValidationMap = object> = Context<AuthEnv, string, ToHonoInput<V>>;
+export type AppContext<V extends ValidationMap = object> = Context<
+    HonoEnv,
+    string,
+    ToHonoInput<V>
+>;
+export type AuthContext<V extends ValidationMap = object> = Context<
+    AuthEnv,
+    string,
+    ToHonoInput<V>
+>;
 export type ToCtx<J, P, Q> = {
     json: J;
     param: P;
     query: Q;
 };
-export {};

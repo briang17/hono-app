@@ -7,18 +7,25 @@ export declare class DbFormConfigRepository implements IFormConfigRepository {
         organizationId: string;
         questions: {
             id: string;
-            type: "number" | "short_text" | "long_text" | "multiple_choice" | "checkboxes";
+            type:
+                | "number"
+                | "short_text"
+                | "long_text"
+                | "multiple_choice"
+                | "checkboxes";
             label: string;
             required: boolean;
             order: number;
             placeholder?: string | undefined;
             options?: string[] | undefined;
-            validation?: {
-                minLength?: number | undefined;
-                maxLength?: number | undefined;
-                min?: number | undefined;
-                max?: number | undefined;
-            } | undefined;
+            validation?:
+                | {
+                      minLength?: number | undefined;
+                      maxLength?: number | undefined;
+                      min?: number | undefined;
+                      max?: number | undefined;
+                  }
+                | undefined;
         }[];
         createdAt: Date;
         updatedAt: Date;
@@ -28,39 +35,56 @@ export declare class DbFormConfigRepository implements IFormConfigRepository {
         organizationId: string;
         questions: {
             id: string;
-            type: "number" | "short_text" | "long_text" | "multiple_choice" | "checkboxes";
+            type:
+                | "number"
+                | "short_text"
+                | "long_text"
+                | "multiple_choice"
+                | "checkboxes";
             label: string;
             required: boolean;
             order: number;
             placeholder?: string | undefined;
             options?: string[] | undefined;
-            validation?: {
-                minLength?: number | undefined;
-                maxLength?: number | undefined;
-                min?: number | undefined;
-                max?: number | undefined;
-            } | undefined;
+            validation?:
+                | {
+                      minLength?: number | undefined;
+                      maxLength?: number | undefined;
+                      min?: number | undefined;
+                      max?: number | undefined;
+                  }
+                | undefined;
         }[];
         createdAt: Date;
         updatedAt: Date;
     }>;
-    update(id: Id, questions: FormConfig["questions"]): Promise<{
+    update(
+        id: Id,
+        questions: FormConfig["questions"],
+    ): Promise<{
         id: string;
         organizationId: string;
         questions: {
             id: string;
-            type: "number" | "short_text" | "long_text" | "multiple_choice" | "checkboxes";
+            type:
+                | "number"
+                | "short_text"
+                | "long_text"
+                | "multiple_choice"
+                | "checkboxes";
             label: string;
             required: boolean;
             order: number;
             placeholder?: string | undefined;
             options?: string[] | undefined;
-            validation?: {
-                minLength?: number | undefined;
-                maxLength?: number | undefined;
-                min?: number | undefined;
-                max?: number | undefined;
-            } | undefined;
+            validation?:
+                | {
+                      minLength?: number | undefined;
+                      maxLength?: number | undefined;
+                      min?: number | undefined;
+                      max?: number | undefined;
+                  }
+                | undefined;
         }[];
         createdAt: Date;
         updatedAt: Date;

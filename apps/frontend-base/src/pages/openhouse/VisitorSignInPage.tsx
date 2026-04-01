@@ -6,8 +6,7 @@ import { useState } from 'react'
 import { useCreateOpenHouseLead } from '@/lib/mutations/openhouse'
 import { usePublicOpenHouse } from '@/lib/queries/openhouse'
 import { cn } from '@/lib/utils'
-import { CreateOpenHouseLeadForm } from './components/CreateOpenHouseLeadForm'
-import type { CreateOpenHouseLeadInput } from '@/lib/schemas/openhouse.schema'
+import { VisitorSignInForm } from './components/VisitorSignInForm'
 
 export function VisitorSignInError() {
     return (
@@ -32,7 +31,16 @@ export function VisitorSignInPage() {
     const createLead = useCreateOpenHouseLead(openHouseId)
     const [submitted, setSubmitted] = useState(false)
 
-    const handleSubmit = async (values: CreateOpenHouseLeadInput) => {
+    const customFields = openHouse.formConfig?.questions ?? []
+
+    async function handleSubmit(values: {
+        firstName: string
+        lastName: string
+        email: string | null
+        phone: string | null
+        workingWithAgent: boolean
+        responses?: Record<string, unknown>
+    }) {
         await createLead.mutateAsync(values)
         setSubmitted(true)
     }
@@ -83,7 +91,7 @@ export function VisitorSignInPage() {
 
             <div className="flex-1 flex items-center justify-center bg-muted/30 p-4">
                 <div className="w-full max-w-md space-y-6">
-                    <CreateOpenHouseLeadForm onSubmit={handleSubmit} submitLabel="Sign In" />
+                    <VisitorSignInForm customFields={customFields} onSubmit={handleSubmit} />
                 </div>
             </div>
         </div>

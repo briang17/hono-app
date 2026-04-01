@@ -1,4 +1,10 @@
-import type { CreateAgentInput, UpdateAgentInput } from '@/lib/schemas/agent.schema'
+import { z } from 'zod/v4'
+import {
+    agentSchema,
+    agentWithUserSchema,
+    type CreateAgentInput,
+    type UpdateAgentInput,
+} from '@/lib/schemas/agent.schema'
 import { apiClient } from './client'
 
 export const agentApi = {
@@ -8,7 +14,7 @@ export const agentApi = {
             throw new Error('Failed to fetch agents')
         }
         const data = await res.json()
-        return data.data
+        return z.array(agentWithUserSchema).parse(data.data)
     },
 
     getAgent: async (id: string) => {
@@ -17,7 +23,7 @@ export const agentApi = {
             throw new Error('Failed to fetch agent')
         }
         const data = await res.json()
-        return data.data
+        return agentSchema.parse(data.data)
     },
 
     createAgent: async (data: CreateAgentInput) => {
@@ -26,7 +32,7 @@ export const agentApi = {
             throw new Error('Failed to create agent')
         }
         const resData = await res.json()
-        return resData.data
+        return agentSchema.parse(resData.data)
     },
 
     updateAgent: async (id: string, data: UpdateAgentInput) => {
@@ -35,7 +41,7 @@ export const agentApi = {
             throw new Error('Failed to update agent')
         }
         const resData = await res.json()
-        return resData.data
+        return agentSchema.parse(resData.data)
     },
 
     deleteAgent: async (id: string) => {
@@ -51,7 +57,7 @@ export const agentApi = {
             throw new Error('Failed to deactivate agent')
         }
         const data = await res.json()
-        return data.data
+        return agentSchema.parse(data.data)
     },
 
     reactivateAgent: async (id: string) => {
@@ -60,6 +66,6 @@ export const agentApi = {
             throw new Error('Failed to reactivate agent')
         }
         const data = await res.json()
-        return data.data
+        return agentSchema.parse(data.data)
     },
 }

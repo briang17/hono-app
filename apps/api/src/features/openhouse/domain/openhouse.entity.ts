@@ -5,7 +5,10 @@ import {
     IdSchema,
     PhoneSchema,
 } from "@features/common/values";
-import type { FormConfig } from "@formconfig/domain/form-config.entity";
+import type {
+    FormConfig,
+    Question,
+} from "@formconfig/domain/form-config.entity";
 import { FormConfigSchema } from "@formconfig/domain/form-config.entity";
 import { z } from "zod";
 
@@ -49,7 +52,15 @@ export const OpenHouseLeadSchema = z.object({
     submittedAt: DateSchema,
     consent: z.boolean().default(false),
     responses: z
-        .record(z.union([z.string(), z.number(), z.array(z.string())]))
+        .record(
+            z.string(),
+            z.union([
+                z.string(),
+                z.number(),
+                z.array(z.string()),
+                z.array(z.number()),
+            ]),
+        )
         .nullable()
         .nullish(),
 });
@@ -152,8 +163,66 @@ export type ResponseValidationResult = z.infer<
 >;
 
 export interface ResponseValidationInput {
-    responses: Record<string, string | number | string[]> | null | undefined;
+    responses: Record<string, string | number | string[] | number[]> | null | undefined;
     formConfig: FormConfig | null;
+}
+
+const optionValues = (options: { value: string }[] | undefined): string[] =>
+    options?.map((o) => o.value) ?? [];
+
+function validateRangeResponse(
+    response: unknown,
+    question: Question,
+    questionId: string,
+    errors: ResponseValidationError[],
+): boolean {
+    if (
+        !Array.isArray(response) ||
+        response.length !== 2 ||
+        typeof response[0] !== "number" ||
+        typeof response[1] !== "number"
+    ) {
+        errors.push({
+            questionId,
+            message: `"${question.label}" must be a range of two numbers`,
+            code: "invalid_type",
+        });
+        return false;
+    }
+
+    const [lo, hi] = response as [number, number];
+
+    if (lo > hi) {
+        errors.push({
+            questionId,
+            message: `"${question.label}" lower bound must not exceed upper bound`,
+            code: "invalid_range",
+        });
+    }
+
+    if (
+        question.validation?.min !== undefined &&
+        lo < question.validation.min
+    ) {
+        errors.push({
+            questionId,
+            message: `"${question.label}" lower bound must be at least ${question.validation.min}`,
+            code: "invalid_range",
+        });
+    }
+
+    if (
+        question.validation?.max !== undefined &&
+        hi > question.validation.max
+    ) {
+        errors.push({
+            questionId,
+            message: `"${question.label}" upper bound must be at most ${question.validation.max}`,
+            code: "invalid_range",
+        });
+    }
+
+    return true;
 }
 
 export function validateResponses({
@@ -242,7 +311,11 @@ export function validateResponses({
             }
         }
 
-        if (question.type === "short_text" || question.type === "long_text") {
+        if (question.type === "range") {
+            validateRangeResponse(response, question, questionId, errors);
+        }
+
+        if (question.type === "text" || question.type === "textarea") {
             const stringValue = String(response);
 
             if (
@@ -268,7 +341,7 @@ export function validateResponses({
             }
         }
 
-        if (question.type === "multiple_choice") {
+        if (question.type === "select" || question.type === "radio") {
             if (typeof response !== "string") {
                 errors.push({
                     questionId,
@@ -278,7 +351,7 @@ export function validateResponses({
                 continue;
             }
 
-            if (!question.options?.includes(response)) {
+            if (!optionValues(question.options).includes(response)) {
                 errors.push({
                     questionId,
                     message: `"${question.label}" must be one of the provided options`,
@@ -287,7 +360,7 @@ export function validateResponses({
             }
         }
 
-        if (question.type === "checkboxes") {
+        if (question.type === "checkbox") {
             if (!Array.isArray(response)) {
                 errors.push({
                     questionId,
@@ -297,14 +370,35 @@ export function validateResponses({
                 continue;
             }
 
+            const validValues = optionValues(question.options);
             for (const option of response) {
-                if (!question.options?.includes(option)) {
+                if (!validValues.includes(option as string)) {
                     errors.push({
                         questionId,
                         message: `"${question.label}" contains invalid option: ${option}`,
                         code: "invalid_option",
                     });
                 }
+            }
+        }
+
+        if (question.type === "date") {
+            if (typeof response !== "string") {
+                errors.push({
+                    questionId,
+                    message: `"${question.label}" must be a date string`,
+                    code: "invalid_type",
+                });
+                continue;
+            }
+
+            const parsed = Date.parse(response);
+            if (Number.isNaN(parsed)) {
+                errors.push({
+                    questionId,
+                    message: `"${question.label}" must be a valid date`,
+                    code: "invalid_type",
+                });
             }
         }
     }

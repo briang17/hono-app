@@ -1,27 +1,24 @@
 import { codes } from "@config/constants";
-import type { AuthContext } from "@lib/types";
+import { DbFormConfigRepository } from "@formconfig/infra/db.form-config.repository";
+import { FormConfigService } from "@formconfig/service/form-config.service";
+import { zValidator } from "@hono/zod-validator";
+import { orgFactory } from "@lib/factory";
+import { rbacMiddleware } from "@middlewares/rbac.middleware";
 import { HTTPException } from "hono/http-exception";
-import { DbFormConfigRepository } from "../infra/db.form-config.repository";
-import { FormConfigService } from "../service/form-config.service";
-import type {
-    CreateFormConfigCtx,
-    DeleteFormConfigCtx,
-    GetFormConfigCtx,
-    UpdateFormConfigCtx,
+import {
+    CreateFormConfigBodySchema,
+    DeleteFormConfigParamsSchema,
+    UpdateFormConfigBodySchema,
+    UpdateFormConfigParamsSchema,
 } from "./form-config.schemas";
 
 const repository = new DbFormConfigRepository();
 const service = new FormConfigService(repository);
 
-export const formConfigController = {
-    getFormConfig: async (c: AuthContext<GetFormConfigCtx>) => {
-        const organizationId = c.get("session").activeOrganizationId;
-
-        if (!organizationId) {
-            throw new HTTPException(codes.UNAUTHORIZED, {
-                message: "Unauthorized",
-            });
-        }
+export const getFormConfigHandlers = orgFactory.createHandlers(
+    rbacMiddleware({ form_config: ["view"] }),
+    async (c) => {
+        const organizationId = c.get("organizationId");
 
         const config = await service.getFormConfig(organizationId);
 
@@ -33,16 +30,13 @@ export const formConfigController = {
 
         return c.json({ data: config });
     },
+);
 
-    createFormConfig: async (c: AuthContext<CreateFormConfigCtx>) => {
-        const organizationId = c.get("session").activeOrganizationId;
-
-        if (!organizationId) {
-            throw new HTTPException(codes.UNAUTHORIZED, {
-                message: "Unauthorized",
-            });
-        }
-
+export const createFormConfigHandlers = orgFactory.createHandlers(
+    zValidator("json", CreateFormConfigBodySchema),
+    rbacMiddleware({ form_config: ["create"] }),
+    async (c) => {
+        const organizationId = c.get("organizationId");
         const data = c.req.valid("json");
 
         const existingConfig = await service.getFormConfig(organizationId);
@@ -59,16 +53,14 @@ export const formConfigController = {
 
         return c.json({ data: config }, codes.CREATED);
     },
+);
 
-    updateFormConfig: async (c: AuthContext<UpdateFormConfigCtx>) => {
-        const organizationId = c.get("session").activeOrganizationId;
-
-        if (!organizationId) {
-            throw new HTTPException(codes.UNAUTHORIZED, {
-                message: "Unauthorized",
-            });
-        }
-
+export const updateFormConfigHandlers = orgFactory.createHandlers(
+    zValidator("param", UpdateFormConfigParamsSchema),
+    zValidator("json", UpdateFormConfigBodySchema),
+    rbacMiddleware({ form_config: ["update"] }),
+    async (c) => {
+        const organizationId = c.get("organizationId");
         const { id } = c.req.valid("param");
         const data = c.req.valid("json");
 
@@ -89,16 +81,13 @@ export const formConfigController = {
 
         return c.json({ data: config });
     },
+);
 
-    deleteFormConfig: async (c: AuthContext<DeleteFormConfigCtx>) => {
-        const organizationId = c.get("session").activeOrganizationId;
-
-        if (!organizationId) {
-            throw new HTTPException(codes.UNAUTHORIZED, {
-                message: "Unauthorized",
-            });
-        }
-
+export const deleteFormConfigHandlers = orgFactory.createHandlers(
+    zValidator("param", DeleteFormConfigParamsSchema),
+    rbacMiddleware({ form_config: ["delete"] }),
+    async (c) => {
+        const organizationId = c.get("organizationId");
         const { id } = c.req.valid("param");
 
         const existingConfig = await service.getFormConfig(organizationId);
@@ -112,4 +101,4 @@ export const formConfigController = {
 
         return c.json({ message: "Form config deleted successfully" });
     },
-};
+);

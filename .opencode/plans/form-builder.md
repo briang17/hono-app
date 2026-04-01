@@ -1,342 +1,505 @@
-# Configurable Form Builder for Open House Sign-ups
+# Form Builder — Schema-Driven Form Builder for Open House Sign-ups
 
-## Overview
-Add organization-level configurable form questions to open house sign-ups, with responses stored in JSON and viewable in the leads list.
+## Status: COMPLETE
 
-## Requirements Summary
-- **Scope**: Per-organization form configuration
-- **Question Types**: Short text, Long text, Number, Multiple choice, Checkboxes
-- **Core Fields**: Keep firstName, lastName, email, phone as fixed columns
-- **Viewing**: Display responses in leads list (expandable/expandable detail view)
+## Scope
+Open House visitor sign-in only. One form config per organization. Agents build custom questions; visitors fill them out.
 
----
-
-## Database Schema Changes
-
-### 1. New Table: `organization_form_config`
-Stores form question definitions per organization.
-
-```typescript
-{
-  id: uuid (PK)
-  organizationId: uuid (FK → organization, cascade delete, UNIQUE constraint)
-  questions: jsonb (not null)  // Array of question objects
-  createdAt: timestamp
-  updatedAt: timestamp
-}
-```
-
-**Note**: UNIQUE constraint on `organizationId` ensures one config per organization.
-
-**Question Object Structure** (in `questions` JSONB):
-```typescript
-{
-  id: Id;                        // UUID from features/common/values.ts
-  type: 'short_text' | 'long_text' | 'number' | 'multiple_choice' | 'checkboxes';
-  label: string;                 // Display label
-  placeholder?: string;          // Optional placeholder
-  required: boolean;             // Whether field is required
-  options?: string[];            // For multiple_choice/checkboxes
-  validation?: {
-    minLength?: number;
-    maxLength?: number;
-    min?: number;                // For number type
-    max?: number;                // For number type
-  };
-  order: number;                 // Display order
-}
-```
-
-### 2. Modify Table: `open_house_lead`
-Add JSONB column for storing dynamic responses.
-
-```typescript
-{
-  // ... existing fields ...
-  responses: jsonb (nullable)  // Key-value pairs of questionId → response
-}
-```
-
-**Note**: Nullable for backwards compatibility with existing leads. Use `.nullish()` in Zod schema.
-
-**Response Structure** (in `responses` JSONB):
-```typescript
-{
-  [questionId: string]: string | string[] | number;
-}
-```
-
-### 3. Relations
-- `organization` (1) ←→ (N) `organization_form_config`
+## Decisions Made
+- **Field types**: text, textarea, number, select, checkbox, radio, date, range
+- **Options format**: `{label, value}[]` (not `string[]`)
+- **Ordering**: Array index position (removed `order` field)
+- **Validation**: Both frontend (TanStack Form + dynamic Zod) AND server-side (`validateResponses()`)
+- **Drag-and-drop**: `@dnd-kit/react` (new API, NOT `@dnd-kit/core`/`@dnd-kit/sortable`)
+- **State**: Zustand (no persist — syncs to server on save)
 
 ---
 
-## Architecture Changes
+## Existing Code (What's Already Done)
 
-### New Feature Structure
-```
-apps/api/src/features/form-config/
-├── api/
-│   ├── form-config.routes.ts          # CRUD routes for form config
-│   ├── form-config.controller.ts      # Request handlers
-│   └── form-config.schemas.ts         # Zod validation schemas
-├── service/
-│   └── form-config.service.ts         # Business logic
-├── infra/
-│   └── db.form-config.repository.ts   # Data access
-└── domain/
-    ├── form-config.entity.ts          # Domain model + factory
-    └── interface.form-config.repository.ts
+### Backend (`apps/api`)
+- `features/form-config/` — full DDD layers (entity, repo, service, controller, routes, schemas)
+- `features/openhouse/domain/openhouse.entity.ts` — `validateResponses()` (160 lines, server-side validation)
+- `features/openhouse/service/openhouse.service.ts` — `getPublicOpenHouseWithFormConfig()`, `createOpenHouseLead()`
+- DB table: `organization_form_config` with `questions` JSONB column
+- DB column: `open_house_lead.responses` JSONB column
+- Current types: `short_text`, `long_text`, `number`, `multiple_choice`, `checkboxes`
+- Current options: `string[]`
+
+### Frontend (`apps/frontend-base`)
+- `@tanstack/react-form` ^1.28.4 — already installed
+- `zustand` ^5.0.11 — already installed (see `uiStore.ts` pattern)
+- `zod` ^4.3.6 — already installed
+- shadcn components: Input, Textarea, Select, Checkbox, Dialog, Button, DatePickerSimple, Field system
+- Form pattern: `useForm()` + `validators.onSubmit` (Zod schema) + `form.Field` render-props + `isFieldInvalid()` + `Field`/`FieldLabel`/`FieldError`
+- `VisitorSignInPage.tsx` — already renders public sign-in form
+- `CreateOpenHouseLeadForm.tsx` — existing lead form (core fields only)
+
+### NOT Yet Installed
+- `@dnd-kit/react` — new dnd-kit (replaces old `@dnd-kit/core` + `@dnd-kit/sortable`)
+- shadcn `Slider` component (for range type)
+- shadcn `RadioGroup` component (for radio type)
+
+---
+
+## Phase 1: Backend — Schema & Entity Rebuild
+
+### 1.1 Update Question Types & Schema
+
+**File**: `apps/api/src/features/form-config/domain/form-config.entity.ts`
+
+```typescript
+export const QuestionTypeSchema = z.enum([
+    "text", "textarea", "number", "select",
+    "checkbox", "radio", "date", "range",
+]);
+
+export const OptionSchema = z.object({
+    label: z.string().min(1),
+    value: z.string().min(1),
+});
+
+export const QuestionValidationSchema = z.object({
+    minLength: z.number().optional(),
+    maxLength: z.number().optional(),
+    min: z.number().optional(),
+    max: z.number().optional(),
+});
+
+export const QuestionSchema = z.object({
+    id: IdSchema,
+    type: QuestionTypeSchema,
+    label: z.string().min(1, "Question label is required"),
+    placeholder: z.string().optional(),
+    required: z.boolean(),
+    options: z.array(OptionSchema).optional(), // only for select, radio, checkbox
+    validation: QuestionValidationSchema.optional(),
+    step: z.number().positive().optional(), // for range type
+});
 ```
 
-### Modified Features
+**Changes from current**:
+- Types: 5 → 8 (added `radio`, `date`, `range`; renamed `short_text`→`text`, `long_text`→`textarea`, `multiple_choice`→`select`)
+- Options: `string[]` → `{label: string, value: string}[]`
+- Removed `order` field — array index position is the order
+- Added `step` field for range slider
+
+**No DB migration needed** — `questions` is JSONB, DB doesn't enforce shape.
+
+### 1.2 Update `validateResponses()` in `openhouse.entity.ts`
+
+**File**: `apps/api/src/features/openhouse/domain/openhouse.entity.ts`
+
+Update the `validateResponses()` function to handle:
+- `radio` — same pattern as old `multiple_choice` (single string, validate against option `.value`)
+- `date` — validate as ISO date string
+- `range` — validate as number within `validation.min`/`validation.max`
+- Update `select` to check `option.value` instead of raw string
+- Update `checkbox` to check `option.value` instead of raw string
+- Rename type checks: `short_text`/`long_text` → `text`/`textarea`
+
+### 1.3 Update `FormConfigSchema` and `NewFormConfigSchema`
+
+Same file. Remove `order` from the output schema. Keep `FormConfigFactory.create()` and `fromDb()`.
+
+---
+
+## Phase 2: Backend — API Alignment
+
+### 2.1 Add `orgMiddleware` + `rbacMiddleware` to form-config routes
+
+**File**: `apps/api/src/features/form-config/api/form-config.routes.ts`
+
+Current routes lack both middleware. Align with `openhouse` and `agent` features:
+
+```typescript
+formConfigRoutes = new Hono()
+    .use(authMiddleware)
+    .use(orgMiddleware)
+    .get("/", rbacMiddleware({ form_config: ["view"] }), ...)
+    .post("/", rbacMiddleware({ form_config: ["create"] }), ...)
+    .put("/:id", rbacMiddleware({ form_config: ["update"] }), ...)
+    .delete("/:id", rbacMiddleware({ form_config: ["delete"] }), ...)
 ```
-apps/api/src/features/openhouse/
-├── api/
-│   ├── openhouse.routes.ts            # Add form config to public response
-│   └── openhouse.controller.ts        # Update lead creation
-├── service/
-│   └── openhouse.service.ts           # Add form config validation
-└── infra/
-    └── db.openhouse.repository.ts     # Update lead creation with responses
+
+### 2.2 Convert controller → `orgFactory.createHandlers()` pattern
+
+**File**: `apps/api/src/features/form-config/api/form-config.controller.ts` → rename to `form-config.handlers.ts`
+
+Switch from controller object pattern to `orgFactory.createHandlers()` to match the established convention in `openhouse` and `agent`.
+
+### 2.3 Add RBAC permission
+
+**File**: `packages/auth/lib/permissions.ts`
+
+Add `form_config` resource with `view`, `create`, `update`, `delete` actions. Add to relevant roles (e.g., `admin`, `agent`).
+
+---
+
+## Phase 3: Frontend — Dependencies & Types
+
+### 3.1 Install @dnd-kit/react
+
+```bash
+pnpm --filter @apps/frontend-base add @dnd-kit/react
+```
+
+> **IMPORTANT**: The new @dnd-kit API is fundamentally different from the old one.
+> - Package: `@dnd-kit/react` (NOT `@dnd-kit/core` + `@dnd-kit/sortable`)
+> - `DragDropProvider` replaces `DndContext`
+> - `useSortable({id, index})` from `@dnd-kit/react/sortable`
+> - No `SortableContext`, no `CSS.Transform`, no `closestCenter`, no `verticalListSortingStrategy`
+> - Built-in `OptimisticSortingPlugin` handles visual reorder automatically
+> - State updates in `onDragEnd` using `source.initialIndex` → `source.index`
+> - Use `isSortable` type guard from `@dnd-kit/react/sortable`
+> - Drag handle: `handleRef` from `useSortable()`
+
+### 3.2 Add shadcn components
+
+```bash
+# From apps/frontend-base
+npx shadcn@latest add slider radio-group
+```
+
+### 3.3 Shared Zod schemas (frontend)
+
+**File**: `apps/frontend-base/src/lib/schemas/form-builder.schema.ts`
+
+Mirror the backend `QuestionSchema` and `FormConfigSchema` for frontend use.
+
+```typescript
+export const QuestionTypeSchema = z.enum([
+    "text", "textarea", "number", "select",
+    "checkbox", "radio", "date", "range",
+]);
+export type FieldType = z.infer<typeof QuestionTypeSchema>;
+
+export const OptionSchema = z.object({
+    label: z.string().min(1),
+    value: z.string().min(1),
+});
+
+export const QuestionValidationSchema = z.object({
+    minLength: z.number().optional(),
+    maxLength: z.number().optional(),
+    min: z.number().optional(),
+    max: z.number().optional(),
+});
+
+export const QuestionSchema = z.object({
+    id: z.string().uuid(),
+    type: QuestionTypeSchema,
+    label: z.string().min(1),
+    placeholder: z.string().optional(),
+    required: z.boolean(),
+    options: z.array(OptionSchema).optional(),
+    validation: QuestionValidationSchema.optional(),
+    step: z.number().positive().optional(),
+});
+
+export type FormFieldConfig = z.infer<typeof QuestionSchema>;
 ```
 
 ---
 
-## Implementation Plan
+## Phase 4: Frontend — Builder UI (Agent Side)
 
-### Phase 1: Database Schema
-1. Create `organization_form_config` table schema
-2. Add `responses` jsonb column to `open_house_lead` table
-3. Run migration: `pnpm --filter @packages/database db:migrate`
+### 4.1 Zustand Store
 
-### Phase 2: Form Config Domain
-1. Create `FormConfigEntity` with Zod validation
-   - Import `IdSchema` from `@features/common/values`
-   - Validate question structure
-   - Ensure unique question IDs within the questions array
-   - Validate options for select/checkbox types
-   - Question IDs use `Bun.randomUUIDv7()` (same pattern as other entities)
-2. Create `FormConfigFactory` with `create()` and `fromDb()` methods
-3. Define `IFormConfigRepository` interface
-   - `getByOrg(organizationId)`
-   - `create(organizationId, config)`
-   - `update(id, config)`
-   - `delete(id)`
+**File**: `apps/frontend-base/src/lib/stores/form-builder-store.ts`
 
-### Phase 3: Form Config Repository
-1. Implement `DbFormConfigRepository`
-2. CRUD operations using Drizzle
-3. Handle JSONB serialization/deserialization
+Follows the `uiStore.ts` pattern (no persist middleware — builder state syncs to server on save):
 
-### Phase 4: Form Config Service & API
-1. Create `FormConfigService` with:
-   - `getFormConfig(organizationId)`
-   - `createFormConfig(organizationId, questions)`
-   - `updateFormConfig(id, questions)`
-   - `deleteFormConfig(id)`
-2. Create controller with organization-scoped CRUD
-3. Create routes: `/api/form-config` (GET, POST, PUT, DELETE)
+```typescript
+interface FormBuilderState {
+    fields: FormFieldConfig[];
+    isLoading: boolean;
+    isDirty: boolean;
 
-### Phase 5: Update Open House Public Endpoint
-1. Modify `getPublicOpenHouse` to include form config
-   - Join with `organization_form_config` table
-   - Return questions array in response
-2. Update public open house schema to include `questions` field
+    setFields: (fields: FormFieldConfig[]) => void;
+    addField: (type: FieldType) => void;
+    updateField: (id: string, updates: Partial<FormFieldConfig>) => void;
+    removeField: (id: string) => void;
+    reorderFields: (fromIndex: number, toIndex: number) => void;
+    reset: () => void;
+}
+```
 
-### Phase 6: Update Lead Creation
-1. Add `responses` field to `CreateOpenHouseLeadSchema` with `.nullish()`
-2. Add response validation to `NewOpenHouseLeadSchema` refinement:
-   - Fetch form config from open house's organization
-   - Validate responses against config (if provided)
-   - Check required fields, types, constraints
-3. Update `createOpenHouseLead` service method:
-   - Store validated responses in JSONB column
-   - Keep core fields separate
-4. Update repository to handle `responses` field
+`addField` creates a field with sensible defaults per type:
+- `select`/`radio`/`checkbox` → initialized with empty options array
+- `range` → initialized with `validation: { min: 0, max: 100 }`, `step: 1`
+- All others → minimal defaults
 
-### Phase 7: Update Lead Viewing
-1. Modify `getOpenHouseLeads` response:
-   - Include `responses` field for each lead
-   - Optionally join with form config to get question labels
-2. Update lead schema to include `responses` field with `.nullish()`
+`isDirty` tracks whether the form has been modified since last save.
+
+### 4.2 Builder Canvas with @dnd-kit/react (NEW API)
+
+**CRITICAL**: The old API (`DndContext`, `SortableContext`, `CSS.Transform`, `closestCenter`, `verticalListSortingStrategy`) does NOT exist in the new package.
+
+Correct architecture:
+
+```tsx
+import { DragDropProvider } from "@dnd-kit/react";
+import { useSortable, isSortable } from "@dnd-kit/react/sortable";
+
+// SortableItem component
+function SortableFieldCard({ id, index, field }) {
+    const { ref, handleRef, isDragSource, isDropping } = useSortable({ id, index });
+
+    return (
+        <div ref={ref}>
+            <div ref={handleRef}>{/* drag handle icon */}</div>
+            {/* field card content */}
+        </div>
+    );
+}
+
+// Builder canvas
+function BuilderCanvas() {
+    const { fields, reorderFields } = useFormBuilderStore();
+
+    return (
+        <DragDropProvider
+            onDragEnd={(event) => {
+                if (event.canceled) return;
+                const { source } = event.operation;
+                if (isSortable(source)) {
+                    if (source.initialIndex !== source.index) {
+                        reorderFields(source.initialIndex, source.index);
+                    }
+                }
+            }}
+        >
+            <div className="space-y-3">
+                {fields.map((field, index) => (
+                    <SortableFieldCard key={field.id} id={field.id} index={index} field={field} />
+                ))}
+            </div>
+        </DragDropProvider>
+    );
+}
+```
+
+Key differences from old API:
+- No `SortableContext` wrapper
+- No `CSS.Transform.toString(transform)` for positioning
+- `useSortable` takes `{id, index}` (index is required)
+- Returns `{ref, handleRef}` instead of `{attributes, listeners, setNodeRef, transform, transition}`
+- Built-in optimistic sorting handles visual reorder
+- State only updates in `onDragEnd` using `source.initialIndex`/`source.index`
+
+### 4.3 Component File Structure
+
+```
+pages/openhouse/components/form-builder/
+  FormBuilder.tsx              # Main container: toolbar + canvas + save button
+  BuilderToolbar.tsx           # Field type palette (8 buttons with icons)
+  BuilderCanvas.tsx            # DragDropProvider + sortable list
+  SortableFieldCard.tsx        # Draggable card with handle, type icon, label, actions
+  FieldEditor.tsx              # Edit panel for selected field (label, placeholder, required, etc.)
+  FieldOptionsEditor.tsx       # Edit options for select/radio/checkbox (add/remove/reorder)
+  FieldValidationEditor.tsx    # Edit validation rules (min, max, minLength, maxLength, step)
+```
+
+### 4.4 Field Type Palette (BuilderToolbar)
+
+8 field type buttons, each with an icon. On click → `addField(type)`:
+
+| Type | Icon | Default |
+|------|------|---------|
+| text | Type | `{ label: "New text question", required: false }` |
+| textarea | AlignLeft | `{ label: "New textarea question", required: false }` |
+| number | Hash | `{ label: "New number question", required: false }` |
+| select | ChevronDown | `{ label: "New select question", options: [], required: false }` |
+| checkbox | CheckSquare | `{ label: "New checkbox question", options: [], required: false }` |
+| radio | CircleDot | `{ label: "New radio question", options: [], required: false }` |
+| date | Calendar | `{ label: "New date question", required: false }` |
+| range | SlidersHorizontal | `{ label: "New range question", validation: {min:0, max:100}, step: 1, required: false }` |
 
 ---
 
-## API Contracts
+## Phase 5: Frontend — Dynamic Form Renderer (Visitor Side)
+
+### 5.1 Zod Schema Generator
+
+**File**: `apps/frontend-base/src/lib/schema-generator.ts`
+
+Converts JSON field configs → Zod schema for TanStack Form validation.
+
+| Field Type | Zod Validator | Notes |
+|-----------|--------------|-------|
+| `text` | `z.string()` + minLength/maxLength from validation | `min(1)` if required |
+| `textarea` | `z.string()` + minLength/maxLength from validation | `min(1)` if required |
+| `number` | `z.coerce.number()` + min/max from validation | Coerce from string input |
+| `select` | `z.enum(optionValues)` when options exist, else `z.string()` | `min(1)` if required (no options) |
+| `checkbox` | `z.array(z.enum(optionValues))` when options exist, else `z.array(z.string())` | Optional: min selections |
+| `radio` | `z.enum(optionValues)` when options exist, else `z.string()` | Same as select |
+| `date` | `z.string().min(1)` if required (date string from picker) | Coerce handling depends on input |
+| `range` | `z.tuple([z.number().min(min), z.number().max(max)])` + refine `lo <= hi` | Dual-handle range picker, response is `[number, number]` |
+
+### 5.2 DynamicForm Component
+
+**File**: `apps/frontend-base/src/pages/openhouse/components/DynamicForm.tsx`
+
+Follows the existing form pattern from `CreateOpenHouseLeadForm.tsx`:
+
+- `useForm()` with `validators.onSubmit: generatedZodSchema`
+- `form.Field` with `field.id` as the name
+- `form.Subscribe` for submit button state
+- Uses existing `Field`, `FieldLabel`, `FieldError`, `isFieldInvalid` components
+- `defaultValues` computed from fields (text→'', checkbox→[], range→min, etc.)
+
+### 5.3 FieldRenderer Component
+
+**File**: `apps/frontend-base/src/pages/openhouse/components/FieldRenderer.tsx`
+
+Maps each field type to shadcn components:
+
+| Type | Component | File |
+|------|-----------|------|
+| text | `Input` | `components/ui/input.tsx` |
+| textarea | `Textarea` | `components/ui/textarea.tsx` |
+| number | `Input type="number"` | `components/ui/input.tsx` |
+| select | `Select` + `SelectTrigger` + `SelectContent` + `SelectItem` | `components/ui/select.tsx` |
+| checkbox | `Checkbox` per option (group) | `components/ui/checkbox.tsx` |
+| radio | `RadioGroup` + `RadioGroupItem` | NEW — `components/ui/radio-group.tsx` |
+| date | `DatePickerSimple` | `components/ui/datepicker-simple.tsx` |
+| range | `Slider` | NEW — `components/ui/slider.tsx` |
+
+All wrapped in `Field`/`FieldLabel`/`FieldError` component system (existing pattern).
+
+---
+
+## Phase 6: Integration
+
+### 6.1 API Client & React Query Hooks
+
+**New files**:
+- `apps/frontend-base/src/lib/api/form-config.api.ts` — get, create, update API calls via Hono RPC client
+- `apps/frontend-base/src/lib/mutations/useSaveFormConfig.ts` — create or update mutation
+- `apps/frontend-base/src/lib/queries/useFormConfig.ts` — query for fetching org's form config
+
+### 6.2 Route: Builder Page
+
+**File**: `apps/frontend-base/src/routes/(protected)/(organization)/openhouse/form-builder.tsx`
+
+Agent-facing page where they construct their visitor form. Loads existing config into Zustand store, renders `FormBuilder` component, saves on button click.
+
+### 6.3 Update VisitorSignInPage
+
+The existing `VisitorSignInPage` already fetches the public open house with form config (`PublicOpenHouse` includes `formConfig: FormConfigSchema.nullable()`).
+
+Update to:
+1. Render `CreateOpenHouseLeadForm` for core fields (firstName, lastName, email, phone, workingWithAgent)
+2. Below core fields, render `DynamicForm` for custom questions (if `formConfig` is not null)
+3. Merge both form submissions into a single API call with `responses` field
+
+---
+
+## Implementation Order
+
+1. **Phase 1** — Backend entity/schema updates (form-config.entity.ts, openhouse.entity.ts)
+2. **Phase 3** — Install deps + shadcn components + shared Zod schemas
+3. **Phase 4** — Builder UI (biggest chunk: Zustand store + dnd-kit canvas + field editors)
+4. **Phase 5** — Dynamic renderer (schema generator + DynamicForm + FieldRenderer)
+5. **Phase 2** — Backend API updates (middleware, handlers, RBAC) — can be done in parallel with 4/5
+6. **Phase 6** — Integration (API hooks, routes, wire everything together)
+
+---
+
+## API Contracts (Updated)
 
 ### GET /api/form-config
-Get current organization's form config.
-
-**Response**:
 ```json
 {
-  "data": {
-    "id": "uuid",
-    "questions": [
-      {
-        "id": "123e4567-e89b-12d3-a456-426614174000",
-        "type": "short_text",
-        "label": "What's your budget?",
-        "placeholder": "e.g. $500k",
-        "required": true,
-        "order": 1
-      },
-      {
-        "id": "223e4567-e89b-12d3-a456-426614174001",
-        "type": "multiple_choice",
-        "label": "When are you looking to move?",
-        "options": ["ASAP", "1-3 months", "3-6 months", "6+ months"],
-        "required": true,
-        "order": 2
-      }
-    ]
-  }
+    "data": {
+        "id": "uuid",
+        "questions": [
+            {
+                "id": "uuid",
+                "type": "select",
+                "label": "When are you looking to move?",
+                "required": true,
+                "options": [
+                    { "label": "ASAP", "value": "asap" },
+                    { "label": "1-3 months", "value": "1-3_months" },
+                    { "label": "3-6 months", "value": "3-6_months" },
+                    { "label": "6+ months", "value": "6_plus" }
+                ]
+            }
+        ]
+    }
 }
 ```
 
 ### POST /api/form-config
-Create form config for organization.
-
-**Request**:
 ```json
 {
-  "questions": [
-    {
-      "id": "123e4567-e89b-12d3-a456-426614174000",
-      "type": "short_text",
-      "label": "What's your budget?",
-      "required": true,
-      "order": 1
-    }
-  ]
-}
-```
-
-### PUT /api/form-config/:id
-Update form config.
-
-### DELETE /api/form-config/:id
-Delete form config (reverts to default behavior).
-
-### GET /api/public/open-houses/:id
-(Updated) Get open house with form questions.
-
-**Response**:
-```json
-{
-  "data": {
-    "id": "uuid",
-    "propertyAddress": "123 Main St",
-    "date": "2025-03-04",
     "questions": [
-      {
-        "id": "123e4567-e89b-12d3-a456-426614174000",
-        "type": "short_text",
-        "label": "What's your budget?",
-        "placeholder": "e.g. $500k",
-        "required": true,
-        "order": 1
-      }
+        {
+            "id": "uuid",
+            "type": "text",
+            "label": "What's your budget?",
+            "placeholder": "e.g. $500k",
+            "required": true
+        }
     ]
-  }
 }
 ```
 
-### POST /api/public/open-houses/:id/sign-in
-(Updated) Sign up with responses.
-
-**Request**:
+### POST /api/public/open-houses/:id/sign-in (updated)
 ```json
 {
-  "firstName": "John",
-  "lastName": "Doe",
-  "email": "john@example.com",
-  "phone": "555-1234",
-  "workingWithAgent": false,
-  "responses": {
-    "123e4567-e89b-12d3-a456-426614174000": "$500k",
-    "223e4567-e89b-12d3-a456-426614174001": "1-3 months"
-  }
-}
-```
-
-### GET /api/open-houses/:id/leads
-(Updated) Get leads with responses.
-
-**Response**:
-```json
-{
-  "data": [
-    {
-      "id": "uuid",
-      "firstName": "John",
-      "lastName": "Doe",
-      "email": "john@example.com",
-      "phone": "555-1234",
-      "workingWithAgent": false,
-      "submittedAt": "2025-03-04T10:00:00Z",
-      "responses": {
-        "123e4567-e89b-12d3-a456-426614174000": "$500k",
-        "223e4567-e89b-12d3-a456-426614174001": "1-3 months"
-      }
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "john@example.com",
+    "phone": "555-1234",
+    "workingWithAgent": false,
+    "responses": {
+        "question-uuid-1": "$500k",
+        "question-uuid-2": "1-3_months",
+        "question-uuid-3": ["option_a", "option_b"]
     }
-  ]
 }
 ```
 
 ---
 
-## Edge Cases & Considerations
+## Edge Cases
 
-1. **No form config**: If org has no config, public endpoint returns empty `questions` array. Only core fields are collected.
-
-2. **Deleted config**: When config is deleted, existing leads still have their responses in JSONB. New sign-ups only collect core fields.
-
-3. **Invalid question types**: Validation prevents creating invalid configs (e.g., multiple choice without options).
-
-4. **Response validation**:
-   - Validation occurs in `NewOpenHouseLeadSchema` refinement
-   - Required fields must be present
-   - Type checking (string, number, array)
-   - Min/max constraints
-   - Option validation (for select/checkbox)
-   - Returns detailed error messages for each field
-
-5. **Question ID collisions**: Prevent duplicate question IDs in config.
-
-6. **Frontend rendering**: Question `order` field enables sorted display.
-
-7. **Backwards compatibility**: Existing leads without `responses` field handled gracefully.
+1. **No form config**: Public endpoint returns `formConfig: null`. Only core fields collected.
+2. **Deleted config**: Existing leads keep their responses in JSONB. New sign-ups only collect core fields.
+3. **Type changes**: If agent changes a field from `text` to `number`, old string responses still exist. Server-side validation applies to new submissions only.
+4. **Question ID stability**: IDs are UUIDs generated at field creation. Editing label/type doesn't change the ID. Deleting removes it permanently.
+5. **Empty options**: `select`/`radio`/`checkbox` with empty options array — should the builder prevent save? (Yes — validate that option-bearing types have at least 1 option.)
 
 ---
 
-## Testing Strategy
+## Checklist
 
-1. **Unit Tests** (when test framework is configured):
-   - FormConfigEntity validation
-   - Response validation logic
-   - Repository methods
-
-2. **Integration Tests**:
-   - Full flow: create config → create open house → sign up with responses → view leads
-   - Validation error cases
-   - Organization scoping
-
-3. **Manual Testing**:
-   - Create form config via API
-   - Test public sign-up with valid/invalid responses
-   - Verify responses stored correctly
-   - Check leads list displays responses
-
----
-
-## Future Enhancements (Out of Scope)
-
-- Conditional questions (show/hide based on previous answers)
-- Question reordering UI
-- Question templates
-- Form config versioning
-- Export responses to CSV/Excel
-- Response analytics
-- Multi-language support
+- [ ] Phase 1.1: Update `QuestionTypeSchema`, `OptionSchema`, `QuestionSchema` in form-config.entity.ts
+- [ ] Phase 1.2: Update `validateResponses()` in openhouse.entity.ts for new types
+- [ ] Phase 1.3: Update `FormConfigSchema`, `NewFormConfigSchema`, `FormConfigFactory`
+- [ ] Phase 2.1: Add `orgMiddleware` + `rbacMiddleware` to form-config routes
+- [ ] Phase 2.2: Convert controller → `orgFactory.createHandlers()` pattern
+- [ ] Phase 2.3: Add `form_config` permission to RBAC
+- [ ] Phase 3.1: Install `@dnd-kit/react`
+- [ ] Phase 3.2: Install shadcn `slider` + `radio-group`
+- [ ] Phase 3.3: Create `form-builder.schema.ts` frontend Zod schemas
+- [ ] Phase 4.1: Create `form-builder-store.ts` Zustand store
+- [ ] Phase 4.2: Create `BuilderCanvas.tsx` with DragDropProvider + useSortable
+- [ ] Phase 4.3: Create `BuilderToolbar.tsx` field type palette
+- [ ] Phase 4.4: Create `SortableFieldCard.tsx` draggable card
+- [ ] Phase 4.5: Create `FieldEditor.tsx` edit panel
+- [ ] Phase 4.6: Create `FieldOptionsEditor.tsx` options editor
+- [ ] Phase 4.7: Create `FieldValidationEditor.tsx` validation editor
+- [ ] Phase 4.8: Create `FormBuilder.tsx` main container
+- [ ] Phase 5.1: Create `schema-generator.ts` Zod schema generator
+- [ ] Phase 5.2: Create `DynamicForm.tsx` dynamic form renderer
+- [ ] Phase 5.3: Create `FieldRenderer.tsx` field type renderer
+- [ ] Phase 6.1: Create API client + mutations + queries
+- [ ] Phase 6.2: Create form-builder route page
+- [ ] Phase 6.3: Update VisitorSignInPage to use DynamicForm
+- [ ] Phase 6.4: Add link to form builder from openhouse section (sidebar or detail page)
+- [ ] Run `pnpm --filter @apps/api cq` and `pnpm --filter @apps/frontend-base cq`
+- [ ] Update AGENTS.md with form-builder conventions

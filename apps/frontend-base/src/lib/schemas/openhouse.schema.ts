@@ -1,4 +1,5 @@
 import { z } from 'zod/v4'
+import { FormConfigSchema } from './form-builder.schema'
 
 export const openHouseSchema = z.object({
     id: z.uuid(),
@@ -40,6 +41,13 @@ export const openHouseLeadSchema = z.object({
     phone: z.string().nullable(),
     workingWithAgent: z.boolean(),
     submittedAt: z.date(),
+    responses: z
+        .record(
+            z.string(),
+            z.union([z.string(), z.number(), z.array(z.string()), z.array(z.number())]),
+        )
+        .nullable()
+        .nullish(),
 })
 
 export const createOpenHouseLeadSchema = openHouseLeadSchema
@@ -55,6 +63,11 @@ export const createOpenHouseLeadSchema = openHouseLeadSchema
         path: ['email'],
     })
 
+export const leadsWithFormConfigSchema = z.object({
+    leads: z.array(openHouseLeadSchema),
+    formConfig: FormConfigSchema.nullable(),
+})
+
 export const publicOpenHouseSchema = z.object({
     id: z.uuid(),
     propertyAddress: z.string().min(1),
@@ -62,7 +75,7 @@ export const publicOpenHouseSchema = z.object({
     startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format'),
     endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format'),
     listingImageUrl: z.url().nullish(),
-    formConfig: z.any().nullable(),
+    formConfig: FormConfigSchema.nullable(),
 })
 
 export type OpenHouse = z.infer<typeof openHouseSchema>
@@ -70,3 +83,4 @@ export type CreateOpenHouseInput = z.infer<typeof createOpenHouseSchema>
 export type OpenHouseLead = z.infer<typeof openHouseLeadSchema>
 export type CreateOpenHouseLeadInput = z.infer<typeof createOpenHouseLeadSchema>
 export type PublicOpenHouse = z.infer<typeof publicOpenHouseSchema>
+export type LeadsWithFormConfig = z.infer<typeof leadsWithFormConfigSchema>

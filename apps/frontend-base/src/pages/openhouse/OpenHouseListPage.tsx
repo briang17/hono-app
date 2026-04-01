@@ -1,7 +1,9 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { isPast, isToday } from 'date-fns'
+import { SlidersHorizontal } from 'lucide-react'
 import { useState } from 'react'
+import { Can } from '@/components/Can'
 import { Button } from '@/components/ui/button'
 import {
     Dialog,
@@ -15,7 +17,6 @@ import { useOpenHouses } from '@/lib/queries/openhouse'
 import type { CreateOpenHouseInput, OpenHouse } from '@/lib/schemas/openhouse.schema'
 import { CreateOpenHouseForm } from './components/CreateOpenHouseForm'
 import { OpenHouseCard } from './components/OpenHouseCard'
-import { Can } from '@/components/Can'
 
 export function OpenHouseListPage() {
     const navigate = useNavigate()
@@ -57,22 +58,31 @@ export function OpenHouseListPage() {
                     <h1 className="text-3xl font-bold tracking-tight">Open Houses</h1>
                     <p className="text-muted-foreground mt-1">Manage your open houses</p>
                 </div>
-                <Dialog open={createFormOpen} onOpenChange={setCreateFormOpen}>
-                    <Can permission={{openhouse: ["create"]}} fallback={(<p></p>)}>
-                        <DialogTrigger asChild>
+                <div className="flex gap-2">
+                    <Button
+                        variant="outline"
+                        onClick={() => navigate({ to: '/openhouse/form-builder' })}
+                    >
+                        <SlidersHorizontal className="size-4" />
+                        Form Builder
+                    </Button>
+                    <Dialog open={createFormOpen} onOpenChange={setCreateFormOpen}>
+                        <Can permission={{ openhouse: ['create'] }} fallback={<p></p>}>
+                            <DialogTrigger asChild>
                                 <Button>New Open House</Button>
-                        </DialogTrigger>
-                    </Can>
-                    <DialogContent className="sm:max-w-[500px]">
-                        <DialogHeader>
-                            <DialogTitle>Create Open House</DialogTitle>
-                        </DialogHeader>
-                        <CreateOpenHouseForm
-                            onSubmit={handleCreateOpenHouse}
-                            submitLabel="Create"
-                        />
-                    </DialogContent>
-                </Dialog>
+                            </DialogTrigger>
+                        </Can>
+                        <DialogContent className="sm:max-w-[500px]">
+                            <DialogHeader>
+                                <DialogTitle>Create Open House</DialogTitle>
+                            </DialogHeader>
+                            <CreateOpenHouseForm
+                                onSubmit={handleCreateOpenHouse}
+                                submitLabel="Create"
+                            />
+                        </DialogContent>
+                    </Dialog>
+                </div>
             </div>
 
             {upcoming.length > 0 && (
