@@ -1,17 +1,14 @@
 import { useNavigate } from '@tanstack/react-router'
 import { ArrowLeft } from 'lucide-react'
+import { useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { useCreateOpenHouse } from '@/lib/mutations/openhouse'
-import { CreateOpenHouseForm } from './components/CreateOpenHouseForm'
+import { OpenHouseForm } from './components/OpenHouseForm'
 
 export function CreateOpenHousePage() {
     const navigate = useNavigate()
     const createOpenHouse = useCreateOpenHouse()
-
-    const handleSubmit = async (values: { [key: string]: unknown }) => {
-        const result = await createOpenHouse.mutateAsync(values as never)
-        navigate({ to: '/openhouse/$openHouseId', params: { openHouseId: result.id } })
-    }
+    const createdId = useRef<string | null>(null)
 
     return (
         <div className="w-full max-w-2xl mx-auto space-y-8">
@@ -27,7 +24,21 @@ export function CreateOpenHousePage() {
                 </p>
             </div>
 
-            <CreateOpenHouseForm onSubmit={handleSubmit} submitLabel="Create Open House" />
+            <OpenHouseForm
+                mutationFn={async (values) => {
+                    const result = await createOpenHouse.mutateAsync(values as never)
+                    createdId.current = result.id
+                }}
+                onSuccess={() => {
+                    if (createdId.current) {
+                        navigate({
+                            to: '/openhouse/$openHouseId',
+                            params: { openHouseId: createdId.current },
+                        })
+                    }
+                }}
+                submitLabel="Create Open House"
+            />
         </div>
     )
 }

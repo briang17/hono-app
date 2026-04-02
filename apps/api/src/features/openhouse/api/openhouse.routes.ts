@@ -9,6 +9,7 @@ import {
     getOpenHouseLeadsHandlers,
     getOpenHousesHandlers,
     getPublicOpenHouseHandlers,
+    updateOpenHouseHandlers,
 } from "./openhouse.handlers";
 
 const openhouseRoutes = new Hono()
@@ -18,6 +19,7 @@ const openhouseRoutes = new Hono()
     .get("/:id", ...getOpenHouseHandlers)
     .get("/:id/leads", ...getOpenHouseLeadsHandlers)
     .post("/", ...createOpenHouseHandlers)
+    .put("/:id", ...updateOpenHouseHandlers)
     .delete("/:id", ...deleteOpenHouseHandlers);
 
 const publicOpenHouseRoutes = new Hono()

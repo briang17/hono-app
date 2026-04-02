@@ -1,33 +1,16 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { isPast, isToday } from 'date-fns'
-import { SlidersHorizontal } from 'lucide-react'
-import { useState } from 'react'
+import { Plus, SlidersHorizontal } from 'lucide-react'
 import { Can } from '@/components/Can'
 import { Button } from '@/components/ui/button'
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '@/components/ui/dialog'
-import { useCreateOpenHouse } from '@/lib/mutations/openhouse'
 import { useOpenHouses } from '@/lib/queries/openhouse'
-import type { CreateOpenHouseInput, OpenHouse } from '@/lib/schemas/openhouse.schema'
-import { CreateOpenHouseForm } from './components/CreateOpenHouseForm'
+import type { OpenHouse } from '@/lib/schemas/openhouse.schema'
 import { OpenHouseCard } from './components/OpenHouseCard'
 
 export function OpenHouseListPage() {
     const navigate = useNavigate()
     const { data: openhouses } = useSuspenseQuery(useOpenHouses())
-    const createOpenHouse = useCreateOpenHouse()
-    const [createFormOpen, setCreateFormOpen] = useState(false)
-
-    const handleCreateOpenHouse = async (values: CreateOpenHouseInput) => {
-        await createOpenHouse.mutateAsync(values)
-        setCreateFormOpen(false)
-    }
 
     const handleViewOpenHouse = (id: string) => {
         navigate({ to: '/openhouse/$openHouseId', params: { openHouseId: id } })
@@ -66,22 +49,12 @@ export function OpenHouseListPage() {
                         <SlidersHorizontal className="size-4" />
                         Form Builder
                     </Button>
-                    <Dialog open={createFormOpen} onOpenChange={setCreateFormOpen}>
-                        <Can permission={{ openhouse: ['create'] }} fallback={<p></p>}>
-                            <DialogTrigger asChild>
-                                <Button>New Open House</Button>
-                            </DialogTrigger>
-                        </Can>
-                        <DialogContent className="sm:max-w-[500px]">
-                            <DialogHeader>
-                                <DialogTitle>Create Open House</DialogTitle>
-                            </DialogHeader>
-                            <CreateOpenHouseForm
-                                onSubmit={handleCreateOpenHouse}
-                                submitLabel="Create"
-                            />
-                        </DialogContent>
-                    </Dialog>
+                    <Can permission={{ openhouse: ['create'] }} fallback={<p></p>}>
+                        <Button onClick={() => navigate({ to: '/openhouse/new' })}>
+                            <Plus className="size-4" />
+                            New Open House
+                        </Button>
+                    </Can>
                 </div>
             </div>
 
@@ -123,20 +96,11 @@ export function OpenHouseListPage() {
                         <p className="text-muted-foreground mb-4">
                             Create your first open house to start collecting leads.
                         </p>
-                        <Dialog open={createFormOpen} onOpenChange={setCreateFormOpen}>
-                            <DialogTrigger asChild>
-                                <Button>Create Your First Open House</Button>
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-[500px]">
-                                <DialogHeader>
-                                    <DialogTitle>Create Open House</DialogTitle>
-                                </DialogHeader>
-                                <CreateOpenHouseForm
-                                    onSubmit={handleCreateOpenHouse}
-                                    submitLabel="Create"
-                                />
-                            </DialogContent>
-                        </Dialog>
+                        <Can permission={{ openhouse: ['create'] }} fallback={<p></p>}>
+                            <Button onClick={() => navigate({ to: '/openhouse/new' })}>
+                                Create Your First Open House
+                            </Button>
+                        </Can>
                     </div>
                 </div>
             )}

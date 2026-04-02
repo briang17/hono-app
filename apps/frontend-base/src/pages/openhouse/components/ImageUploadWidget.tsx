@@ -3,25 +3,20 @@ import { useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { cloudinaryUrl, imagePresets } from '@/lib/cloudinary-url'
 import { openCloudinaryUploadWidget } from '@/lib/cloudinary-widget'
-import type { NewOpenHouseImageInput } from '@/lib/schemas/openhouse.schema'
+import type { UpdateOpenHouseImage } from '@/lib/schemas/openhouse.schema'
 import { cn } from '@/lib/utils'
 
-interface UploadedImage {
-    url: string
-    publicId: string
-}
-
 interface ImageUploadWidgetProps {
-    images: NewOpenHouseImageInput[]
-    onChange: (images: NewOpenHouseImageInput[]) => void
+    images: UpdateOpenHouseImage[]
+    onChange: (images: UpdateOpenHouseImage[]) => void
 }
 
 export function ImageUploadWidget({ images, onChange }: ImageUploadWidgetProps) {
     const handleUpload = useCallback(async () => {
         await openCloudinaryUploadWidget(
-            (results: UploadedImage[]) => {
+            (results) => {
                 const startIndex = images.length
-                const newImages: NewOpenHouseImageInput[] = results.map((r, i) => ({
+                const newImages: UpdateOpenHouseImage[] = results.map((r, i) => ({
                     url: r.url,
                     publicId: r.publicId,
                     isMain: images.length === 0 && i === 0,
@@ -108,8 +103,11 @@ export function ImageUploadWidget({ images, onChange }: ImageUploadWidgetProps) 
                                 <p className="text-xs text-muted-foreground truncate">
                                     {image.publicId}
                                 </p>
+                                {'id' in image && image.id && (
+                                    <span className="text-xs text-muted-foreground/60">Saved</span>
+                                )}
                                 {image.isMain && (
-                                    <span className="text-xs text-re-gold font-medium">
+                                    <span className="text-xs text-re-gold font-medium ml-2">
                                         Main Image
                                     </span>
                                 )}

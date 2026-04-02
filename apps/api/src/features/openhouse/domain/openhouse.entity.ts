@@ -29,8 +29,18 @@ export const NewOpenHouseImageSchema = z.object({
     orderIndex: z.number().int().min(0).default(0),
 });
 
-export type OpenHouseImage = z.infer<typeof OpenHouseImageSchema>;
-export type NewOpenHouseImageInput = z.infer<typeof NewOpenHouseImageSchema>;
+export const ExistingOpenHouseImageSchema = z.object({
+    id: IdSchema,
+    publicId: z.string().min(1),
+    url: z.url(),
+    isMain: z.boolean(),
+    orderIndex: z.number().int().min(0),
+});
+
+export const UpdateOpenHouseImageSchema = z.union([
+    ExistingOpenHouseImageSchema,
+    NewOpenHouseImageSchema,
+]);
 
 export const OpenHouseSchema = z.object({
     id: IdSchema,
@@ -62,6 +72,30 @@ export const NewOpenHouseSchema = OpenHouseSchema.pick({
         error: "End time must be after start time",
         path: ["endTime"],
     });
+
+export const UpdateOpenHouseSchema = OpenHouseSchema.pick({
+    propertyAddress: true,
+    listingPrice: true,
+    date: true,
+    startTime: true,
+    endTime: true,
+    notes: true,
+})
+    .extend({
+        images: z.array(UpdateOpenHouseImageSchema).default([]),
+    })
+    .refine((data) => data.startTime < data.endTime, {
+        error: "End time must be after start time",
+        path: ["endTime"],
+    });
+
+export type OpenHouseImage = z.infer<typeof OpenHouseImageSchema>;
+export type NewOpenHouseImageInput = z.infer<typeof NewOpenHouseImageSchema>;
+export type ExistingOpenHouseImage = z.infer<
+    typeof ExistingOpenHouseImageSchema
+>;
+export type UpdateOpenHouseImage = z.infer<typeof UpdateOpenHouseImageSchema>;
+export type UpdateOpenHouseInput = z.infer<typeof UpdateOpenHouseSchema>;
 
 export const OpenHouseLeadSchema = z.object({
     id: IdSchema,

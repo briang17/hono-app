@@ -18,6 +18,19 @@ export const newOpenHouseImageSchema = z.object({
     orderIndex: z.number().int().min(0),
 })
 
+export const existingOpenHouseImageSchema = z.object({
+    id: z.uuid(),
+    publicId: z.string().min(1),
+    url: z.url(),
+    isMain: z.boolean(),
+    orderIndex: z.number().int().min(0),
+})
+
+export const updateOpenHouseImageSchema = z.union([
+    existingOpenHouseImageSchema,
+    newOpenHouseImageSchema,
+])
+
 export const openHouseSchema = z.object({
     id: z.uuid(),
     organizationId: z.uuid(),
@@ -44,6 +57,23 @@ export const createOpenHouseSchema = openHouseSchema
     })
     .extend({
         images: z.array(newOpenHouseImageSchema),
+    })
+    .refine((data) => data.startTime < data.endTime, {
+        message: 'End time must be after start time',
+        path: ['endTime'],
+    })
+
+export const updateOpenHouseSchema = openHouseSchema
+    .pick({
+        propertyAddress: true,
+        listingPrice: true,
+        date: true,
+        startTime: true,
+        endTime: true,
+        notes: true,
+    })
+    .extend({
+        images: z.array(updateOpenHouseImageSchema),
     })
     .refine((data) => data.startTime < data.endTime, {
         message: 'End time must be after start time',
@@ -99,8 +129,11 @@ export const publicOpenHouseSchema = z.object({
 
 export type OpenHouseImage = z.infer<typeof openHouseImageSchema>
 export type NewOpenHouseImageInput = z.infer<typeof newOpenHouseImageSchema>
+export type ExistingOpenHouseImage = z.infer<typeof existingOpenHouseImageSchema>
+export type UpdateOpenHouseImage = z.infer<typeof updateOpenHouseImageSchema>
 export type OpenHouse = z.infer<typeof openHouseSchema>
 export type CreateOpenHouseInput = z.infer<typeof createOpenHouseSchema>
+export type UpdateOpenHouseInput = z.infer<typeof updateOpenHouseSchema>
 export type OpenHouseLead = z.infer<typeof openHouseLeadSchema>
 export type CreateOpenHouseLeadInput = z.infer<typeof createOpenHouseLeadSchema>
 export type PublicOpenHouse = z.infer<typeof publicOpenHouseSchema>

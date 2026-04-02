@@ -1,6 +1,6 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Outlet } from '@tanstack/react-router'
 import { useOpenHouse, useOpenHouseLeads } from '@/lib/queries/openhouse'
-import { OpenHouseDetailError, OpenHouseDetailPage } from '@/pages/openhouse/OpenHouseDetailPage'
+import { OpenHouseDetailError } from '@/pages/openhouse/OpenHouseDetailPage'
 
 export const Route = createFileRoute('/(protected)/(organization)/openhouse/$openHouseId')({
     loader: async ({ context: { queryClient }, params }) => {
@@ -8,5 +8,5 @@ export const Route = createFileRoute('/(protected)/(organization)/openhouse/$ope
         await queryClient.ensureQueryData(useOpenHouseLeads(params.openHouseId))
     },
     errorComponent: OpenHouseDetailError,
-    component: OpenHouseDetailPage,
+    component: () => <Outlet />,
 })

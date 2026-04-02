@@ -19,7 +19,7 @@ export const ac = createAccessControl(statement);
 
 export const owner = ac.newRole({
     ...adminAc.statements,
-    openhouse: ["create", "view", "delete"],
+    openhouse: ["create", "view", "update", "delete"],
     lead: ["view", "export"],
     agent: ["create", "view", "update", "delete", "deactivate"],
     form_config: ["create", "view", "update", "delete"],
@@ -27,7 +27,7 @@ export const owner = ac.newRole({
 
 export const admin = ac.newRole({
     ...adminAc.statements,
-    openhouse: ["create", "view", "delete"],
+    openhouse: ["create", "view", "update", "delete"],
     lead: ["view", "export"],
     agent: ["create", "view", "update", "delete", "deactivate"],
     form_config: ["create", "view", "update", "delete"],

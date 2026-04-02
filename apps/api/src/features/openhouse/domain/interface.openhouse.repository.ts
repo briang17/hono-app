@@ -5,10 +5,18 @@ import type {
     OpenHouseImage,
     OpenHouseLead,
     PublicOpenHouse,
+    UpdateOpenHouseImage,
 } from "./openhouse.entity";
 
 export interface IOpenHouseRepository {
     create(params: Omit<OpenHouse, "images">): Promise<OpenHouse>;
+
+    update(
+        id: Id,
+        data: Partial<
+            Omit<OpenHouse, "id" | "images" | "createdAt" | "updatedAt">
+        >,
+    ): Promise<void>;
 
     findById(id: Id): Promise<OpenHouse | null>;
 
@@ -21,6 +29,11 @@ export interface IOpenHouseRepository {
     createImages(
         openHouseId: Id,
         images: NewOpenHouseImageInput[],
+    ): Promise<OpenHouseImage[]>;
+
+    replaceImages(
+        openHouseId: Id,
+        desiredImages: UpdateOpenHouseImage[],
     ): Promise<OpenHouseImage[]>;
 
     findImagesByOpenHouseId(openHouseId: Id): Promise<OpenHouseImage[]>;

@@ -7,7 +7,7 @@ import {
     openHouseImage,
     openHouseLead,
 } from "@packages/database/src/schemas/openhouse.schema";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 import type { IOpenHouseRepository } from "../domain/interface.openhouse.repository";
 import {
     type NewOpenHouseImageInput,
@@ -17,6 +17,7 @@ import {
     type OpenHouseLead,
     OpenHouseLeadFactory,
     type PublicOpenHouse,
+    type UpdateOpenHouseImage,
 } from "../domain/openhouse.entity";
 
 export class DbOpenHouseRepository implements IOpenHouseRepository {
@@ -26,6 +27,15 @@ export class DbOpenHouseRepository implements IOpenHouseRepository {
         if (!result) throw new Error();
 
         return OpenHouseFactory.fromDb({ ...result, images: [] });
+    }
+
+    async update(
+        id: Id,
+        data: Partial<
+            Omit<OpenHouse, "id" | "images" | "createdAt" | "updatedAt">
+        >,
+    ): Promise<void> {
+        await db.update(openHouse).set(data).where(eq(openHouse.id, id));
     }
 
     async findById(id: Id) {
@@ -143,6 +153,58 @@ export class DbOpenHouseRepository implements IOpenHouseRepository {
             orderIndex: r.orderIndex,
             createdAt: r.createdAt,
         }));
+    }
+
+    async replaceImages(
+        openHouseId: string,
+        desiredImages: UpdateOpenHouseImage[],
+    ): Promise<OpenHouseImage[]> {
+        const current = await this.findImagesByOpenHouseId(openHouseId);
+        const currentById = new Map(current.map((img) => [img.id, img]));
+
+        const existingImages = desiredImages.filter(
+            (img): img is Extract<UpdateOpenHouseImage, { id: string }> =>
+                "id" in img && !!img.id,
+        );
+        const newImages = desiredImages.filter(
+            (img): img is Extract<UpdateOpenHouseImage, { id?: undefined }> =>
+                !("id" in img) || !img.id,
+        );
+
+        const desiredIds = new Set(existingImages.map((img) => img.id));
+        const removedImages = current.filter((img) => !desiredIds.has(img.id));
+
+        if (removedImages.length > 0) {
+            const removedIds = removedImages.map((img) => img.id);
+            await db
+                .delete(openHouseImage)
+                .where(
+                    and(
+                        eq(openHouseImage.openHouseId, openHouseId),
+                        inArray(openHouseImage.id, removedIds),
+                    ),
+                );
+        }
+
+        for (const img of existingImages) {
+            const cur = currentById.get(img.id);
+            if (
+                cur &&
+                (cur.orderIndex !== img.orderIndex || cur.isMain !== img.isMain)
+            ) {
+                await db
+                    .update(openHouseImage)
+                    .set({ orderIndex: img.orderIndex, isMain: img.isMain })
+                    .where(eq(openHouseImage.id, img.id));
+            }
+        }
+
+        const createdNew =
+            newImages.length > 0
+                ? await this.createImages(openHouseId, newImages)
+                : [];
+
+        return this.findImagesByOpenHouseId(openHouseId);
     }
 
     async findImagesByOpenHouseId(

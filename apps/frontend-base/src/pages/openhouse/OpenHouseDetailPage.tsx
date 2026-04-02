@@ -1,11 +1,25 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { getRouteApi, useNavigate } from '@tanstack/react-router'
 import { format } from 'date-fns'
-import { ArrowLeft, Calendar, DollarSign, Frown, Home, Users } from 'lucide-react'
+import { ArrowLeft, Calendar, DollarSign, Frown, Home, Pencil, Trash2, Users } from 'lucide-react'
+import { useState } from 'react'
+import { Can } from '@/components/Can'
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cloudinaryUrl, imagePresets, mainImageUrl } from '@/lib/cloudinary-url'
+import { useDeleteOpenHouse } from '@/lib/mutations/openhouse'
 import { useOpenHouse, useOpenHouseLeads } from '@/lib/queries/openhouse'
 import { cn, formatCurrency } from '@/lib/utils'
 import { LeadList } from './components/LeadList'
@@ -41,6 +55,8 @@ export function OpenHouseDetailPage() {
     const { data: leadsResult } = useSuspenseQuery(useOpenHouseLeads(openHouseId))
     const leads = leadsResult.leads
     const formConfig = leadsResult.formConfig
+    const deleteOpenHouse = useDeleteOpenHouse()
+    const [deleting, setDeleting] = useState(false)
 
     const signInUrl = `${window.location.origin}/public/open-houses/sign-in/${openHouseId}`
     const heroUrl = mainImageUrl(openHouse.images, imagePresets.heroLarge)
@@ -49,12 +65,69 @@ export function OpenHouseDetailPage() {
         new Date(openHouse.date) < new Date() &&
         !(new Date(openHouse.date).toDateString() === new Date().toDateString())
 
+    const handleDelete = async () => {
+        setDeleting(true)
+        try {
+            await deleteOpenHouse.mutateAsync(openHouseId)
+            navigate({ to: '/openhouse' })
+        } catch {
+            setDeleting(false)
+        }
+    }
+
     return (
         <div className="w-full space-y-8">
-            <Button variant="ghost" onClick={() => navigate({ to: '/openhouse' })}>
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Open Houses
-            </Button>
+            <div className="flex items-center justify-between">
+                <Button variant="ghost" onClick={() => navigate({ to: '/openhouse' })}>
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back to Open Houses
+                </Button>
+                <div className="flex gap-2">
+                    <Can permission={{ openhouse: ['update'] }}>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                                navigate({
+                                    to: '/openhouse/$openHouseId/edit',
+                                    params: { openHouseId },
+                                })
+                            }
+                        >
+                            <Pencil className="mr-2 h-4 w-4" />
+                            Edit
+                        </Button>
+                    </Can>
+                    <Can permission={{ openhouse: ['delete'] }}>
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button variant="destructive" size="sm" disabled={deleting}>
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    {deleting ? 'Deleting...' : 'Delete'}
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>Delete Open House</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        This will permanently delete this open house, all its leads,
+                                        and remove uploaded images. This action cannot be undone.
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction
+                                        onClick={handleDelete}
+                                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                    >
+                                        Delete
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                    </Can>
+                </div>
+            </div>
 
             <div className="space-y-6">
                 <div className="relative h-64 overflow-hidden rounded-xl bg-muted">

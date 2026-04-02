@@ -8,6 +8,7 @@ import type { IOpenHouseRepository } from "../domain/interface.openhouse.reposit
 import type {
     NewOpenHouseLeadInput,
     PublicOpenHouse,
+    UpdateOpenHouseInput,
 } from "../domain/openhouse.entity";
 import {
     type OpenHouse,
@@ -40,6 +41,36 @@ export class OpenHouseService {
             images,
         );
         return { ...created, images: createdImages };
+    }
+
+    async updateOpenHouse(
+        id: string,
+        organizationId: string,
+        data: UpdateOpenHouseInput,
+    ): Promise<OpenHouse> {
+        const existing = await this.repository.findById(id);
+        if (!existing || existing.organizationId !== organizationId) {
+            throw new HTTPException(codes.NOT_FOUND, {
+                message: "Open house not found",
+            });
+        }
+
+        const { images, ...fields } = data;
+
+        await this.repository.update(id, fields);
+
+        const currentPublicIds =
+            await this.repository.findImagePublicIdsByOpenHouseId(id);
+        const desiredPublicIds = new Set(images.map((img) => img.publicId));
+        const removedPublicIds = currentPublicIds.filter(
+            (pid) => !desiredPublicIds.has(pid),
+        );
+
+        const updatedImages = await this.repository.replaceImages(id, images);
+
+        await deleteCloudinaryImages(removedPublicIds);
+
+        return { ...existing, ...fields, images: updatedImages };
     }
 
     async getOpenHouses(

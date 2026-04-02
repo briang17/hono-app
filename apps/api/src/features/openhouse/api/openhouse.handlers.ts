@@ -12,6 +12,7 @@ import {
 import {
     NewOpenHouseLeadSchema,
     NewOpenHouseSchema,
+    UpdateOpenHouseSchema,
 } from "@openhouse/domain/openhouse.entity";
 import { DbOpenHouseRepository } from "@openhouse/infra/db.openhouse.repository";
 import { OpenHouseService } from "@openhouse/service/openhouse.service";
@@ -37,6 +38,25 @@ export const createOpenHouseHandlers = orgFactory.createHandlers(
         );
 
         return c.json({ data: openHouse }, codes.CREATED);
+    },
+);
+
+export const updateOpenHouseHandlers = orgFactory.createHandlers(
+    zValidator("param", GetOpenHouseParamsSchema),
+    zValidator("json", UpdateOpenHouseSchema),
+    rbacMiddleware({ openhouse: ["update"] }),
+    async (c) => {
+        const organizationId = c.get("organizationId");
+        const { id } = c.req.valid("param");
+        const data = c.req.valid("json");
+
+        const openHouse = await service.updateOpenHouse(
+            id,
+            organizationId,
+            data,
+        );
+
+        return c.json({ data: openHouse });
     },
 );
 

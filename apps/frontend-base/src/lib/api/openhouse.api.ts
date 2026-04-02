@@ -1,4 +1,8 @@
-import type { CreateOpenHouseInput, CreateOpenHouseLeadInput } from '../schemas/openhouse.schema'
+import type {
+    CreateOpenHouseInput,
+    CreateOpenHouseLeadInput,
+    UpdateOpenHouseInput,
+} from '../schemas/openhouse.schema'
 import { apiClient } from './client'
 
 export const openhouseApi = {
@@ -24,6 +28,29 @@ export const openhouseApi = {
         const res = await apiClient.api['open-houses'].$post({ json: data })
         if (!res.ok) {
             throw new Error('Failed to create open house')
+        }
+        const resData = await res.json()
+        return resData.data
+    },
+
+    updateOpenHouse: async (id: string, data: UpdateOpenHouseInput) => {
+        const res = await apiClient.api['open-houses'][':id'].$put({
+            param: { id },
+            json: data,
+        })
+        if (!res.ok) {
+            throw new Error('Failed to update open house')
+        }
+        const resData = await res.json()
+        return resData.data
+    },
+
+    deleteOpenHouse: async (id: string) => {
+        const res = await apiClient.api['open-houses'][':id'].$delete({
+            param: { id },
+        })
+        if (!res.ok) {
+            throw new Error('Failed to delete open house')
         }
         const resData = await res.json()
         return resData.data
