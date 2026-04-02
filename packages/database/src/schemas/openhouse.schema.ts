@@ -28,6 +28,9 @@ export const openHouse = pgTable("open_house", {
     date: timestamp("date", { mode: "date" }).notNull(),
     startTime: text("start_time").notNull(),
     endTime: text("end_time").notNull(),
+    bedrooms: integer("bedrooms"),
+    bathrooms: numeric("bathrooms", { precision: 3, scale: 1, mode: "number" }),
+    features: text("features").array(),
     notes: text("notes"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")

@@ -51,6 +51,9 @@ export const OpenHouseSchema = z.object({
     date: DateSchema,
     startTime: z.string().regex(/^\d{2}:\d{2}$/, "Invalid time format (HH:MM)"),
     endTime: z.string().regex(/^\d{2}:\d{2}$/, "Invalid time format (HH:MM)"),
+    bedrooms: z.number().int().positive().nullable().optional(),
+    bathrooms: z.number().positive().nullable().optional(),
+    features: z.array(z.string()).nullable().optional(),
     notes: z.string().nullish(),
     images: z.array(OpenHouseImageSchema).default([]),
     createdAt: DateSchema,
@@ -64,6 +67,9 @@ export const NewOpenHouseSchema = OpenHouseSchema.pick({
     startTime: true,
     endTime: true,
     notes: true,
+    bedrooms: true,
+    bathrooms: true,
+    features: true,
 })
     .extend({
         images: z.array(NewOpenHouseImageSchema).min(0).default([]),
@@ -80,6 +86,9 @@ export const UpdateOpenHouseSchema = OpenHouseSchema.pick({
     startTime: true,
     endTime: true,
     notes: true,
+    bedrooms: true,
+    bathrooms: true,
+    features: true,
 })
     .extend({
         images: z.array(UpdateOpenHouseImageSchema).default([]),
@@ -141,6 +150,9 @@ export type NewOpenHouseLeadInput = z.infer<typeof NewOpenHouseLeadSchema>;
 export const PublicOpenHouseSchema = z.object({
     id: IdSchema,
     propertyAddress: z.string().min(1),
+    bedrooms: z.number().int().positive().nullable().optional(),
+    bathrooms: z.number().positive().nullable().optional(),
+    features: z.array(z.string()).nullable().optional(),
     date: DateSchema,
     startTime: z.string().regex(/^\d{2}:\d{2}$/, "Invalid time format"),
     endTime: z.string().regex(/^\d{2}:\d{2}$/, "Invalid time format"),

@@ -10,6 +10,7 @@ import {
     updateOpenHouseSchema,
 } from '@/lib/schemas/openhouse.schema'
 import { isFieldInvalid } from '@/lib/utils'
+import { FeaturesInput } from './FeaturesInput'
 import { ImageUploadWidget } from './ImageUploadWidget'
 
 interface OpenHouseFormProps {
@@ -22,6 +23,9 @@ interface OpenHouseFormProps {
 const defaultValues: UpdateOpenHouseInput = {
     propertyAddress: '',
     listingPrice: 100000,
+    bedrooms: null,
+    bathrooms: null,
+    features: [],
     date: new Date(),
     startTime: '12:00',
     endTime: '16:00',
@@ -108,6 +112,70 @@ export function OpenHouseForm({
                         </Field>
                     )
                 }}
+            </form.Field>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+                <form.Field name="bedrooms">
+                    {(field) => {
+                        const { invalid, errors } = isFieldInvalid(field)
+                        return (
+                            <Field data-invalid={invalid}>
+                                <FieldLabel htmlFor={field.name}>Bedrooms (optional)</FieldLabel>
+                                <Input
+                                    id={field.name}
+                                    type="number"
+                                    value={field.state.value ?? ''}
+                                    onChange={(e) =>
+                                        field.handleChange(
+                                            e.target.value === '' ? null : Number(e.target.value),
+                                        )
+                                    }
+                                    onBlur={field.handleBlur}
+                                    aria-invalid={invalid}
+                                    placeholder="3"
+                                    min={1}
+                                />
+                                {invalid && <FieldError>{errors.join(', ')}</FieldError>}
+                            </Field>
+                        )
+                    }}
+                </form.Field>
+
+                <form.Field name="bathrooms">
+                    {(field) => {
+                        const { invalid, errors } = isFieldInvalid(field)
+                        return (
+                            <Field data-invalid={invalid}>
+                                <FieldLabel htmlFor={field.name}>Bathrooms (optional)</FieldLabel>
+                                <Input
+                                    id={field.name}
+                                    type="number"
+                                    value={field.state.value ?? ''}
+                                    onChange={(e) =>
+                                        field.handleChange(
+                                            e.target.value === '' ? null : Number(e.target.value),
+                                        )
+                                    }
+                                    onBlur={field.handleBlur}
+                                    aria-invalid={invalid}
+                                    placeholder="2.5"
+                                    min={0.5}
+                                    step={0.5}
+                                />
+                                {invalid && <FieldError>{errors.join(', ')}</FieldError>}
+                            </Field>
+                        )
+                    }}
+                </form.Field>
+            </div>
+
+            <form.Field name="features">
+                {(field) => (
+                    <Field>
+                        <FieldLabel>Features (optional)</FieldLabel>
+                        <FeaturesInput value={field.state.value} onChange={field.handleChange} />
+                    </Field>
+                )}
             </form.Field>
 
             <div className="grid gap-4 sm:grid-cols-2">

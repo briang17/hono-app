@@ -91,6 +91,9 @@ export class DbOpenHouseRepository implements IOpenHouseRepository {
             .select({
                 id: openHouse.id,
                 propertyAddress: openHouse.propertyAddress,
+                bedrooms: openHouse.bedrooms,
+                bathrooms: openHouse.bathrooms,
+                features: openHouse.features,
                 date: openHouse.date,
                 startTime: openHouse.startTime,
                 endTime: openHouse.endTime,
@@ -114,6 +117,9 @@ export class DbOpenHouseRepository implements IOpenHouseRepository {
         return {
             id: result.id,
             propertyAddress: result.propertyAddress,
+            bedrooms: result.bedrooms,
+            bathrooms: result.bathrooms,
+            features: result.features,
             date: result.date,
             startTime: result.startTime,
             endTime: result.endTime,

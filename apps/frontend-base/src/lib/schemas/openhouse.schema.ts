@@ -37,6 +37,9 @@ export const openHouseSchema = z.object({
     createdByUserId: z.uuid(),
     propertyAddress: z.string().min(1, 'Property address is required'),
     listingPrice: z.number().positive('Price must be positive'),
+    bedrooms: z.number().int().positive().nullable().optional(),
+    bathrooms: z.number().positive().nullable().optional(),
+    features: z.array(z.string()).nullable().optional(),
     date: z.date(),
     startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Time must be in HH:MM format'),
     endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Time must be in HH:MM format'),
@@ -54,6 +57,9 @@ export const createOpenHouseSchema = openHouseSchema
         startTime: true,
         endTime: true,
         notes: true,
+        bedrooms: true,
+        bathrooms: true,
+        features: true,
     })
     .extend({
         images: z.array(newOpenHouseImageSchema),
@@ -71,6 +77,9 @@ export const updateOpenHouseSchema = openHouseSchema
         startTime: true,
         endTime: true,
         notes: true,
+        bedrooms: true,
+        bathrooms: true,
+        features: true,
     })
     .extend({
         images: z.array(updateOpenHouseImageSchema),
@@ -120,6 +129,9 @@ export const leadsWithFormConfigSchema = z.object({
 export const publicOpenHouseSchema = z.object({
     id: z.uuid(),
     propertyAddress: z.string().min(1),
+    bedrooms: z.number().int().positive().nullable().optional(),
+    bathrooms: z.number().positive().nullable().optional(),
+    features: z.array(z.string()).nullable().optional(),
     date: z.date(),
     startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format'),
     endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format'),

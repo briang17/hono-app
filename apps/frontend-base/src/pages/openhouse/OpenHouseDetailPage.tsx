@@ -1,7 +1,18 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { getRouteApi, useNavigate } from '@tanstack/react-router'
 import { format } from 'date-fns'
-import { ArrowLeft, Calendar, DollarSign, Frown, Home, Pencil, Trash2, Users } from 'lucide-react'
+import {
+    ArrowLeft,
+    Bath,
+    Bed,
+    Calendar,
+    DollarSign,
+    Frown,
+    Home,
+    Pencil,
+    Trash2,
+    Users,
+} from 'lucide-react'
 import { useState } from 'react'
 import { Can } from '@/components/Can'
 import {
@@ -15,6 +26,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -180,6 +192,17 @@ export function OpenHouseDetailPage() {
                     <Card className="border-l-4 border-l-re-gold">
                         <CardContent className="p-4">
                             <div className="flex items-center gap-3">
+                                <Users className="h-5 w-5 text-re-gold" />
+                                <div>
+                                    <p className="text-sm text-muted-foreground">Sign-ups</p>
+                                    <p className="text-xl font-bold text-re-gold">{leads.length}</p>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                    <Card className="border-l-4 border-l-re-gold">
+                        <CardContent className="p-4">
+                            <div className="flex items-center gap-3">
                                 <DollarSign className="h-5 w-5 text-re-gold" />
                                 <div>
                                     <p className="text-sm text-muted-foreground">Price</p>
@@ -203,18 +226,61 @@ export function OpenHouseDetailPage() {
                             </div>
                         </CardContent>
                     </Card>
-                    <Card className="border-l-4 border-l-re-gold">
-                        <CardContent className="p-4">
-                            <div className="flex items-center gap-3">
-                                <Users className="h-5 w-5 text-re-gold" />
-                                <div>
-                                    <p className="text-sm text-muted-foreground">Leads</p>
-                                    <p className="text-xl font-bold text-re-gold">{leads.length}</p>
-                                </div>
+                </div>
+
+                {(openHouse.bedrooms != null || openHouse.bathrooms != null) && (
+                    <div className="grid gap-4 sm:grid-cols-2">
+                        {openHouse.bedrooms != null && (
+                            <Card className="border-l-4 border-l-re-navy">
+                                <CardContent className="p-4">
+                                    <div className="flex items-center gap-3">
+                                        <Bed className="h-5 w-5 text-re-navy" />
+                                        <div>
+                                            <p className="text-sm text-muted-foreground">
+                                                Bedrooms
+                                            </p>
+                                            <p className="text-xl font-bold text-re-navy">
+                                                {openHouse.bedrooms}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        )}
+                        {openHouse.bathrooms != null && (
+                            <Card className="border-l-4 border-l-re-gold">
+                                <CardContent className="p-4">
+                                    <div className="flex items-center gap-3">
+                                        <Bath className="h-5 w-5 text-re-gold" />
+                                        <div>
+                                            <p className="text-sm text-muted-foreground">
+                                                Bathrooms
+                                            </p>
+                                            <p className="text-xl font-bold text-re-gold">
+                                                {openHouse.bathrooms}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        )}
+                    </div>
+                )}
+
+                {openHouse.features && openHouse.features.length > 0 && (
+                    <Card>
+                        <CardContent className="p-6">
+                            <h3 className="text-lg font-semibold text-re-navy mb-3">Features</h3>
+                            <div className="flex flex-wrap gap-2">
+                                {openHouse.features.map((feature) => (
+                                    <Badge key={feature} variant="secondary">
+                                        {feature}
+                                    </Badge>
+                                ))}
                             </div>
                         </CardContent>
                     </Card>
-                </div>
+                )}
             </div>
 
             <Tabs defaultValue="overview" className="w-full">
