@@ -4,6 +4,7 @@ import { Hono } from "hono";
 import {
     createOpenHouseHandlers,
     createOpenHouseLeadHandlers,
+    deleteOpenHouseHandlers,
     getOpenHouseHandlers,
     getOpenHouseLeadsHandlers,
     getOpenHousesHandlers,
@@ -16,7 +17,8 @@ const openhouseRoutes = new Hono()
     .get("/", ...getOpenHousesHandlers)
     .get("/:id", ...getOpenHouseHandlers)
     .get("/:id/leads", ...getOpenHouseLeadsHandlers)
-    .post("/", ...createOpenHouseHandlers);
+    .post("/", ...createOpenHouseHandlers)
+    .delete("/:id", ...deleteOpenHouseHandlers);
 
 const publicOpenHouseRoutes = new Hono()
     .get("/:id", ...getPublicOpenHouseHandlers)

@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { type CreateOpenHouseInput, createOpenHouseSchema } from '@/lib/schemas/openhouse.schema'
 import { isFieldInvalid } from '@/lib/utils'
+import { ImageUploadWidget } from './ImageUploadWidget'
 
 interface CreateOpenHouseFormProps {
     onSubmit: (values: CreateOpenHouseInput) => Promise<void>
@@ -19,7 +20,7 @@ export function CreateOpenHouseForm({ onSubmit, submitLabel }: CreateOpenHouseFo
         date: new Date(),
         startTime: '12:00',
         endTime: '16:00',
-        listingImageUrl: '',
+        images: [],
         notes: '',
     }
 
@@ -137,27 +138,10 @@ export function CreateOpenHouseForm({ onSubmit, submitLabel }: CreateOpenHouseFo
                 }}
             </form.Field>
 
-            <form.Field name="listingImageUrl">
-                {(field) => {
-                    const { invalid, errors } = isFieldInvalid(field)
-                    return (
-                        <Field data-invalid={invalid}>
-                            <FieldLabel htmlFor={field.name}>
-                                Listing Image URL (optional)
-                            </FieldLabel>
-                            <Input
-                                id={field.name}
-                                type="url"
-                                value={field.state.value || ''}
-                                onChange={(e) => field.handleChange(e.target.value)}
-                                onBlur={field.handleBlur}
-                                aria-invalid={invalid}
-                                placeholder="https://example.com/image.jpg"
-                            />
-                            {invalid && <FieldError>{errors.join(', ')}</FieldError>}
-                        </Field>
-                    )
-                }}
+            <form.Field name="images">
+                {(field) => (
+                    <ImageUploadWidget images={field.state.value} onChange={field.handleChange} />
+                )}
             </form.Field>
 
             <form.Field name="notes">

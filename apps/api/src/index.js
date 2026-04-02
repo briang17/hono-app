@@ -1,5 +1,6 @@
 import { codes } from "@config/constants";
 import { agentRoutes } from "@features/agent/api/agent.routes";
+import { cloudinaryRoutes } from "@features/cloudinary/api/cloudinary.routes";
 import { formConfigRoutes } from "@features/form-config/api/form-config.routes";
 import { openhouseRoutes, publicOpenHouseRoutes, } from "@features/openhouse/api/openhouse.routes";
 import { auth } from "@packages/auth";
@@ -11,7 +12,7 @@ const authRoutes = new Hono();
 app.use("/api/*", cors({
     origin: ["http://localhost:3000", "https://app.rs.hauntednuke.com"],
     credentials: true,
-    allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
     exposeHeaders: ["Content-Length"],
     maxAge: 600,
@@ -25,6 +26,7 @@ const featureRoutes = apiV1
     .route("/api/public/open-houses", publicOpenHouseRoutes)
     .route("/api/form-config", formConfigRoutes)
     .route("/api/agents", agentRoutes)
+    .route("/api/cloudinary", cloudinaryRoutes)
     .get("/health", (c) => {
     const toSeconds = 1000000000;
     return c.json({

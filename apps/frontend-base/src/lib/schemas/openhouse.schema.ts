@@ -1,6 +1,23 @@
 import { z } from 'zod/v4'
 import { FormConfigSchema } from './form-builder.schema'
 
+export const openHouseImageSchema = z.object({
+    id: z.uuid(),
+    openHouseId: z.uuid(),
+    url: z.url(),
+    publicId: z.string().min(1),
+    isMain: z.boolean(),
+    orderIndex: z.number().int().min(0),
+    createdAt: z.date(),
+})
+
+export const newOpenHouseImageSchema = z.object({
+    url: z.url(),
+    publicId: z.string().min(1),
+    isMain: z.boolean(),
+    orderIndex: z.number().int().min(0),
+})
+
 export const openHouseSchema = z.object({
     id: z.uuid(),
     organizationId: z.uuid(),
@@ -10,7 +27,7 @@ export const openHouseSchema = z.object({
     date: z.date(),
     startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Time must be in HH:MM format'),
     endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Time must be in HH:MM format'),
-    listingImageUrl: z.url().nullish(),
+    images: z.array(openHouseImageSchema),
     notes: z.string().nullish(),
     createdAt: z.date(),
     updatedAt: z.date(),
@@ -23,8 +40,10 @@ export const createOpenHouseSchema = openHouseSchema
         date: true,
         startTime: true,
         endTime: true,
-        listingImageUrl: true,
         notes: true,
+    })
+    .extend({
+        images: z.array(newOpenHouseImageSchema),
     })
     .refine((data) => data.startTime < data.endTime, {
         message: 'End time must be after start time',
@@ -74,10 +93,12 @@ export const publicOpenHouseSchema = z.object({
     date: z.date(),
     startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format'),
     endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format'),
-    listingImageUrl: z.url().nullish(),
+    images: z.array(openHouseImageSchema).default([]),
     formConfig: FormConfigSchema.nullable(),
 })
 
+export type OpenHouseImage = z.infer<typeof openHouseImageSchema>
+export type NewOpenHouseImageInput = z.infer<typeof newOpenHouseImageSchema>
 export type OpenHouse = z.infer<typeof openHouseSchema>
 export type CreateOpenHouseInput = z.infer<typeof createOpenHouseSchema>
 export type OpenHouseLead = z.infer<typeof openHouseLeadSchema>

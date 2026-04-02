@@ -9,15 +9,22 @@ export declare class DbFormConfigRepository implements IFormConfigRepository {
             id: string;
             type:
                 | "number"
-                | "short_text"
-                | "long_text"
-                | "multiple_choice"
-                | "checkboxes";
+                | "text"
+                | "date"
+                | "select"
+                | "textarea"
+                | "checkbox"
+                | "radio"
+                | "range";
             label: string;
             required: boolean;
-            order: number;
             placeholder?: string | undefined;
-            options?: string[] | undefined;
+            options?:
+                | {
+                      label: string;
+                      value: string;
+                  }[]
+                | undefined;
             validation?:
                 | {
                       minLength?: number | undefined;
@@ -26,6 +33,7 @@ export declare class DbFormConfigRepository implements IFormConfigRepository {
                       max?: number | undefined;
                   }
                 | undefined;
+            step?: number | undefined;
         }[];
         createdAt: Date;
         updatedAt: Date;
@@ -37,15 +45,22 @@ export declare class DbFormConfigRepository implements IFormConfigRepository {
             id: string;
             type:
                 | "number"
-                | "short_text"
-                | "long_text"
-                | "multiple_choice"
-                | "checkboxes";
+                | "text"
+                | "date"
+                | "select"
+                | "textarea"
+                | "checkbox"
+                | "radio"
+                | "range";
             label: string;
             required: boolean;
-            order: number;
             placeholder?: string | undefined;
-            options?: string[] | undefined;
+            options?:
+                | {
+                      label: string;
+                      value: string;
+                  }[]
+                | undefined;
             validation?:
                 | {
                       minLength?: number | undefined;
@@ -54,6 +69,7 @@ export declare class DbFormConfigRepository implements IFormConfigRepository {
                       max?: number | undefined;
                   }
                 | undefined;
+            step?: number | undefined;
         }[];
         createdAt: Date;
         updatedAt: Date;
@@ -68,15 +84,22 @@ export declare class DbFormConfigRepository implements IFormConfigRepository {
             id: string;
             type:
                 | "number"
-                | "short_text"
-                | "long_text"
-                | "multiple_choice"
-                | "checkboxes";
+                | "text"
+                | "date"
+                | "select"
+                | "textarea"
+                | "checkbox"
+                | "radio"
+                | "range";
             label: string;
             required: boolean;
-            order: number;
             placeholder?: string | undefined;
-            options?: string[] | undefined;
+            options?:
+                | {
+                      label: string;
+                      value: string;
+                  }[]
+                | undefined;
             validation?:
                 | {
                       minLength?: number | undefined;
@@ -85,6 +108,7 @@ export declare class DbFormConfigRepository implements IFormConfigRepository {
                       max?: number | undefined;
                   }
                 | undefined;
+            step?: number | undefined;
         }[];
         createdAt: Date;
         updatedAt: Date;

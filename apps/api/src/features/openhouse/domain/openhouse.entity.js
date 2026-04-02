@@ -1,17 +1,6 @@
-import {
-    DateSchema,
-    EmailSchema,
-    type Id,
-    IdSchema,
-    PhoneSchema,
-} from "@features/common/values";
-import type {
-    FormConfig,
-    Question,
-} from "@formconfig/domain/form-config.entity";
+import { DateSchema, EmailSchema, IdSchema, PhoneSchema, } from "@features/common/values";
 import { FormConfigSchema } from "@formconfig/domain/form-config.entity";
 import { z } from "zod";
-
 export const OpenHouseImageSchema = z.object({
     id: IdSchema,
     openHouseId: IdSchema,
@@ -21,17 +10,12 @@ export const OpenHouseImageSchema = z.object({
     orderIndex: z.number().int().min(0),
     createdAt: DateSchema,
 });
-
 export const NewOpenHouseImageSchema = z.object({
     url: z.url(),
     publicId: z.string().min(1),
     isMain: z.boolean().default(false),
     orderIndex: z.number().int().min(0).default(0),
 });
-
-export type OpenHouseImage = z.infer<typeof OpenHouseImageSchema>;
-export type NewOpenHouseImageInput = z.infer<typeof NewOpenHouseImageSchema>;
-
 export const OpenHouseSchema = z.object({
     id: IdSchema,
     organizationId: IdSchema,
@@ -46,7 +30,6 @@ export const OpenHouseSchema = z.object({
     createdAt: DateSchema,
     updatedAt: DateSchema,
 });
-
 export const NewOpenHouseSchema = OpenHouseSchema.pick({
     propertyAddress: true,
     listingPrice: true,
@@ -56,13 +39,12 @@ export const NewOpenHouseSchema = OpenHouseSchema.pick({
     notes: true,
 })
     .extend({
-        images: z.array(NewOpenHouseImageSchema).min(0).default([]),
-    })
+    images: z.array(NewOpenHouseImageSchema).min(0).default([]),
+})
     .refine((data) => data.startTime < data.endTime, {
-        error: "End time must be after start time",
-        path: ["endTime"],
-    });
-
+    error: "End time must be after start time",
+    path: ["endTime"],
+});
 export const OpenHouseLeadSchema = z.object({
     id: IdSchema,
     openHouseId: IdSchema,
@@ -75,19 +57,15 @@ export const OpenHouseLeadSchema = z.object({
     submittedAt: DateSchema,
     consent: z.boolean().default(false),
     responses: z
-        .record(
-            z.string(),
-            z.union([
-                z.string(),
-                z.number(),
-                z.array(z.string()),
-                z.array(z.number()),
-            ]),
-        )
+        .record(z.string(), z.union([
+        z.string(),
+        z.number(),
+        z.array(z.string()),
+        z.array(z.number()),
+    ]))
         .nullable()
         .nullish(),
 });
-
 export const NewOpenHouseLeadSchema = OpenHouseLeadSchema.pick({
     firstName: true,
     lastName: true,
@@ -99,11 +77,6 @@ export const NewOpenHouseLeadSchema = OpenHouseLeadSchema.pick({
 }).refine((data) => data.email || data.phone, {
     message: "Email or phone is required",
 });
-
-export type OpenHouse = z.infer<typeof OpenHouseSchema>;
-export type OpenHouseLead = z.infer<typeof OpenHouseLeadSchema>;
-export type NewOpenHouseLeadInput = z.infer<typeof NewOpenHouseLeadSchema>;
-
 export const PublicOpenHouseSchema = z.object({
     id: IdSchema,
     propertyAddress: z.string().min(1),
@@ -113,18 +86,8 @@ export const PublicOpenHouseSchema = z.object({
     formConfig: FormConfigSchema.nullable(),
     images: z.array(OpenHouseImageSchema).default([]),
 });
-
-export type PublicOpenHouse = z.infer<typeof PublicOpenHouseSchema>;
-
 export const OpenHouseFactory = {
-    create: (
-        params: z.input<typeof NewOpenHouseSchema>,
-        organizationId: Id,
-        userId: Id,
-    ): {
-        openHouse: Omit<OpenHouse, "images">;
-        images: NewOpenHouseImageInput[];
-    } => {
+    create: (params, organizationId, userId) => {
         const now = new Date();
         const { images, ...openHouseData } = params;
         const result = OpenHouseSchema.omit({ images: true }).parse({
@@ -145,18 +108,13 @@ export const OpenHouseFactory = {
             })),
         };
     },
-    fromDb: (params: z.input<typeof OpenHouseSchema>): OpenHouse => {
+    fromDb: (params) => {
         const result = OpenHouseSchema.parse(params);
         return result;
     },
 };
-
 export const OpenHouseLeadFactory = {
-    create: (
-        params: z.input<typeof NewOpenHouseLeadSchema>,
-        openHouseId: Id,
-        organizationId: Id,
-    ): OpenHouseLead => {
+    create: (params, openHouseId, organizationId) => {
         const now = new Date();
         return OpenHouseLeadSchema.parse({
             ...params,
@@ -166,12 +124,11 @@ export const OpenHouseLeadFactory = {
             submittedAt: now,
         });
     },
-    fromDb: (params: z.input<typeof OpenHouseLeadSchema>): OpenHouseLead => {
+    fromDb: (params) => {
         const result = OpenHouseLeadSchema.parse(params);
         return result;
     },
 };
-
 export const ResponseValidationErrorSchema = z.object({
     questionId: IdSchema,
     message: z.string(),
@@ -183,43 +140,16 @@ export const ResponseValidationErrorSchema = z.object({
         "invalid_range",
     ]),
 });
-
-export type ResponseValidationError = z.infer<
-    typeof ResponseValidationErrorSchema
->;
-
 export const ResponseValidationResultSchema = z.object({
     isValid: z.boolean(),
     errors: z.array(ResponseValidationErrorSchema),
 });
-
-export type ResponseValidationResult = z.infer<
-    typeof ResponseValidationResultSchema
->;
-
-export interface ResponseValidationInput {
-    responses:
-        | Record<string, string | number | string[] | number[]>
-        | null
-        | undefined;
-    formConfig: FormConfig | null;
-}
-
-const optionValues = (options: { value: string }[] | undefined): string[] =>
-    options?.map((o) => o.value) ?? [];
-
-function validateRangeResponse(
-    response: unknown,
-    question: Question,
-    questionId: string,
-    errors: ResponseValidationError[],
-): boolean {
-    if (
-        !Array.isArray(response) ||
+const optionValues = (options) => options?.map((o) => o.value) ?? [];
+function validateRangeResponse(response, question, questionId, errors) {
+    if (!Array.isArray(response) ||
         response.length !== 2 ||
         typeof response[0] !== "number" ||
-        typeof response[1] !== "number"
-    ) {
+        typeof response[1] !== "number") {
         errors.push({
             questionId,
             message: `"${question.label}" must be a range of two numbers`,
@@ -227,9 +157,7 @@ function validateRangeResponse(
         });
         return false;
     }
-
-    const [lo, hi] = response as [number, number];
-
+    const [lo, hi] = response;
     if (lo > hi) {
         errors.push({
             questionId,
@@ -237,52 +165,35 @@ function validateRangeResponse(
             code: "invalid_range",
         });
     }
-
-    if (
-        question.validation?.min !== undefined &&
-        lo < question.validation.min
-    ) {
+    if (question.validation?.min !== undefined &&
+        lo < question.validation.min) {
         errors.push({
             questionId,
             message: `"${question.label}" lower bound must be at least ${question.validation.min}`,
             code: "invalid_range",
         });
     }
-
-    if (
-        question.validation?.max !== undefined &&
-        hi > question.validation.max
-    ) {
+    if (question.validation?.max !== undefined &&
+        hi > question.validation.max) {
         errors.push({
             questionId,
             message: `"${question.label}" upper bound must be at most ${question.validation.max}`,
             code: "invalid_range",
         });
     }
-
     return true;
 }
-
-export function validateResponses({
-    responses,
-    formConfig,
-}: ResponseValidationInput): ResponseValidationResult {
+export function validateResponses({ responses, formConfig, }) {
     if (!formConfig) {
         return { isValid: true, errors: [] };
     }
-
     if (!responses || Object.keys(responses).length === 0) {
         return { isValid: true, errors: [] };
     }
-
-    const errors: ResponseValidationResult["errors"] = [];
-    const questionsByQuestionId = new Map(
-        formConfig.questions.map((q) => [q.id, q]),
-    );
-
+    const errors = [];
+    const questionsByQuestionId = new Map(formConfig.questions.map((q) => [q.id, q]));
     for (const [questionId, response] of Object.entries(responses)) {
         const question = questionsByQuestionId.get(questionId);
-
         if (!question) {
             errors.push({
                 questionId,
@@ -291,11 +202,8 @@ export function validateResponses({
             });
             continue;
         }
-
-        if (
-            question.required &&
-            (response === null || response === undefined || response === "")
-        ) {
+        if (question.required &&
+            (response === null || response === undefined || response === "")) {
             errors.push({
                 questionId,
                 message: `"${question.label}" is required`,
@@ -303,19 +211,13 @@ export function validateResponses({
             });
             continue;
         }
-
-        if (
-            !question.required &&
-            (response === null || response === undefined || response === "")
-        ) {
+        if (!question.required &&
+            (response === null || response === undefined || response === "")) {
             continue;
         }
-
         if (question.type === "number") {
-            if (
-                typeof response !== "number" &&
-                Number.isNaN(Number(response))
-            ) {
+            if (typeof response !== "number" &&
+                Number.isNaN(Number(response))) {
                 errors.push({
                     questionId,
                     message: `"${question.label}" must be a number`,
@@ -323,24 +225,17 @@ export function validateResponses({
                 });
                 continue;
             }
-
             const numValue = Number(response);
-
-            if (
-                question.validation?.min !== undefined &&
-                numValue < question.validation.min
-            ) {
+            if (question.validation?.min !== undefined &&
+                numValue < question.validation.min) {
                 errors.push({
                     questionId,
                     message: `"${question.label}" must be at least ${question.validation.min}`,
                     code: "invalid_range",
                 });
             }
-
-            if (
-                question.validation?.max !== undefined &&
-                numValue > question.validation.max
-            ) {
+            if (question.validation?.max !== undefined &&
+                numValue > question.validation.max) {
                 errors.push({
                     questionId,
                     message: `"${question.label}" must be at most ${question.validation.max}`,
@@ -348,29 +243,21 @@ export function validateResponses({
                 });
             }
         }
-
         if (question.type === "range") {
             validateRangeResponse(response, question, questionId, errors);
         }
-
         if (question.type === "text" || question.type === "textarea") {
             const stringValue = String(response);
-
-            if (
-                question.validation?.minLength !== undefined &&
-                stringValue.length < question.validation.minLength
-            ) {
+            if (question.validation?.minLength !== undefined &&
+                stringValue.length < question.validation.minLength) {
                 errors.push({
                     questionId,
                     message: `"${question.label}" must be at least ${question.validation.minLength} characters`,
                     code: "invalid_length",
                 });
             }
-
-            if (
-                question.validation?.maxLength !== undefined &&
-                stringValue.length > question.validation.maxLength
-            ) {
+            if (question.validation?.maxLength !== undefined &&
+                stringValue.length > question.validation.maxLength) {
                 errors.push({
                     questionId,
                     message: `"${question.label}" must be at most ${question.validation.maxLength} characters`,
@@ -378,7 +265,6 @@ export function validateResponses({
                 });
             }
         }
-
         if (question.type === "select" || question.type === "radio") {
             if (typeof response !== "string") {
                 errors.push({
@@ -388,7 +274,6 @@ export function validateResponses({
                 });
                 continue;
             }
-
             if (!optionValues(question.options).includes(response)) {
                 errors.push({
                     questionId,
@@ -397,7 +282,6 @@ export function validateResponses({
                 });
             }
         }
-
         if (question.type === "checkbox") {
             if (!Array.isArray(response)) {
                 errors.push({
@@ -407,10 +291,9 @@ export function validateResponses({
                 });
                 continue;
             }
-
             const validValues = optionValues(question.options);
             for (const option of response) {
-                if (!validValues.includes(option as string)) {
+                if (!validValues.includes(option)) {
                     errors.push({
                         questionId,
                         message: `"${question.label}" contains invalid option: ${option}`,
@@ -419,7 +302,6 @@ export function validateResponses({
                 }
             }
         }
-
         if (question.type === "date") {
             if (typeof response !== "string") {
                 errors.push({
@@ -429,7 +311,6 @@ export function validateResponses({
                 });
                 continue;
             }
-
             const parsed = Date.parse(response);
             if (Number.isNaN(parsed)) {
                 errors.push({
@@ -440,7 +321,6 @@ export function validateResponses({
             }
         }
     }
-
     return {
         isValid: errors.length === 0,
         errors,

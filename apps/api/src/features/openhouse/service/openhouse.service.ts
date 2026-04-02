@@ -1,10 +1,14 @@
 import { codes } from "@config/constants";
+import { deleteCloudinaryImages } from "@features/cloudinary/cloudinary.utils";
 import type { FormConfig } from "@formconfig/domain/form-config.entity";
 import type { IFormConfigRepository } from "@formconfig/domain/interface.form-config.repository";
 import { HTTPException } from "hono/http-exception";
 import type { CreateOpenHouseInput } from "../api/openhouse.schemas";
 import type { IOpenHouseRepository } from "../domain/interface.openhouse.repository";
-import type { NewOpenHouseLeadInput, PublicOpenHouse } from "../domain/openhouse.entity";
+import type {
+    NewOpenHouseLeadInput,
+    PublicOpenHouse,
+} from "../domain/openhouse.entity";
 import {
     type OpenHouse,
     OpenHouseFactory,
@@ -24,9 +28,18 @@ export class OpenHouseService {
         organizationId: string,
         userId: string,
     ): Promise<OpenHouse> {
-        const openHouse = OpenHouseFactory.create(data, organizationId, userId);
+        const { openHouse, images } = OpenHouseFactory.create(
+            data,
+            organizationId,
+            userId,
+        );
 
-        return await this.repository.create(openHouse);
+        const created = await this.repository.create(openHouse);
+        const createdImages = await this.repository.createImages(
+            created.id,
+            images,
+        );
+        return { ...created, images: createdImages };
     }
 
     async getOpenHouses(
@@ -48,6 +61,22 @@ export class OpenHouseService {
         id: string,
     ): Promise<PublicOpenHouse | null> {
         return await this.repository.findPublicByIdWithFormConfig(id);
+    }
+
+    async deleteOpenHouse(id: string, organizationId: string): Promise<void> {
+        const openHouse = await this.repository.findById(id);
+        if (!openHouse || openHouse.organizationId !== organizationId) {
+            throw new HTTPException(codes.NOT_FOUND, {
+                message: "Open house not found",
+            });
+        }
+
+        const publicIds =
+            await this.repository.findImagePublicIdsByOpenHouseId(id);
+
+        await this.repository.delete(id);
+
+        await deleteCloudinaryImages(publicIds);
     }
 
     async createOpenHouseLead(

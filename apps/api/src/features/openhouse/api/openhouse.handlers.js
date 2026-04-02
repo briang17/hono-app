@@ -35,11 +35,17 @@ export const getOpenHouseHandlers = orgFactory.createHandlers(zValidator("param"
     }
     return c.json({ data: openHouse });
 });
+export const deleteOpenHouseHandlers = orgFactory.createHandlers(zValidator("param", GetOpenHouseParamsSchema), rbacMiddleware({ openhouse: ["delete"] }), async (c) => {
+    const organizationId = c.get("organizationId");
+    const { id } = c.req.valid("param");
+    await service.deleteOpenHouse(id, organizationId);
+    return c.json({ data: { id } });
+});
 export const getOpenHouseLeadsHandlers = orgFactory.createHandlers(zValidator("param", GetOpenHouseLeadsParamsSchema), rbacMiddleware({ lead: ["view"] }), async (c) => {
     const organizationId = c.get("organizationId");
     const { id } = c.req.valid("param");
-    const leads = await service.getOpenHouseLeadsOrg(id, organizationId);
-    return c.json({ data: leads });
+    const result = await service.getOpenHouseLeadsWithFormConfig(id, organizationId);
+    return c.json({ data: result });
 });
 export const getPublicOpenHouseHandlers = publicFactory.createHandlers(zValidator("param", GetPublicOpenHouseParamsSchema), async (c) => {
     const { id } = c.req.valid("param");

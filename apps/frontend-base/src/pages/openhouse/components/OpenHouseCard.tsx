@@ -2,6 +2,7 @@ import { format } from 'date-fns'
 import { ChevronRight, Home } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
+import { imagePresets, mainImageUrl } from '@/lib/cloudinary-url'
 import type { OpenHouse } from '@/lib/schemas/openhouse.schema'
 import { formatCurrency } from '@/lib/utils'
 
@@ -11,15 +12,17 @@ interface OpenHouseCardProps {
 }
 
 export function OpenHouseCard({ openHouse, onClick }: OpenHouseCardProps) {
+    const imageUrl = mainImageUrl(openHouse.images, imagePresets.card)
+
     return (
         <Card
             className="overflow-hidden hover:shadow-lg hover:border-re-gold/30 transition-all duration-200 cursor-pointer group"
             onClick={onClick}
         >
             <div className="relative h-48 overflow-hidden bg-muted">
-                {openHouse.listingImageUrl ? (
+                {imageUrl ? (
                     <img
-                        src={openHouse.listingImageUrl}
+                        src={imageUrl}
                         alt={openHouse.propertyAddress}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />

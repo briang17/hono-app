@@ -5,6 +5,7 @@ import { ArrowLeft, Calendar, DollarSign, Frown, Home, Users } from 'lucide-reac
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { cloudinaryUrl, imagePresets, mainImageUrl } from '@/lib/cloudinary-url'
 import { useOpenHouse, useOpenHouseLeads } from '@/lib/queries/openhouse'
 import { cn, formatCurrency } from '@/lib/utils'
 import { LeadList } from './components/LeadList'
@@ -42,6 +43,7 @@ export function OpenHouseDetailPage() {
     const formConfig = leadsResult.formConfig
 
     const signInUrl = `${window.location.origin}/public/open-houses/sign-in/${openHouseId}`
+    const heroUrl = mainImageUrl(openHouse.images, imagePresets.heroLarge)
 
     const isPast =
         new Date(openHouse.date) < new Date() &&
@@ -56,9 +58,9 @@ export function OpenHouseDetailPage() {
 
             <div className="space-y-6">
                 <div className="relative h-64 overflow-hidden rounded-xl bg-muted">
-                    {openHouse.listingImageUrl ? (
+                    {heroUrl ? (
                         <img
-                            src={openHouse.listingImageUrl}
+                            src={heroUrl}
                             alt={openHouse.propertyAddress}
                             className="w-full h-full object-cover"
                         />
@@ -84,6 +86,22 @@ export function OpenHouseDetailPage() {
                         </span>
                     </div>
                 </div>
+
+                {openHouse.images.length > 1 && (
+                    <div className="flex gap-2 overflow-x-auto pb-2">
+                        {openHouse.images.map((img) => (
+                            <img
+                                key={img.id}
+                                src={cloudinaryUrl(img.publicId, imagePresets.thumbnail)}
+                                alt={openHouse.propertyAddress}
+                                className={cn(
+                                    'w-20 h-20 object-cover rounded-lg border-2 cursor-pointer shrink-0',
+                                    img.isMain ? 'border-re-gold' : 'border-transparent',
+                                )}
+                            />
+                        ))}
+                    </div>
+                )}
 
                 <div className="grid gap-4 sm:grid-cols-3">
                     <Card className="border-l-4 border-l-re-gold">

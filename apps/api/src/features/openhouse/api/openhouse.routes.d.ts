@@ -45,9 +45,17 @@ declare const openhouseRoutes: import("hono/hono-base").HonoBase<
                         date: string;
                         startTime: string;
                         endTime: string;
+                        images: {
+                            id: string;
+                            openHouseId: string;
+                            url: string;
+                            publicId: string;
+                            isMain: boolean;
+                            orderIndex: number;
+                            createdAt: string;
+                        }[];
                         createdAt: string;
                         updatedAt: string;
-                        listingImageUrl?: string | null | undefined;
                         notes?: string | null | undefined;
                     }[];
                 };
@@ -73,9 +81,17 @@ declare const openhouseRoutes: import("hono/hono-base").HonoBase<
                         date: string;
                         startTime: string;
                         endTime: string;
+                        images: {
+                            id: string;
+                            openHouseId: string;
+                            url: string;
+                            publicId: string;
+                            isMain: boolean;
+                            orderIndex: number;
+                            createdAt: string;
+                        }[];
                         createdAt: string;
                         updatedAt: string;
-                        listingImageUrl?: string | null | undefined;
                         notes?: string | null | undefined;
                     };
                 };
@@ -93,28 +109,65 @@ declare const openhouseRoutes: import("hono/hono-base").HonoBase<
                 };
                 output: {
                     data: {
-                        id: string;
-                        openHouseId: string;
-                        organizationId: string;
-                        firstName: string;
-                        lastName: string;
-                        workingWithAgent: boolean;
-                        submittedAt: string;
-                        consent: boolean;
-                        email?: string | null | undefined;
-                        phone?: string | null | undefined;
-                        responses?:
-                            | {
-                                  [
-                                      x: string
-                                  ]: import("hono/utils/types").JSONValue;
-                                  [
-                                      x: number
-                                  ]: import("hono/utils/types").JSONValue;
-                              }
-                            | null
-                            | undefined;
-                    }[];
+                        leads: {
+                            id: string;
+                            openHouseId: string;
+                            organizationId: string;
+                            firstName: string;
+                            lastName: string;
+                            workingWithAgent: boolean;
+                            submittedAt: string;
+                            consent: boolean;
+                            email?: string | null | undefined;
+                            phone?: string | null | undefined;
+                            responses?:
+                                | {
+                                      [x: string]:
+                                          | string
+                                          | number
+                                          | string[]
+                                          | number[];
+                                  }
+                                | null
+                                | undefined;
+                        }[];
+                        formConfig: {
+                            id: string;
+                            organizationId: string;
+                            questions: {
+                                id: string;
+                                type:
+                                    | "number"
+                                    | "text"
+                                    | "date"
+                                    | "select"
+                                    | "textarea"
+                                    | "checkbox"
+                                    | "radio"
+                                    | "range";
+                                label: string;
+                                required: boolean;
+                                placeholder?: string | undefined;
+                                options?:
+                                    | {
+                                          label: string;
+                                          value: string;
+                                      }[]
+                                    | undefined;
+                                validation?:
+                                    | {
+                                          minLength?: number | undefined;
+                                          maxLength?: number | undefined;
+                                          min?: number | undefined;
+                                          max?: number | undefined;
+                                      }
+                                    | undefined;
+                                step?: number | undefined;
+                            }[];
+                            createdAt: string;
+                            updatedAt: string;
+                        } | null;
+                    };
                 };
                 outputFormat: "json";
                 status: import("hono/utils/http-status").ContentfulStatusCode;
@@ -130,8 +183,15 @@ declare const openhouseRoutes: import("hono/hono-base").HonoBase<
                         listingPrice: number;
                         startTime: string;
                         endTime: string;
-                        listingImageUrl?: string | null | undefined;
                         notes?: string | null | undefined;
+                        images?:
+                            | {
+                                  url: string;
+                                  publicId: string;
+                                  isMain?: boolean | undefined;
+                                  orderIndex?: number | undefined;
+                              }[]
+                            | undefined;
                     };
                 };
                 output: {
@@ -144,9 +204,17 @@ declare const openhouseRoutes: import("hono/hono-base").HonoBase<
                         date: string;
                         startTime: string;
                         endTime: string;
+                        images: {
+                            id: string;
+                            openHouseId: string;
+                            url: string;
+                            publicId: string;
+                            isMain: boolean;
+                            orderIndex: number;
+                            createdAt: string;
+                        }[];
                         createdAt: string;
                         updatedAt: string;
-                        listingImageUrl?: string | null | undefined;
                         notes?: string | null | undefined;
                     };
                 };
@@ -171,17 +239,55 @@ declare const publicOpenHouseRoutes: import("hono/hono-base").HonoBase<
                 output: {
                     data: {
                         id: string;
-                        organizationId: string;
-                        createdByUserId: string;
                         propertyAddress: string;
-                        listingPrice: number;
                         date: string;
                         startTime: string;
                         endTime: string;
-                        createdAt: string;
-                        updatedAt: string;
-                        listingImageUrl?: string | null | undefined;
-                        notes?: string | null | undefined;
+                        formConfig: {
+                            id: string;
+                            organizationId: string;
+                            questions: {
+                                id: string;
+                                type:
+                                    | "number"
+                                    | "text"
+                                    | "date"
+                                    | "select"
+                                    | "textarea"
+                                    | "checkbox"
+                                    | "radio"
+                                    | "range";
+                                label: string;
+                                required: boolean;
+                                placeholder?: string | undefined;
+                                options?:
+                                    | {
+                                          label: string;
+                                          value: string;
+                                      }[]
+                                    | undefined;
+                                validation?:
+                                    | {
+                                          minLength?: number | undefined;
+                                          maxLength?: number | undefined;
+                                          min?: number | undefined;
+                                          max?: number | undefined;
+                                      }
+                                    | undefined;
+                                step?: number | undefined;
+                            }[];
+                            createdAt: string;
+                            updatedAt: string;
+                        } | null;
+                        images: {
+                            id: string;
+                            openHouseId: string;
+                            url: string;
+                            publicId: string;
+                            isMain: boolean;
+                            orderIndex: number;
+                            createdAt: string;
+                        }[];
                     };
                 };
                 outputFormat: "json";
@@ -201,10 +307,13 @@ declare const publicOpenHouseRoutes: import("hono/hono-base").HonoBase<
                         lastName: string;
                         email?: string | null | undefined;
                         phone?: string | null | undefined;
-                        consent?: boolean | undefined;
                         workingWithAgent?: boolean | undefined;
+                        consent?: boolean | undefined;
                         responses?:
-                            | Record<PropertyKey, unknown>
+                            | Record<
+                                  string,
+                                  string | number | string[] | number[]
+                              >
                             | null
                             | undefined;
                     };
@@ -223,12 +332,11 @@ declare const publicOpenHouseRoutes: import("hono/hono-base").HonoBase<
                         phone?: string | null | undefined;
                         responses?:
                             | {
-                                  [
-                                      x: string
-                                  ]: import("hono/utils/types").JSONValue;
-                                  [
-                                      x: number
-                                  ]: import("hono/utils/types").JSONValue;
+                                  [x: string]:
+                                      | string
+                                      | number
+                                      | string[]
+                                      | number[];
                               }
                             | null
                             | undefined;

@@ -1,6 +1,7 @@
 import { relations } from "drizzle-orm";
 import {
     boolean,
+    integer,
     jsonb,
     numeric,
     pgTable,
@@ -27,13 +28,24 @@ export const openHouse = pgTable("open_house", {
     date: timestamp("date", { mode: "date" }).notNull(),
     startTime: text("start_time").notNull(),
     endTime: text("end_time").notNull(),
-    listingImageUrl: text("listing_image_url"),
     notes: text("notes"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
         .defaultNow()
         .$onUpdate(() => new Date())
         .notNull(),
+});
+
+export const openHouseImage = pgTable("open_house_image", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    openHouseId: uuid("open_house_id")
+        .notNull()
+        .references(() => openHouse.id, { onDelete: "cascade" }),
+    url: text("url").notNull(),
+    publicId: text("public_id").notNull(),
+    isMain: boolean("is_main").notNull().default(false),
+    orderIndex: integer("order_index").notNull().default(0),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export const openHouseLead = pgTable("open_house_lead", {
@@ -63,6 +75,7 @@ export const openHouseRelations = relations(openHouse, ({ one, many }) => ({
         references: [organization.id],
     }),
     leads: many(openHouseLead),
+    images: many(openHouseImage),
 }));
 
 export const openHouseLeadRelations = relations(openHouseLead, ({ one }) => ({
@@ -73,6 +86,13 @@ export const openHouseLeadRelations = relations(openHouseLead, ({ one }) => ({
     organization: one(organization, {
         fields: [openHouseLead.organizationId],
         references: [organization.id],
+    }),
+}));
+
+export const openHouseImageRelation = relations(openHouseImage, ({ one }) => ({
+    openHouse: one(openHouse, {
+        fields: [openHouseImage.openHouseId],
+        references: [openHouse.id],
     }),
 }));
 
@@ -89,5 +109,7 @@ export const organizationOpenHouseRelations = relations(
 
 export type InsertOpenHouse = typeof openHouse.$inferInsert;
 export type SelectOpenHouse = typeof openHouse.$inferSelect;
+export type InsertOpenHouseImage = typeof openHouseImage.$inferInsert;
+export type SelectOpenHouseImage = typeof openHouseImage.$inferSelect;
 export type InsertOpenHouseLead = typeof openHouseLead.$inferInsert;
 export type SelectOpenHouseLead = typeof openHouseLead.$inferSelect;

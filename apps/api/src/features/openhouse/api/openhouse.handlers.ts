@@ -40,6 +40,19 @@ export const createOpenHouseHandlers = orgFactory.createHandlers(
     },
 );
 
+export const deleteOpenHouseHandlers = orgFactory.createHandlers(
+    zValidator("param", GetOpenHouseParamsSchema),
+    rbacMiddleware({ openhouse: ["delete"] }),
+    async (c) => {
+        const organizationId = c.get("organizationId");
+        const { id } = c.req.valid("param");
+
+        await service.deleteOpenHouse(id, organizationId);
+
+        return c.json({ data: { id } });
+    },
+);
+
 export const getOpenHousesHandlers = orgFactory.createHandlers(
     rbacMiddleware({ openhouse: ["view"] }),
     async (c) => {

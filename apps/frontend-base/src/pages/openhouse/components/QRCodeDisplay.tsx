@@ -4,6 +4,7 @@ import QRCode from 'qrcode'
 import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { imagePresets, mainImageUrl } from '@/lib/cloudinary-url'
 import type { OpenHouse } from '@/lib/schemas/openhouse.schema'
 import { formatCurrency } from '@/lib/utils'
 

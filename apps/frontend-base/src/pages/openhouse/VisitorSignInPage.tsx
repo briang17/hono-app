@@ -3,6 +3,7 @@ import { getRouteApi } from '@tanstack/react-router'
 import { format } from 'date-fns'
 import { CheckCircle2, Frown, Home } from 'lucide-react'
 import { useState } from 'react'
+import { imagePresets, mainImageUrl } from '@/lib/cloudinary-url'
 import { useCreateOpenHouseLead } from '@/lib/mutations/openhouse'
 import { usePublicOpenHouse } from '@/lib/queries/openhouse'
 import { cn } from '@/lib/utils'
@@ -45,6 +46,8 @@ export function VisitorSignInPage() {
         setSubmitted(true)
     }
 
+    const heroUrl = mainImageUrl(openHouse.images, imagePresets.heroLarge)
+
     if (submitted) {
         return (
             <div className="flex items-center justify-center min-h-screen">
@@ -64,9 +67,9 @@ export function VisitorSignInPage() {
     return (
         <div className="flex flex-col min-h-screen">
             <div className="relative h-80 sm:h-96 w-full overflow-hidden bg-re-navy">
-                {openHouse.listingImageUrl ? (
+                {heroUrl ? (
                     <img
-                        src={openHouse.listingImageUrl}
+                        src={heroUrl}
                         alt={openHouse.propertyAddress}
                         className="w-full h-full object-cover"
                     />

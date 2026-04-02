@@ -48,6 +48,16 @@ const authEnvScope = {
 	}),
 };
 
+const cloudinaryEnvScope = {
+	name: "cloudinary",
+	schema: z.object({
+		CLOUDINARY_CLOUD_NAME: z.string().min(1),
+		CLOUDINARY_CLOUD_API_KEY: z.string().min(1),
+		CLOUDINARY_CLOUD_API_SECRET: z.string().min(1),
+		CLOUDINARY_URL: z.string().min(1),
+	}),
+};
+
 const fubClientEnvScope = {
 	name: "fubClient",
 	schema: z.object({
@@ -94,6 +104,11 @@ const infisicalEnv = validate(
 	envSource,
 );
 const authEnv = validate(authEnvScope.name, authEnvScope.schema, envSource);
+const cloudinaryEnv = validate(
+	cloudinaryEnvScope.name,
+	cloudinaryEnvScope.schema,
+	envSource,
+);
 const fubClientEnv = validate(
 	fubClientEnvScope.name,
 	fubClientEnvScope.schema,
@@ -170,6 +185,7 @@ export {
 	databaseEnv,
 	infisicalEnv,
 	authEnv,
+	cloudinaryEnv,
 	fubClientEnv,
 	emailerEnv,
 	loadSecrets,

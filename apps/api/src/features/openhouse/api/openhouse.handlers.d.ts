@@ -10,8 +10,15 @@ export declare const createOpenHouseHandlers: [
                     listingPrice: number;
                     startTime: string;
                     endTime: string;
-                    listingImageUrl?: string | null | undefined;
                     notes?: string | null | undefined;
+                    images?:
+                        | {
+                              url: string;
+                              publicId: string;
+                              isMain?: boolean | undefined;
+                              orderIndex?: number | undefined;
+                          }[]
+                        | undefined;
                 };
             };
             out: {
@@ -21,7 +28,12 @@ export declare const createOpenHouseHandlers: [
                     listingPrice: number;
                     startTime: string;
                     endTime: string;
-                    listingImageUrl?: string | null | undefined;
+                    images: {
+                        url: string;
+                        publicId: string;
+                        isMain: boolean;
+                        orderIndex: number;
+                    }[];
                     notes?: string | null | undefined;
                 };
             };
@@ -82,8 +94,15 @@ export declare const createOpenHouseHandlers: [
                     listingPrice: number;
                     startTime: string;
                     endTime: string;
-                    listingImageUrl?: string | null | undefined;
                     notes?: string | null | undefined;
+                    images?:
+                        | {
+                              url: string;
+                              publicId: string;
+                              isMain?: boolean | undefined;
+                              orderIndex?: number | undefined;
+                          }[]
+                        | undefined;
                 };
             };
             out: {
@@ -93,7 +112,12 @@ export declare const createOpenHouseHandlers: [
                     listingPrice: number;
                     startTime: string;
                     endTime: string;
-                    listingImageUrl?: string | null | undefined;
+                    images: {
+                        url: string;
+                        publicId: string;
+                        isMain: boolean;
+                        orderIndex: number;
+                    }[];
                     notes?: string | null | undefined;
                 };
             };
@@ -111,9 +135,17 @@ export declare const createOpenHouseHandlers: [
                             date: string;
                             startTime: string;
                             endTime: string;
+                            images: {
+                                id: string;
+                                openHouseId: string;
+                                url: string;
+                                publicId: string;
+                                isMain: boolean;
+                                orderIndex: number;
+                                createdAt: string;
+                            }[];
                             createdAt: string;
                             updatedAt: string;
-                            listingImageUrl?: string | null | undefined;
                             notes?: string | null | undefined;
                         };
                     },
@@ -184,9 +216,17 @@ export declare const getOpenHousesHandlers: [
                             date: string;
                             startTime: string;
                             endTime: string;
+                            images: {
+                                id: string;
+                                openHouseId: string;
+                                url: string;
+                                publicId: string;
+                                isMain: boolean;
+                                orderIndex: number;
+                                createdAt: string;
+                            }[];
                             createdAt: string;
                             updatedAt: string;
-                            listingImageUrl?: string | null | undefined;
                             notes?: string | null | undefined;
                         }[];
                     },
@@ -285,9 +325,17 @@ export declare const getOpenHouseHandlers: [
                             date: string;
                             startTime: string;
                             endTime: string;
+                            images: {
+                                id: string;
+                                openHouseId: string;
+                                url: string;
+                                publicId: string;
+                                isMain: boolean;
+                                orderIndex: number;
+                                createdAt: string;
+                            }[];
                             createdAt: string;
                             updatedAt: string;
-                            listingImageUrl?: string | null | undefined;
                             notes?: string | null | undefined;
                         };
                     },
@@ -378,28 +426,65 @@ export declare const getOpenHouseLeadsHandlers: [
                 import("hono").TypedResponse<
                     {
                         data: {
-                            id: string;
-                            openHouseId: string;
-                            organizationId: string;
-                            firstName: string;
-                            lastName: string;
-                            workingWithAgent: boolean;
-                            submittedAt: string;
-                            consent: boolean;
-                            email?: string | null | undefined;
-                            phone?: string | null | undefined;
-                            responses?:
-                                | {
-                                      [
-                                          x: string
-                                      ]: import("hono/utils/types").JSONValue;
-                                      [
-                                          x: number
-                                      ]: import("hono/utils/types").JSONValue;
-                                  }
-                                | null
-                                | undefined;
-                        }[];
+                            leads: {
+                                id: string;
+                                openHouseId: string;
+                                organizationId: string;
+                                firstName: string;
+                                lastName: string;
+                                workingWithAgent: boolean;
+                                submittedAt: string;
+                                consent: boolean;
+                                email?: string | null | undefined;
+                                phone?: string | null | undefined;
+                                responses?:
+                                    | {
+                                          [x: string]:
+                                              | string
+                                              | number
+                                              | string[]
+                                              | number[];
+                                      }
+                                    | null
+                                    | undefined;
+                            }[];
+                            formConfig: {
+                                id: string;
+                                organizationId: string;
+                                questions: {
+                                    id: string;
+                                    type:
+                                        | "number"
+                                        | "text"
+                                        | "date"
+                                        | "select"
+                                        | "textarea"
+                                        | "checkbox"
+                                        | "radio"
+                                        | "range";
+                                    label: string;
+                                    required: boolean;
+                                    placeholder?: string | undefined;
+                                    options?:
+                                        | {
+                                              label: string;
+                                              value: string;
+                                          }[]
+                                        | undefined;
+                                    validation?:
+                                        | {
+                                              minLength?: number | undefined;
+                                              maxLength?: number | undefined;
+                                              min?: number | undefined;
+                                              max?: number | undefined;
+                                          }
+                                        | undefined;
+                                    step?: number | undefined;
+                                }[];
+                                createdAt: string;
+                                updatedAt: string;
+                            } | null;
+                        };
                     },
                     import("hono/utils/http-status").ContentfulStatusCode,
                     "json"
@@ -446,17 +531,55 @@ export declare const getPublicOpenHouseHandlers: [
                     {
                         data: {
                             id: string;
-                            organizationId: string;
-                            createdByUserId: string;
                             propertyAddress: string;
-                            listingPrice: number;
                             date: string;
                             startTime: string;
                             endTime: string;
-                            createdAt: string;
-                            updatedAt: string;
-                            listingImageUrl?: string | null | undefined;
-                            notes?: string | null | undefined;
+                            formConfig: {
+                                id: string;
+                                organizationId: string;
+                                questions: {
+                                    id: string;
+                                    type:
+                                        | "number"
+                                        | "text"
+                                        | "date"
+                                        | "select"
+                                        | "textarea"
+                                        | "checkbox"
+                                        | "radio"
+                                        | "range";
+                                    label: string;
+                                    required: boolean;
+                                    placeholder?: string | undefined;
+                                    options?:
+                                        | {
+                                              label: string;
+                                              value: string;
+                                          }[]
+                                        | undefined;
+                                    validation?:
+                                        | {
+                                              minLength?: number | undefined;
+                                              maxLength?: number | undefined;
+                                              min?: number | undefined;
+                                              max?: number | undefined;
+                                          }
+                                        | undefined;
+                                    step?: number | undefined;
+                                }[];
+                                createdAt: string;
+                                updatedAt: string;
+                            } | null;
+                            images: {
+                                id: string;
+                                openHouseId: string;
+                                url: string;
+                                publicId: string;
+                                isMain: boolean;
+                                orderIndex: number;
+                                createdAt: string;
+                            }[];
                         };
                     },
                     import("hono/utils/http-status").ContentfulStatusCode,
@@ -493,21 +616,24 @@ export declare const createOpenHouseLeadHandlers: [
                     lastName: string;
                     email?: string | null | undefined;
                     phone?: string | null | undefined;
-                    consent?: boolean | undefined;
                     workingWithAgent?: boolean | undefined;
-                    responses?: Record<PropertyKey, unknown> | null | undefined;
+                    consent?: boolean | undefined;
+                    responses?:
+                        | Record<string, string | number | string[] | number[]>
+                        | null
+                        | undefined;
                 };
             };
             out: {
                 json: {
                     firstName: string;
                     lastName: string;
-                    consent: boolean;
                     workingWithAgent: boolean;
+                    consent: boolean;
                     email?: string | null | undefined;
                     phone?: string | null | undefined;
                     responses?:
-                        | Record<string | number | symbol, unknown>
+                        | Record<string, string | number | string[] | number[]>
                         | null
                         | undefined;
                 };
@@ -536,21 +662,24 @@ export declare const createOpenHouseLeadHandlers: [
                     lastName: string;
                     email?: string | null | undefined;
                     phone?: string | null | undefined;
-                    consent?: boolean | undefined;
                     workingWithAgent?: boolean | undefined;
-                    responses?: Record<PropertyKey, unknown> | null | undefined;
+                    consent?: boolean | undefined;
+                    responses?:
+                        | Record<string, string | number | string[] | number[]>
+                        | null
+                        | undefined;
                 };
             };
             out: {
                 json: {
                     firstName: string;
                     lastName: string;
-                    consent: boolean;
                     workingWithAgent: boolean;
+                    consent: boolean;
                     email?: string | null | undefined;
                     phone?: string | null | undefined;
                     responses?:
-                        | Record<string | number | symbol, unknown>
+                        | Record<string, string | number | string[] | number[]>
                         | null
                         | undefined;
                 };
@@ -573,12 +702,11 @@ export declare const createOpenHouseLeadHandlers: [
                             phone?: string | null | undefined;
                             responses?:
                                 | {
-                                      [
-                                          x: string
-                                      ]: import("hono/utils/types").JSONValue;
-                                      [
-                                          x: number
-                                      ]: import("hono/utils/types").JSONValue;
+                                      [x: string]:
+                                          | string
+                                          | number
+                                          | string[]
+                                          | number[];
                                   }
                                 | null
                                 | undefined;

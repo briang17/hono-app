@@ -1,28 +1,31 @@
 import type { Id } from "@features/common/values";
+import type { FormConfig } from "@formconfig/domain/form-config.entity";
 import { db } from "@packages/database";
 import { organizationFormConfig } from "@packages/database/src/schemas/form-config.schema";
 import {
     openHouse,
+    openHouseImage,
     openHouseLead,
 } from "@packages/database/src/schemas/openhouse.schema";
 import { and, desc, eq } from "drizzle-orm";
 import type { IOpenHouseRepository } from "../domain/interface.openhouse.repository";
 import {
-    type FormConfig,
+    type NewOpenHouseImageInput,
     type OpenHouse,
     OpenHouseFactory,
+    type OpenHouseImage,
     type OpenHouseLead,
     OpenHouseLeadFactory,
     type PublicOpenHouse,
 } from "../domain/openhouse.entity";
 
 export class DbOpenHouseRepository implements IOpenHouseRepository {
-    async create(params: OpenHouse) {
+    async create(params: Omit<OpenHouse, "images">) {
         const [result] = await db.insert(openHouse).values(params).returning();
 
         if (!result) throw new Error();
 
-        return OpenHouseFactory.fromDb(result);
+        return OpenHouseFactory.fromDb({ ...result, images: [] });
     }
 
     async findById(id: Id) {
@@ -34,7 +37,8 @@ export class DbOpenHouseRepository implements IOpenHouseRepository {
 
         if (!result) return null;
 
-        return OpenHouseFactory.fromDb(result);
+        const images = await this.findImagesByOpenHouseId(id);
+        return OpenHouseFactory.fromDb({ ...result, images });
     }
 
     async findByOrgAndUser(organizationId: string, userId: string) {
@@ -49,7 +53,12 @@ export class DbOpenHouseRepository implements IOpenHouseRepository {
             )
             .orderBy(desc(openHouse.date), desc(openHouse.createdAt));
 
-        return results.map((result) => OpenHouseFactory.fromDb(result));
+        return Promise.all(
+            results.map(async (result) => {
+                const images = await this.findImagesByOpenHouseId(result.id);
+                return OpenHouseFactory.fromDb({ ...result, images });
+            }),
+        );
     }
 
     async findPublicById(id: string) {
@@ -61,7 +70,8 @@ export class DbOpenHouseRepository implements IOpenHouseRepository {
 
         if (!result) return null;
 
-        return OpenHouseFactory.fromDb(result);
+        const images = await this.findImagesByOpenHouseId(id);
+        return OpenHouseFactory.fromDb({ ...result, images });
     }
 
     async findPublicByIdWithFormConfig(
@@ -75,7 +85,6 @@ export class DbOpenHouseRepository implements IOpenHouseRepository {
                 startTime: openHouse.startTime,
                 endTime: openHouse.endTime,
                 formConfig: organizationFormConfig,
-                listingImageUrl: openHouse.listingImageUrl,
             })
             .from(openHouse)
             .leftJoin(
@@ -89,6 +98,8 @@ export class DbOpenHouseRepository implements IOpenHouseRepository {
             .limit(1);
 
         if (!result) return null;
+
+        const images = await this.findImagesByOpenHouseId(id);
 
         return {
             id: result.id,
@@ -106,8 +117,65 @@ export class DbOpenHouseRepository implements IOpenHouseRepository {
                       updatedAt: result.formConfig.updatedAt,
                   }
                 : null,
-            listingImageUrl: result.listingImageUrl ?? null,
+            images,
         };
+    }
+
+    async createImages(
+        openHouseId: string,
+        images: NewOpenHouseImageInput[],
+    ): Promise<OpenHouseImage[]> {
+        if (images.length === 0) return [];
+        const values = images.map((img) => ({
+            ...img,
+            openHouseId,
+        }));
+        const results = await db
+            .insert(openHouseImage)
+            .values(values)
+            .returning();
+        return results.map((r) => ({
+            id: r.id,
+            openHouseId: r.openHouseId,
+            url: r.url,
+            publicId: r.publicId,
+            isMain: r.isMain,
+            orderIndex: r.orderIndex,
+            createdAt: r.createdAt,
+        }));
+    }
+
+    async findImagesByOpenHouseId(
+        openHouseId: string,
+    ): Promise<OpenHouseImage[]> {
+        const results = await db
+            .select()
+            .from(openHouseImage)
+            .where(eq(openHouseImage.openHouseId, openHouseId))
+            .orderBy(openHouseImage.orderIndex, openHouseImage.createdAt);
+        return results.map((r) => ({
+            id: r.id,
+            openHouseId: r.openHouseId,
+            url: r.url,
+            publicId: r.publicId,
+            isMain: r.isMain,
+            orderIndex: r.orderIndex,
+            createdAt: r.createdAt,
+        }));
+    }
+
+    async findImagePublicIdsByOpenHouseId(
+        openHouseId: string,
+    ): Promise<string[]> {
+        const results = await db
+            .select({ publicId: openHouseImage.publicId })
+            .from(openHouseImage)
+            .where(eq(openHouseImage.openHouseId, openHouseId));
+        return results.map((r) => r.publicId);
+    }
+
+    async delete(openHouseId: string): Promise<void> {
+        await db.delete(openHouse).where(eq(openHouse.id, openHouseId));
     }
 
     async createLead(params: OpenHouseLead) {

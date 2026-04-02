@@ -23,9 +23,17 @@ declare const featureRoutes: import("hono/hono-base").HonoBase<
                                   date: string;
                                   startTime: string;
                                   endTime: string;
+                                  images: {
+                                      id: string;
+                                      openHouseId: string;
+                                      url: string;
+                                      publicId: string;
+                                      isMain: boolean;
+                                      orderIndex: number;
+                                      createdAt: string;
+                                  }[];
                                   createdAt: string;
                                   updatedAt: string;
-                                  listingImageUrl?: string | null | undefined;
                                   notes?: string | null | undefined;
                               }[];
                           };
@@ -51,9 +59,17 @@ declare const featureRoutes: import("hono/hono-base").HonoBase<
                                   date: string;
                                   startTime: string;
                                   endTime: string;
+                                  images: {
+                                      id: string;
+                                      openHouseId: string;
+                                      url: string;
+                                      publicId: string;
+                                      isMain: boolean;
+                                      orderIndex: number;
+                                      createdAt: string;
+                                  }[];
                                   createdAt: string;
                                   updatedAt: string;
-                                  listingImageUrl?: string | null | undefined;
                                   notes?: string | null | undefined;
                               };
                           };
@@ -71,28 +87,69 @@ declare const featureRoutes: import("hono/hono-base").HonoBase<
                           };
                           output: {
                               data: {
-                                  id: string;
-                                  openHouseId: string;
-                                  organizationId: string;
-                                  firstName: string;
-                                  lastName: string;
-                                  workingWithAgent: boolean;
-                                  submittedAt: string;
-                                  consent: boolean;
-                                  email?: string | null | undefined;
-                                  phone?: string | null | undefined;
-                                  responses?:
-                                      | {
-                                            [
-                                                x: string
-                                            ]: import("hono/utils/types").JSONValue;
-                                            [
-                                                x: number
-                                            ]: import("hono/utils/types").JSONValue;
-                                        }
-                                      | null
-                                      | undefined;
-                              }[];
+                                  leads: {
+                                      id: string;
+                                      openHouseId: string;
+                                      organizationId: string;
+                                      firstName: string;
+                                      lastName: string;
+                                      workingWithAgent: boolean;
+                                      submittedAt: string;
+                                      consent: boolean;
+                                      email?: string | null | undefined;
+                                      phone?: string | null | undefined;
+                                      responses?:
+                                          | {
+                                                [x: string]:
+                                                    | string
+                                                    | number
+                                                    | string[]
+                                                    | number[];
+                                            }
+                                          | null
+                                          | undefined;
+                                  }[];
+                                  formConfig: {
+                                      id: string;
+                                      organizationId: string;
+                                      questions: {
+                                          id: string;
+                                          type:
+                                              | "number"
+                                              | "text"
+                                              | "date"
+                                              | "select"
+                                              | "textarea"
+                                              | "checkbox"
+                                              | "radio"
+                                              | "range";
+                                          label: string;
+                                          required: boolean;
+                                          placeholder?: string | undefined;
+                                          options?:
+                                              | {
+                                                    label: string;
+                                                    value: string;
+                                                }[]
+                                              | undefined;
+                                          validation?:
+                                              | {
+                                                    minLength?:
+                                                        | number
+                                                        | undefined;
+                                                    maxLength?:
+                                                        | number
+                                                        | undefined;
+                                                    min?: number | undefined;
+                                                    max?: number | undefined;
+                                                }
+                                              | undefined;
+                                          step?: number | undefined;
+                                      }[];
+                                      createdAt: string;
+                                      updatedAt: string;
+                                  } | null;
+                              };
                           };
                           outputFormat: "json";
                           status: import("hono/utils/http-status").ContentfulStatusCode;
@@ -108,8 +165,15 @@ declare const featureRoutes: import("hono/hono-base").HonoBase<
                                   listingPrice: number;
                                   startTime: string;
                                   endTime: string;
-                                  listingImageUrl?: string | null | undefined;
                                   notes?: string | null | undefined;
+                                  images?:
+                                      | {
+                                            url: string;
+                                            publicId: string;
+                                            isMain?: boolean | undefined;
+                                            orderIndex?: number | undefined;
+                                        }[]
+                                      | undefined;
                               };
                           };
                           output: {
@@ -122,9 +186,17 @@ declare const featureRoutes: import("hono/hono-base").HonoBase<
                                   date: string;
                                   startTime: string;
                                   endTime: string;
+                                  images: {
+                                      id: string;
+                                      openHouseId: string;
+                                      url: string;
+                                      publicId: string;
+                                      isMain: boolean;
+                                      orderIndex: number;
+                                      createdAt: string;
+                                  }[];
                                   createdAt: string;
                                   updatedAt: string;
-                                  listingImageUrl?: string | null | undefined;
                                   notes?: string | null | undefined;
                               };
                           };
@@ -147,17 +219,59 @@ declare const featureRoutes: import("hono/hono-base").HonoBase<
                           output: {
                               data: {
                                   id: string;
-                                  organizationId: string;
-                                  createdByUserId: string;
                                   propertyAddress: string;
-                                  listingPrice: number;
                                   date: string;
                                   startTime: string;
                                   endTime: string;
-                                  createdAt: string;
-                                  updatedAt: string;
-                                  listingImageUrl?: string | null | undefined;
-                                  notes?: string | null | undefined;
+                                  formConfig: {
+                                      id: string;
+                                      organizationId: string;
+                                      questions: {
+                                          id: string;
+                                          type:
+                                              | "number"
+                                              | "text"
+                                              | "date"
+                                              | "select"
+                                              | "textarea"
+                                              | "checkbox"
+                                              | "radio"
+                                              | "range";
+                                          label: string;
+                                          required: boolean;
+                                          placeholder?: string | undefined;
+                                          options?:
+                                              | {
+                                                    label: string;
+                                                    value: string;
+                                                }[]
+                                              | undefined;
+                                          validation?:
+                                              | {
+                                                    minLength?:
+                                                        | number
+                                                        | undefined;
+                                                    maxLength?:
+                                                        | number
+                                                        | undefined;
+                                                    min?: number | undefined;
+                                                    max?: number | undefined;
+                                                }
+                                              | undefined;
+                                          step?: number | undefined;
+                                      }[];
+                                      createdAt: string;
+                                      updatedAt: string;
+                                  } | null;
+                                  images: {
+                                      id: string;
+                                      openHouseId: string;
+                                      url: string;
+                                      publicId: string;
+                                      isMain: boolean;
+                                      orderIndex: number;
+                                      createdAt: string;
+                                  }[];
                               };
                           };
                           outputFormat: "json";
@@ -177,10 +291,16 @@ declare const featureRoutes: import("hono/hono-base").HonoBase<
                                   lastName: string;
                                   email?: string | null | undefined;
                                   phone?: string | null | undefined;
-                                  consent?: boolean | undefined;
                                   workingWithAgent?: boolean | undefined;
+                                  consent?: boolean | undefined;
                                   responses?:
-                                      | Record<PropertyKey, unknown>
+                                      | Record<
+                                            string,
+                                            | string
+                                            | number
+                                            | string[]
+                                            | number[]
+                                        >
                                       | null
                                       | undefined;
                               };
@@ -199,12 +319,11 @@ declare const featureRoutes: import("hono/hono-base").HonoBase<
                                   phone?: string | null | undefined;
                                   responses?:
                                       | {
-                                            [
-                                                x: string
-                                            ]: import("hono/utils/types").JSONValue;
-                                            [
-                                                x: number
-                                            ]: import("hono/utils/types").JSONValue;
+                                            [x: string]:
+                                                | string
+                                                | number
+                                                | string[]
+                                                | number[];
                                         }
                                       | null
                                       | undefined;
@@ -230,15 +349,22 @@ declare const featureRoutes: import("hono/hono-base").HonoBase<
                                       id: string;
                                       type:
                                           | "number"
-                                          | "short_text"
-                                          | "long_text"
-                                          | "multiple_choice"
-                                          | "checkboxes";
+                                          | "text"
+                                          | "date"
+                                          | "select"
+                                          | "textarea"
+                                          | "checkbox"
+                                          | "radio"
+                                          | "range";
                                       label: string;
                                       required: boolean;
-                                      order: number;
                                       placeholder?: string | undefined;
-                                      options?: string[] | undefined;
+                                      options?:
+                                          | {
+                                                label: string;
+                                                value: string;
+                                            }[]
+                                          | undefined;
                                       validation?:
                                           | {
                                                 minLength?: number | undefined;
@@ -247,6 +373,7 @@ declare const featureRoutes: import("hono/hono-base").HonoBase<
                                                 max?: number | undefined;
                                             }
                                           | undefined;
+                                      step?: number | undefined;
                                   }[];
                                   createdAt: string;
                                   updatedAt: string;
@@ -259,24 +386,28 @@ declare const featureRoutes: import("hono/hono-base").HonoBase<
               } & {
                   "/": {
                       $post: {
-                          input: {};
-                          output: {
-                              data: {
-                                  id: string;
-                                  organizationId: string;
+                          input: {
+                              json: {
                                   questions: {
                                       id: string;
                                       type:
                                           | "number"
-                                          | "short_text"
-                                          | "long_text"
-                                          | "multiple_choice"
-                                          | "checkboxes";
+                                          | "text"
+                                          | "date"
+                                          | "select"
+                                          | "textarea"
+                                          | "checkbox"
+                                          | "radio"
+                                          | "range";
                                       label: string;
                                       required: boolean;
-                                      order: number;
                                       placeholder?: string | undefined;
-                                      options?: string[] | undefined;
+                                      options?:
+                                          | {
+                                                label: string;
+                                                value: string;
+                                            }[]
+                                          | undefined;
                                       validation?:
                                           | {
                                                 minLength?: number | undefined;
@@ -285,6 +416,43 @@ declare const featureRoutes: import("hono/hono-base").HonoBase<
                                                 max?: number | undefined;
                                             }
                                           | undefined;
+                                      step?: number | undefined;
+                                  }[];
+                              };
+                          };
+                          output: {
+                              data: {
+                                  id: string;
+                                  organizationId: string;
+                                  questions: {
+                                      id: string;
+                                      type:
+                                          | "number"
+                                          | "text"
+                                          | "date"
+                                          | "select"
+                                          | "textarea"
+                                          | "checkbox"
+                                          | "radio"
+                                          | "range";
+                                      label: string;
+                                      required: boolean;
+                                      placeholder?: string | undefined;
+                                      options?:
+                                          | {
+                                                label: string;
+                                                value: string;
+                                            }[]
+                                          | undefined;
+                                      validation?:
+                                          | {
+                                                minLength?: number | undefined;
+                                                maxLength?: number | undefined;
+                                                min?: number | undefined;
+                                                max?: number | undefined;
+                                            }
+                                          | undefined;
+                                      step?: number | undefined;
                                   }[];
                                   createdAt: string;
                                   updatedAt: string;
@@ -301,6 +469,39 @@ declare const featureRoutes: import("hono/hono-base").HonoBase<
                               param: {
                                   id: string;
                               };
+                          } & {
+                              json: {
+                                  questions: {
+                                      id: string;
+                                      type:
+                                          | "number"
+                                          | "text"
+                                          | "date"
+                                          | "select"
+                                          | "textarea"
+                                          | "checkbox"
+                                          | "radio"
+                                          | "range";
+                                      label: string;
+                                      required: boolean;
+                                      placeholder?: string | undefined;
+                                      options?:
+                                          | {
+                                                label: string;
+                                                value: string;
+                                            }[]
+                                          | undefined;
+                                      validation?:
+                                          | {
+                                                minLength?: number | undefined;
+                                                maxLength?: number | undefined;
+                                                min?: number | undefined;
+                                                max?: number | undefined;
+                                            }
+                                          | undefined;
+                                      step?: number | undefined;
+                                  }[];
+                              };
                           };
                           output: {
                               data: {
@@ -310,15 +511,22 @@ declare const featureRoutes: import("hono/hono-base").HonoBase<
                                       id: string;
                                       type:
                                           | "number"
-                                          | "short_text"
-                                          | "long_text"
-                                          | "multiple_choice"
-                                          | "checkboxes";
+                                          | "text"
+                                          | "date"
+                                          | "select"
+                                          | "textarea"
+                                          | "checkbox"
+                                          | "radio"
+                                          | "range";
                                       label: string;
                                       required: boolean;
-                                      order: number;
                                       placeholder?: string | undefined;
-                                      options?: string[] | undefined;
+                                      options?:
+                                          | {
+                                                label: string;
+                                                value: string;
+                                            }[]
+                                          | undefined;
                                       validation?:
                                           | {
                                                 minLength?: number | undefined;
@@ -327,6 +535,7 @@ declare const featureRoutes: import("hono/hono-base").HonoBase<
                                                 max?: number | undefined;
                                             }
                                           | undefined;
+                                      step?: number | undefined;
                                   }[];
                                   createdAt: string;
                                   updatedAt: string;
@@ -541,6 +750,26 @@ declare const featureRoutes: import("hono/hono-base").HonoBase<
                   };
               },
               "/api/agents"
+          >
+        | import("hono/types").MergeSchemaPath<
+              {
+                  "/signature": {
+                      $post: {
+                          input: {};
+                          output: {
+                              data: {
+                                  signature: string;
+                                  timestamp: number;
+                                  apiKey: string;
+                                  cloudName: string;
+                              };
+                          };
+                          outputFormat: "json";
+                          status: import("hono/utils/http-status").ContentfulStatusCode;
+                      };
+                  };
+              },
+              "/api/cloudinary"
           >
     ) & {
         "/health": {
