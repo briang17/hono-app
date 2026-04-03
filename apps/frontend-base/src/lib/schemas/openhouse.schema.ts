@@ -40,7 +40,7 @@ export const openHouseSchema = z.object({
     bedrooms: z.number().int().positive().nullable().optional(),
     bathrooms: z.number().positive().nullable().optional(),
     features: z.array(z.string()).nullable().optional(),
-    date: z.date(),
+    date: z.coerce.date(),
     startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Time must be in HH:MM format'),
     endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Time must be in HH:MM format'),
     images: z.array(openHouseImageSchema),
@@ -150,3 +150,10 @@ export type OpenHouseLead = z.infer<typeof openHouseLeadSchema>
 export type CreateOpenHouseLeadInput = z.infer<typeof createOpenHouseLeadSchema>
 export type PublicOpenHouse = z.infer<typeof publicOpenHouseSchema>
 export type LeadsWithFormConfig = z.infer<typeof leadsWithFormConfigSchema>
+
+export const teamOpenHouseSchema = openHouseSchema.extend({
+    creatorFirstName: z.string().nullable(),
+    creatorLastName: z.string().nullable(),
+})
+
+export type TeamOpenHouse = z.infer<typeof teamOpenHouseSchema>

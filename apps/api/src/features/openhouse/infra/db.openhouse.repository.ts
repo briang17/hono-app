@@ -1,6 +1,7 @@
 import type { Id } from "@features/common/values";
 import type { FormConfig } from "@formconfig/domain/form-config.entity";
 import { db } from "@packages/database";
+import { agent as agentTable } from "@packages/database/src/schemas/agent.schema";
 import { organizationFormConfig } from "@packages/database/src/schemas/form-config.schema";
 import {
     openHouse,
@@ -16,6 +17,7 @@ import {
     type OpenHouseImage,
     type OpenHouseLead,
     OpenHouseLeadFactory,
+    type OpenHouseWithCreator,
     type PublicOpenHouse,
     type UpdateOpenHouseImage,
 } from "../domain/openhouse.entity";
@@ -67,6 +69,45 @@ export class DbOpenHouseRepository implements IOpenHouseRepository {
             results.map(async (result) => {
                 const images = await this.findImagesByOpenHouseId(result.id);
                 return OpenHouseFactory.fromDb({ ...result, images });
+            }),
+        );
+    }
+
+    async findByOrg(organizationId: string): Promise<OpenHouseWithCreator[]> {
+        const results = await db
+            .select({
+                id: openHouse.id,
+                organizationId: openHouse.organizationId,
+                createdByUserId: openHouse.createdByUserId,
+                propertyAddress: openHouse.propertyAddress,
+                listingPrice: openHouse.listingPrice,
+                date: openHouse.date,
+                startTime: openHouse.startTime,
+                endTime: openHouse.endTime,
+                bedrooms: openHouse.bedrooms,
+                bathrooms: openHouse.bathrooms,
+                features: openHouse.features,
+                notes: openHouse.notes,
+                createdAt: openHouse.createdAt,
+                updatedAt: openHouse.updatedAt,
+                creatorFirstName: agentTable.firstName,
+                creatorLastName: agentTable.lastName,
+            })
+            .from(openHouse)
+            .leftJoin(
+                agentTable,
+                eq(openHouse.createdByUserId, agentTable.userId),
+            )
+            .where(eq(openHouse.organizationId, organizationId))
+            .orderBy(desc(openHouse.date), desc(openHouse.createdAt));
+
+        return Promise.all(
+            results.map(async (result) => {
+                const images = await this.findImagesByOpenHouseId(result.id);
+                return OpenHouseFactory.fromDbWithCreator({
+                    ...result,
+                    images,
+                });
             }),
         );
     }

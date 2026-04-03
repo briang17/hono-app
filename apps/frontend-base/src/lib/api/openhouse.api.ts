@@ -3,6 +3,8 @@ import type {
     CreateOpenHouseLeadInput,
     UpdateOpenHouseInput,
 } from '../schemas/openhouse.schema'
+import { teamOpenHouseSchema } from '../schemas/openhouse.schema'
+import {z} from 'zod/v4';
 import { apiClient } from './client'
 
 export const openhouseApi = {
@@ -13,6 +15,15 @@ export const openhouseApi = {
         }
         const data = await res.json()
         return data.data
+    },
+
+    getTeamOpenHouses: async () => {
+        const res = await apiClient.api['open-houses'].team.$get()
+        if (!res.ok) {
+            throw new Error('Failed to fetch team open houses')
+        }
+        const data = await res.json()
+        return z.array(teamOpenHouseSchema).parse(data.data);
     },
 
     getOpenHouse: async (id: string) => {

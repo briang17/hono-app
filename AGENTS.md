@@ -75,6 +75,12 @@ pnpm --filter @packages/database db:studio
 ⚠️ No test framework configured yet. When adding tests, check with the user first.
 Current test scripts are placeholders. Do not run them.
 
+**Workers**
+```bash
+pnpm --filter @packages/fub-client worker   # Start FUB event worker (BullMQ)
+pnpm --filter @packages/emailer worker      # Start email worker (BullMQ)
+```
+
 ---
 
 ## Code Style
@@ -118,6 +124,7 @@ packages/
   env/            # Environment validation (Zod)
   secrets/        # Infisical secrets management
   auth/           # Authentication (better-auth)
+  fub-client/      # Follow Up Boss API client + BullMQ worker
 ```
 
 **Domain-Driven Design Layers**
@@ -212,6 +219,27 @@ We use better-auth's native access control system (`createAccessControl` from `b
 4. Use `<Can permission={{ resource: ["action"] }}>` in frontend
 
 *Added 2025-03-24: RBAC implementation using better-auth native AC*
+
+**FUB Event Publishing**
+When a lead signs in at an open house, the handler publishes a fire-and-forget job to BullMQ. The FUB worker consumes it and sends the event + optional note to Follow Up Boss.
+```typescript
+import { addFubEventJob } from "@packages/fub-client";
+
+await addFubEventJob({
+    person: { firstName, lastName, assignedUserId: Number(fubId), emails, phones, tags: [] },
+    property: { street, price, bedrooms, bathrooms },
+    type: "Visited Open House",
+    system: "ANEWCo",
+    source: "Sphere",
+    message: "Lead signed in at Open House.",
+    note: { subject: "...", body: "..." },  // optional, from custom form responses
+});
+```
+- Only published if the agent has a `fubId` configured
+- `publishFubEventJob` is called with `.catch()` — never blocks the response
+- Note is only attached when the lead has custom form responses
+
+*Added 2025-04-03: FUB client package for Follow Up Boss integration*
 
 ---
 

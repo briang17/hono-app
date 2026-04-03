@@ -9,6 +9,14 @@ export function useOpenHouses() {
     })
 }
 
+export function useTeamOpenHouses() {
+    return queryOptions({
+        queryKey: ['team-openhouses'],
+        queryFn: () => openhouseApi.getTeamOpenHouses(),
+        staleTime: 300000,
+    })
+}
+
 export function useOpenHouse(id: string) {
     return queryOptions({
         queryKey: ['openhouses', id],

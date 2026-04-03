@@ -1,0 +1,25 @@
+{
+    "name": "@packages/fub-client",
+    "version": "1.0.0",
+    "description": "Follow Up Boss API client with BullMQ worker",
+    "main": "index.js",
+    "scripts": {
+        "worker": "bun run worker-process.ts",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "packageManager": "pnpm@10.28.1",
+    "dependencies": {
+        "@packages/env": "workspace:*",
+        "axios": "^1.7.9",
+        "bullmq": "^5.67.3",
+        "ioredis": "^5.9.2",
+        "pino": "^9.6.0",
+        "zod": "^4.3.6"
+    },
+    "devDependencies": {
+        "pino-pretty": "^13.0.0"
+    }
+}

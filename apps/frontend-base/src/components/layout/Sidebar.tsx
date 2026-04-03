@@ -1,23 +1,37 @@
-import { Link, useRouteContext } from '@tanstack/react-router'
-import { ChartLine, Home, ListChecks, Users } from 'lucide-react'
+import { Link } from '@tanstack/react-router'
+import { Building2, Home, Users } from 'lucide-react'
 import { Can } from '@/components/Can'
 import { cn } from '@/lib/utils'
+import type { RBACParams } from '@packages/auth/lib/permissions'
 
 interface SidebarProps {
     className?: string
 }
 
+interface NavItem {
+    to: string
+    label: string,
+    icon: typeof Building2,
+    permission: RBACParams
+}
+
 export function Sidebar({ className }: SidebarProps) {
-    const navItems = [
-        { to: '/openhouse', label: 'Open Houses', icon: Home, permission: { openhouse: ["view"], } },
-        { to: '/agents', label: 'Agents', icon: Users, permission: { agent: ["view"], } } 
-    ];
+    const navItems: NavItem[] = [
+        { to: '/openhouse', label: 'Open Houses', icon: Home, permission: { openhouse: ['view'] } },
+        {
+            to: '/team-openhouses',
+            label: 'Team Open Houses',
+            icon: Building2,
+            permission: { openhouse: ['view'] },
+        },
+        { to: '/agents', label: 'Agents', icon: Users, permission: { agent: ['view'] } },
+    ]
 
     return (
         <aside className={cn('w-64 border-r border-border', className)}>
             <nav className="flex flex-col gap-1 p-4">
                 {navItems.map((item) => (
-                    <Can permission={item.permission || 'agent'}>
+                    <Can permission={item.permission}>
                         <Link
                             key={item.to}
                             to={item.to}

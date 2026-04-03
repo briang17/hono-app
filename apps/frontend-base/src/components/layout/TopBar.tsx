@@ -1,15 +1,29 @@
 import { Link } from '@tanstack/react-router'
-import { ChartLine, Home, ListChecks, Menu, Users } from 'lucide-react'
+import { Building2, Home, Menu, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { authClient } from '@/lib/api/auth-client'
 import { useUIStore } from '@/lib/stores/uiStore'
 import { Can } from '../Can'
+import type { RBACParams } from '@packages/auth/lib/permissions'
 
-const navItems = [
-    { to: '/openhouse', label: 'Open Houses', icon: Home, permission: { openhouse: ["view"], } },
-    { to: '/agents', label: 'Agents', icon: Users, permission: { agent: ["view"], } } 
-];
+interface NavItem {
+    to: string
+    label: string,
+    icon: typeof Building2,
+    permission: RBACParams
+}
+
+const navItems: NavItem[] = [
+    { to: '/openhouse', label: 'Open Houses', icon: Home, permission: { openhouse: ['view'] } },
+    {
+        to: '/team-openhouses',
+        label: 'Team Open Houses',
+        icon: Building2,
+        permission: { openhouse: ['view'] },
+    },
+    { to: '/agents', label: 'Agents', icon: Users, permission: { agent: ['view'] } },
+]
 
 export function TopBar() {
     const { data: session, isPending } = authClient.useSession()

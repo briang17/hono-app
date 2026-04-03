@@ -9,6 +9,7 @@ import {
     getOpenHouseLeadsHandlers,
     getOpenHousesHandlers,
     getPublicOpenHouseHandlers,
+    getTeamOpenHousesHandlers,
     updateOpenHouseHandlers,
 } from "./openhouse.handlers";
 
@@ -16,6 +17,7 @@ const openhouseRoutes = new Hono()
     .use(authMiddleware)
     .use(orgMiddleware)
     .get("/", ...getOpenHousesHandlers)
+    .get("/team", ...getTeamOpenHousesHandlers)
     .get("/:id", ...getOpenHouseHandlers)
     .get("/:id/leads", ...getOpenHouseLeadsHandlers)
     .post("/", ...createOpenHouseHandlers)

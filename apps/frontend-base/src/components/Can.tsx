@@ -2,9 +2,10 @@ import type { OrgRole } from '@packages/auth/client/index'
 import type { ReactNode } from 'react'
 import { authClient } from '@/lib/api/auth-client'
 import { useRouteContext } from '@tanstack/react-router'
+import type { RBACParams } from '@packages/auth/lib/permissions'
 
 interface Props {
-    permission: Record<string, string[]>
+    permission: RBACParams
     children: ReactNode
     fallback?: ReactNode
 }

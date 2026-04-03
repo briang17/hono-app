@@ -26,7 +26,7 @@ app.use(
     }),
 );
 
-authRoutes.on(["POST", "GET"], "/api/auth/**", (c) => {
+authRoutes.on(["POST", "GET"], "/api/auth/*", (c) => {
     return auth.handler(c.req.raw);
 });
 

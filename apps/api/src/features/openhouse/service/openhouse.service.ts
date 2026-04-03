@@ -7,6 +7,7 @@ import type { CreateOpenHouseInput } from "../api/openhouse.schemas";
 import type { IOpenHouseRepository } from "../domain/interface.openhouse.repository";
 import type {
     NewOpenHouseLeadInput,
+    OpenHouseWithCreator,
     PublicOpenHouse,
     UpdateOpenHouseInput,
 } from "../domain/openhouse.entity";
@@ -78,6 +79,12 @@ export class OpenHouseService {
         userId: string,
     ): Promise<OpenHouse[]> {
         return await this.repository.findByOrgAndUser(organizationId, userId);
+    }
+
+    async getTeamOpenHouses(
+        organizationId: string,
+    ): Promise<OpenHouseWithCreator[]> {
+        return await this.repository.findByOrg(organizationId);
     }
 
     async getOpenHouse(id: string): Promise<OpenHouse | null> {

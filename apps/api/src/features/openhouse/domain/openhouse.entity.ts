@@ -162,6 +162,13 @@ export const PublicOpenHouseSchema = z.object({
 
 export type PublicOpenHouse = z.infer<typeof PublicOpenHouseSchema>;
 
+export const OpenHouseWithCreatorSchema = OpenHouseSchema.extend({
+    creatorFirstName: z.string().nullable(),
+    creatorLastName: z.string().nullable(),
+});
+
+export type OpenHouseWithCreator = z.infer<typeof OpenHouseWithCreatorSchema>;
+
 export const OpenHouseFactory = {
     create: (
         params: z.input<typeof NewOpenHouseSchema>,
@@ -194,6 +201,11 @@ export const OpenHouseFactory = {
     fromDb: (params: z.input<typeof OpenHouseSchema>): OpenHouse => {
         const result = OpenHouseSchema.parse(params);
         return result;
+    },
+    fromDbWithCreator: (
+        params: z.input<typeof OpenHouseWithCreatorSchema>,
+    ): OpenHouseWithCreator => {
+        return OpenHouseWithCreatorSchema.parse(params);
     },
 };
 

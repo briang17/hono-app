@@ -61,7 +61,11 @@ const cloudinaryEnvScope = {
 const fubClientEnvScope = {
 	name: "fubClient",
 	schema: z.object({
-		RATE: z.coerce.number().default(80),
+		FUB_API_KEY: z.string().min(1),
+		FUB_SYSTEM_KEY: z.string().min(1),
+		FUB_SYSTEM: z.string().min(1),
+		REDIS_HOST: z.string().default("localhost"),
+		REDIS_PORT: z.coerce.number().default(6380),
 	}),
 };
 
