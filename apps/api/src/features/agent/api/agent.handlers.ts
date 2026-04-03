@@ -4,11 +4,13 @@ import {
     GetAgentParamsSchema,
     ReactivateAgentParamsSchema,
     UpdateAgentParamsSchema,
+    UpdateMyAgentSchema,
 } from "@agent/api/agent.schemas";
 import { NewAgentSchema, UpdateAgentSchema } from "@agent/domain/agent.entity";
 import { DbAgentRepository } from "@agent/infra/db.agent.repository";
 import { AgentService } from "@agent/service/agent.service";
 import { codes } from "@config/constants";
+import { deleteCloudinaryImages } from "@features/cloudinary/cloudinary.utils";
 import { zValidator } from "@hono/zod-validator";
 import { orgFactory } from "@lib/factory";
 import { rbacMiddleware } from "@middlewares/rbac.middleware";
@@ -99,6 +101,40 @@ export const reactivateAgentHandlers = orgFactory.createHandlers(
         const organizationId = c.get("organizationId");
         const { id } = c.req.valid("param");
         const agent = await service.reactivateAgent(id, organizationId);
+        return c.json({ data: agent });
+    },
+);
+
+export const getMyAgentHandlers = orgFactory.createHandlers(async (c) => {
+    const user = c.get("user");
+    const organizationId = c.get("organizationId");
+    const agent = await service.getMyAgent(user.id, organizationId);
+    return c.json({ data: agent });
+});
+
+export const updateMyAgentHandlers = orgFactory.createHandlers(
+    zValidator("json", UpdateMyAgentSchema),
+    async (c) => {
+        const user = c.get("user");
+        const organizationId = c.get("organizationId");
+        const data = c.req.valid("json");
+
+        const { agent, oldPublicId } = await service.updateMyAgent(
+            user.id,
+            organizationId,
+            data,
+        );
+
+        if (
+            oldPublicId &&
+            data.imagePublicId !== undefined &&
+            oldPublicId !== data.imagePublicId
+        ) {
+            deleteCloudinaryImages([oldPublicId]).catch((err) => {
+                console.error("Failed to delete old headshot:", err);
+            });
+        }
+
         return c.json({ data: agent });
     },
 );

@@ -4,6 +4,7 @@ export interface CloudinaryConfig {
     cloudName: string
     apiKey: string
     folder: string
+    agentHeadshotsFolder: string
 }
 
 export interface SignatureResponse {

@@ -50,6 +50,8 @@ export class DbAgentRepository implements IAgentRepository {
                 lastName: agentTable.lastName,
                 phone: agentTable.phone,
                 fubId: agentTable.fubId,
+                imageUrl: agentTable.imageUrl,
+                imagePublicId: agentTable.imagePublicId,
                 isActive: agentTable.isActive,
                 createdAt: agentTable.createdAt,
                 updatedAt: agentTable.updatedAt,
@@ -70,6 +72,24 @@ export class DbAgentRepository implements IAgentRepository {
             .select()
             .from(agentTable)
             .where(eq(agentTable.userId, userId))
+            .limit(1);
+        if (!result) return null;
+        return AgentFactory.fromDb(result);
+    }
+
+    async findByUserIdAndOrg(
+        userId: Id,
+        organizationId: Id,
+    ): Promise<Agent | null> {
+        const [result] = await db
+            .select()
+            .from(agentTable)
+            .where(
+                and(
+                    eq(agentTable.userId, userId),
+                    eq(agentTable.organizationId, organizationId),
+                ),
+            )
             .limit(1);
         if (!result) return null;
         return AgentFactory.fromDb(result);

@@ -174,6 +174,8 @@ export const AgentInfoSchema = z.object({
     lastName: z.string().nullable(),
     phone: z.string().nullable(),
     email: z.string().nullable(),
+    imageUrl: z.string().nullable().optional(),
+    imagePublicId: z.string().nullable().optional(),
 });
 
 export type AgentInfo = z.infer<typeof AgentInfoSchema>;

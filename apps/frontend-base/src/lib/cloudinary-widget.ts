@@ -1,9 +1,15 @@
 import type { CloudinaryConfig } from '@/lib/api/cloudinary.api'
 import { cloudinaryApi } from '@/lib/api/cloudinary.api'
 
-interface CloudinaryUploadResult {
+export interface CloudinaryUploadResult {
     url: string
     publicId: string
+}
+
+export type OpenWidgetOptions = {
+    folder?: string
+    maxFiles?: number
+    cropping?: string
 }
 
 let scriptLoaded = false
@@ -30,32 +36,28 @@ function loadScript(): Promise<void> {
         script.onerror = () => reject(new Error('Failed to load Cloudinary widget'))
         document.head.appendChild(script)
     })
-
     return scriptLoadPromise
 }
 
 export async function openCloudinaryUploadWidget(
     onUpload: (results: CloudinaryUploadResult[]) => void,
     onError?: (error: unknown) => void,
+    options?: OpenWidgetOptions,
 ): Promise<() => void> {
     await loadScript()
-
-    let config: CloudinaryConfig
-    try {
-        config = await cloudinaryApi.getConfig()
-    } catch (err) {
-        onError?.(err)
-        return () => {}
+    const config = await cloudinaryApi.getConfig()
+    if (!config) {
+        throw new Error('Failed to get Cloudinary config')
     }
-
     const uploaded: CloudinaryUploadResult[] = []
-
+    const widgetFolder = options?.folder ?? config.folder
+    const maxFilesCount = options?.maxFiles ?? 10
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const widget = (window as any).cloudinary.createUploadWidget(
         {
             cloudName: config.cloudName,
             apiKey: config.apiKey,
-            folder: config.folder,
+            folder: widgetFolder,
             prepareUploadParams: (
                 cb: (result: Record<string, unknown> | Record<string, unknown>[]) => void,
                 params: Record<string, unknown> | Record<string, unknown>[],
@@ -75,10 +77,11 @@ export async function openCloudinaryUploadWidget(
                 })
             },
             sources: ['local', 'url', 'camera'],
-            multiple: true,
-            maxFiles: 10,
+            multiple: maxFilesCount > 1,
+            maxFiles: maxFilesCount,
             maxFileSize: 10_000_000,
-            clientAllowedFormats: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
+            clientAllowedFormats: ['jpg', 'jpeg', 'png', 'webp'],
+            ...(options?.cropping ? { cropping: options.cropping, gravity: 'auto' } : {}),
             styles: {
                 palette: {
                     window: '#FFFFFF',
@@ -97,11 +100,7 @@ export async function openCloudinaryUploadWidget(
                 },
             },
         },
-        (
-            error: unknown,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            result: any,
-        ) => {
+        (error: unknown, result: any) => {
             if (error) {
                 onError?.(error)
                 return
@@ -117,8 +116,6 @@ export async function openCloudinaryUploadWidget(
             }
         },
     )
-
     widget.open()
-
     return () => widget.close()
 }

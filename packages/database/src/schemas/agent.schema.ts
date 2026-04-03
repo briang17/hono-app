@@ -24,6 +24,8 @@ export const agent = pgTable(
         lastName: text("last_name").notNull(),
         phone: text("phone"),
         fubId: text("fub_id"),
+        imageUrl: text("image_url"),
+        imagePublicId: text("image_public_id"),
         isActive: boolean("is_active").notNull().default(true),
         createdAt: timestamp("created_at").defaultNow().notNull(),
         updatedAt: timestamp("updated_at")

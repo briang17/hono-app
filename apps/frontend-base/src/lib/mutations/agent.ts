@@ -1,6 +1,10 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { agentApi } from '@/lib/api/agent.api'
-import type { CreateAgentInput, UpdateAgentInput } from '@/lib/schemas/agent.schema'
+import type {
+    CreateAgentInput,
+    UpdateAgentInput,
+    UpdateMyAgentInput,
+} from '@/lib/schemas/agent.schema'
 
 export function useCreateAgent() {
     const queryClient = useQueryClient()
@@ -71,6 +75,20 @@ export function useReactivateAgent(id: string) {
         },
         onError: (error) => {
             console.error('Failed to reactivate agent:', error)
+        },
+    })
+}
+
+export function useUpdateMyAgent() {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: (data: UpdateMyAgentInput) => agentApi.updateMyAgent(data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['my-agent'] })
+        },
+        onError: (error) => {
+            console.error('Failed to update profile:', error)
         },
     })
 }

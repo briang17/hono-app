@@ -16,3 +16,10 @@ export function useAgent(id: string) {
         enabled: !!id,
     })
 }
+
+export function useMyAgent() {
+    return queryOptions({
+        queryKey: ['my-agent'],
+        queryFn: () => agentApi.getMyAgent(),
+    })
+}

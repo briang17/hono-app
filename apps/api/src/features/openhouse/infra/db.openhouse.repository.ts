@@ -75,6 +75,8 @@ export class DbOpenHouseRepository implements IOpenHouseRepository {
                 agentLastName: agentTable.lastName,
                 agentPhone: agentTable.phone,
                 agentEmail: agentTable.email,
+                agentImageUrl: agentTable.imageUrl,
+                agentImagePublicId: agentTable.imagePublicId,
             })
             .from(openHouse)
             .leftJoin(
@@ -113,6 +115,8 @@ export class DbOpenHouseRepository implements IOpenHouseRepository {
                       lastName: result.agentLastName,
                       phone: result.agentPhone,
                       email: result.agentEmail,
+                      imageUrl: result.agentImageUrl,
+                      imagePublicId: result.agentImagePublicId,
                   }
                 : null,
         });

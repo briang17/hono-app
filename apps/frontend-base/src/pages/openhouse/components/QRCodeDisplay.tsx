@@ -94,10 +94,19 @@ function buildFlyerHTML(openHouse: OpenHouse, qrDataUrl: string): string {
             <div style="color:${gold}; font-size:0.8rem; font-weight:600; letter-spacing:1px; margin-top:6px; text-transform:uppercase;">Scan to Sign In</div>
         </div>`
 
+    const agentHeadshotUrl = agent?.imagePublicId
+        ? cloudinaryUrl(agent.imagePublicId, imagePresets.flyerHeadshot)
+        : ''
+
     const agentBanner = hasAgent
         ? `
         <div style="display:flex; border:1px solid ${navy};">
-            <div style="background-color:${navy}; color:white; display:flex; align-items:center; padding:15px 30px; flex:1;">
+            <div style="background-color:${navy}; color:white; display:flex; align-items:center; padding:15px 30px; flex:1; gap:20px;">
+                ${
+                    agentHeadshotUrl
+                        ? `<img src="${agentHeadshotUrl}" style="width:80px; height:80px; border-radius:50%; object-fit:cover; flex-shrink:0; border:2px solid white;" alt="${agent.firstName ?? ''}">`
+                        : ''
+                }
                 <div>
                     <div style="font-size:1.2rem; margin-bottom:3px;">${agent.firstName ?? ''} ${agent.lastName ?? ''}</div>
                     <div style="font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; opacity:0.85;">Realtor</div>

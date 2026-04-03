@@ -10,6 +10,7 @@ export const getConfigHandlers = orgFactory.createHandlers((c) => {
             cloudName: cloudinaryEnv.CLOUDINARY_CLOUD_NAME,
             apiKey: cloudinaryEnv.CLOUDINARY_CLOUD_API_KEY,
             folder: "open-houses",
+            agentHeadshotsFolder: "agent-headshots",
         },
     });
 });

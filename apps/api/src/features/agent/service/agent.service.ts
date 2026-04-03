@@ -1,7 +1,11 @@
 import { codes } from "@config/constants";
 import { db } from "@packages/database";
 import { HTTPException } from "hono/http-exception";
-import type { NewAgentInput, UpdateAgentInput } from "../domain/agent.entity";
+import type {
+    NewAgentInput,
+    UpdateAgentInput,
+    UpdateMyAgentInput,
+} from "../domain/agent.entity";
 import { type Agent, AgentFactory } from "../domain/agent.entity";
 import type { IAgentRepository } from "../domain/interface.agent.repository";
 
@@ -28,6 +32,36 @@ export class AgentService {
             });
         }
         return agent;
+    }
+
+    async getMyAgent(userId: string, organizationId: string) {
+        const agent = await this.repository.findByUserIdAndOrg(
+            userId,
+            organizationId,
+        );
+        if (!agent) {
+            throw new HTTPException(codes.NOT_FOUND, {
+                message: "Agent profile not found for this organization",
+            });
+        }
+        return agent;
+    }
+
+    async updateMyAgent(
+        userId: string,
+        organizationId: string,
+        data: UpdateMyAgentInput,
+    ) {
+        const agent = await this.getMyAgent(userId, organizationId);
+        const oldPublicId = agent.imagePublicId;
+
+        const updated = await this.repository.update(
+            agent.id,
+            organizationId,
+            data,
+        );
+
+        return { agent: updated, oldPublicId };
     }
 
     async updateAgent(

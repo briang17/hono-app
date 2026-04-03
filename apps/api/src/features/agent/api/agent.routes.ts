@@ -7,13 +7,17 @@ import {
     deleteAgentHandlers,
     getAgentHandlers,
     getAgentsHandlers,
+    getMyAgentHandlers,
     reactivateAgentHandlers,
     updateAgentHandlers,
+    updateMyAgentHandlers,
 } from "./agent.handlers";
 
 const agentRoutes = new Hono()
     .use(authMiddleware)
     .use(orgMiddleware)
+    .get("/me", ...getMyAgentHandlers)
+    .patch("/me", ...updateMyAgentHandlers)
     .get("/", ...getAgentsHandlers)
     .get("/:id", ...getAgentHandlers)
     .post("/", ...createAgentHandlers)

@@ -1,16 +1,16 @@
+import type { RBACParams } from '@packages/auth/lib/permissions'
 import { Link } from '@tanstack/react-router'
-import { Building2, Home, Menu, Users } from 'lucide-react'
+import { Building2, Home, Menu, User, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { authClient } from '@/lib/api/auth-client'
 import { useUIStore } from '@/lib/stores/uiStore'
 import { Can } from '../Can'
-import type { RBACParams } from '@packages/auth/lib/permissions'
 
 interface NavItem {
     to: string
-    label: string,
-    icon: typeof Building2,
+    label: string
+    icon: typeof Building2
     permission: RBACParams
 }
 
@@ -84,9 +84,13 @@ export function TopBar() {
                 <div className="flex items-center gap-4">
                     {session?.user && (
                         <>
-                            <span className="text-sm text-muted-foreground hidden sm:inline">
-                                {session.user.email}
-                            </span>
+                            <Link
+                                to="/profile"
+                                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                            >
+                                <User className="w-4 h-4" />
+                                <span className="hidden sm:inline">{session.user.email}</span>
+                            </Link>
                             <Button
                                 variant="outline"
                                 onClick={handleLogout}

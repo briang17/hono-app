@@ -7,6 +7,7 @@ export interface IAgentRepository {
     findById(id: Id, organizationId: Id): Promise<Agent | null>;
     findByOrganization(organizationId: Id): Promise<AgentWithUser[]>;
     findByUserId(userId: Id): Promise<Agent | null>;
+    findByUserIdAndOrg(userId: Id, organizationId: Id): Promise<Agent | null>;
     update(id: Id, organizationId: Id, data: UpdateAgentInput): Promise<Agent>;
     setActive(id: Id, organizationId: Id, isActive: boolean): Promise<Agent>;
     delete(

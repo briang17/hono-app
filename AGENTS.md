@@ -241,6 +241,22 @@ await addFubEventJob({
 
 *Added 2025-04-03: FUB client package for Follow Up Boss integration*
 
+**Agent Profile & Headshot**
+Agents manage their own headshot via the Profile page (`/profile`). The flow:
+1. Admin creates an agent record + sends org invitation
+2. Agent signs up, accepts invitation → `agent.userId` linked
+3. Agent visits `/profile`, uploads a headshot via Cloudinary widget (folder: `agent-headshots`, 1:1 crop)
+4. Backend stores `imageUrl` + `imagePublicId` on the agent record
+5. Flyer renders a circular headshot next to agent name in the banner (falls back to text-only if no headshot)
+
+Backend endpoints (no RBAC required — agents access their own record):
+- `GET /api/agents/me` — returns agent for current user + active org
+- `PATCH /api/agents/me` — updates profile fields (`firstName`, `lastName`, `phone`, `imageUrl`, `imagePublicId`). Email is read-only. Deletes old Cloudinary image when headshot is replaced.
+
+The headshot also flows through the openhouse API: `findByIdWithAgent` includes `imagePublicId` so the flyer can build a Cloudinary transform URL.
+
+*Added 2025-04-03: Agent profile page with headshot upload for flyers*
+
 ---
 
 ## Database

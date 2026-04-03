@@ -15,6 +15,8 @@ export const AgentSchema = z.object({
     lastName: z.string().min(1, "Last name is required"),
     phone: PhoneSchema.nullable(),
     fubId: z.string().nullable(),
+    imageUrl: z.string().url().nullable(),
+    imagePublicId: z.string().nullable(),
     isActive: z.boolean(),
     createdAt: z.coerce.date(),
     updatedAt: z.coerce.date(),
@@ -28,7 +30,18 @@ export const NewAgentSchema = AgentSchema.pick({
     fubId: true,
 });
 
-export const UpdateAgentSchema = NewAgentSchema.partial();
+export const UpdateAgentSchema = NewAgentSchema.partial().extend({
+    imageUrl: z.string().url().nullable().optional(),
+    imagePublicId: z.string().nullable().optional(),
+});
+
+export const UpdateMyAgentSchema = z.object({
+    firstName: z.string().min(1, "First name is required").optional(),
+    lastName: z.string().min(1, "Last name is required").optional(),
+    phone: z.string().nullable().optional(),
+    imageUrl: z.string().url().nullable().optional(),
+    imagePublicId: z.string().nullable().optional(),
+});
 
 export const AgentWithUserSchema = AgentSchema.extend({
     userName: z.string().nullable(),
@@ -37,6 +50,7 @@ export const AgentWithUserSchema = AgentSchema.extend({
 export type Agent = z.infer<typeof AgentSchema>;
 export type NewAgentInput = z.infer<typeof NewAgentSchema>;
 export type UpdateAgentInput = z.infer<typeof UpdateAgentSchema>;
+export type UpdateMyAgentInput = z.infer<typeof UpdateMyAgentSchema>;
 export type AgentWithUser = z.infer<typeof AgentWithUserSchema>;
 
 export const AgentFactory = {

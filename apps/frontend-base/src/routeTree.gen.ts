@@ -21,6 +21,7 @@ import { Route as protectedInviteAcceptRouteImport } from './routes/(protected)/
 import { Route as protectedorganizationDashboardRouteImport } from './routes/(protected)/(organization)/dashboard'
 import { Route as protectedorganizationTeamOpenhousesIndexRouteImport } from './routes/(protected)/(organization)/team-openhouses/index'
 import { Route as protectedorganizationTasksIndexRouteImport } from './routes/(protected)/(organization)/tasks/index'
+import { Route as protectedorganizationProfileIndexRouteImport } from './routes/(protected)/(organization)/profile/index'
 import { Route as protectedorganizationOpenhouseIndexRouteImport } from './routes/(protected)/(organization)/openhouse/index'
 import { Route as protectedorganizationAgentsIndexRouteImport } from './routes/(protected)/(organization)/agents/index'
 import { Route as PublicOpenHousesSignInOpenHouseIdRouteImport } from './routes/public/open-houses/sign-in/$openHouseId'
@@ -94,6 +95,12 @@ const protectedorganizationTasksIndexRoute =
     path: '/tasks/',
     getParentRoute: () => protectedorganizationRouteRoute,
   } as any)
+const protectedorganizationProfileIndexRoute =
+  protectedorganizationProfileIndexRouteImport.update({
+    id: '/profile/',
+    path: '/profile/',
+    getParentRoute: () => protectedorganizationRouteRoute,
+  } as any)
 const protectedorganizationOpenhouseIndexRoute =
   protectedorganizationOpenhouseIndexRouteImport.update({
     id: '/openhouse/',
@@ -165,6 +172,7 @@ export interface FileRoutesByFullPath {
   '/public/open-houses/sign-in/$openHouseId': typeof PublicOpenHousesSignInOpenHouseIdRoute
   '/agents/': typeof protectedorganizationAgentsIndexRoute
   '/openhouse/': typeof protectedorganizationOpenhouseIndexRoute
+  '/profile/': typeof protectedorganizationProfileIndexRoute
   '/tasks/': typeof protectedorganizationTasksIndexRoute
   '/team-openhouses/': typeof protectedorganizationTeamOpenhousesIndexRoute
   '/openhouse/$openHouseId/edit': typeof protectedorganizationOpenhouseOpenHouseIdEditRoute
@@ -185,6 +193,7 @@ export interface FileRoutesByTo {
   '/public/open-houses/sign-in/$openHouseId': typeof PublicOpenHousesSignInOpenHouseIdRoute
   '/agents': typeof protectedorganizationAgentsIndexRoute
   '/openhouse': typeof protectedorganizationOpenhouseIndexRoute
+  '/profile': typeof protectedorganizationProfileIndexRoute
   '/tasks': typeof protectedorganizationTasksIndexRoute
   '/team-openhouses': typeof protectedorganizationTeamOpenhousesIndexRoute
   '/openhouse/$openHouseId/edit': typeof protectedorganizationOpenhouseOpenHouseIdEditRoute
@@ -209,6 +218,7 @@ export interface FileRoutesById {
   '/public/open-houses/sign-in/$openHouseId': typeof PublicOpenHousesSignInOpenHouseIdRoute
   '/(protected)/(organization)/agents/': typeof protectedorganizationAgentsIndexRoute
   '/(protected)/(organization)/openhouse/': typeof protectedorganizationOpenhouseIndexRoute
+  '/(protected)/(organization)/profile/': typeof protectedorganizationProfileIndexRoute
   '/(protected)/(organization)/tasks/': typeof protectedorganizationTasksIndexRoute
   '/(protected)/(organization)/team-openhouses/': typeof protectedorganizationTeamOpenhousesIndexRoute
   '/(protected)/(organization)/openhouse/$openHouseId/edit': typeof protectedorganizationOpenhouseOpenHouseIdEditRoute
@@ -232,6 +242,7 @@ export interface FileRouteTypes {
     | '/public/open-houses/sign-in/$openHouseId'
     | '/agents/'
     | '/openhouse/'
+    | '/profile/'
     | '/tasks/'
     | '/team-openhouses/'
     | '/openhouse/$openHouseId/edit'
@@ -252,6 +263,7 @@ export interface FileRouteTypes {
     | '/public/open-houses/sign-in/$openHouseId'
     | '/agents'
     | '/openhouse'
+    | '/profile'
     | '/tasks'
     | '/team-openhouses'
     | '/openhouse/$openHouseId/edit'
@@ -275,6 +287,7 @@ export interface FileRouteTypes {
     | '/public/open-houses/sign-in/$openHouseId'
     | '/(protected)/(organization)/agents/'
     | '/(protected)/(organization)/openhouse/'
+    | '/(protected)/(organization)/profile/'
     | '/(protected)/(organization)/tasks/'
     | '/(protected)/(organization)/team-openhouses/'
     | '/(protected)/(organization)/openhouse/$openHouseId/edit'
@@ -377,6 +390,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof protectedorganizationTasksIndexRouteImport
       parentRoute: typeof protectedorganizationRouteRoute
     }
+    '/(protected)/(organization)/profile/': {
+      id: '/(protected)/(organization)/profile/'
+      path: '/profile'
+      fullPath: '/profile/'
+      preLoaderRoute: typeof protectedorganizationProfileIndexRouteImport
+      parentRoute: typeof protectedorganizationRouteRoute
+    }
     '/(protected)/(organization)/openhouse/': {
       id: '/(protected)/(organization)/openhouse/'
       path: '/openhouse'
@@ -469,6 +489,7 @@ interface protectedorganizationRouteRouteChildren {
   protectedorganizationTasksTaskIdRoute: typeof protectedorganizationTasksTaskIdRoute
   protectedorganizationAgentsIndexRoute: typeof protectedorganizationAgentsIndexRoute
   protectedorganizationOpenhouseIndexRoute: typeof protectedorganizationOpenhouseIndexRoute
+  protectedorganizationProfileIndexRoute: typeof protectedorganizationProfileIndexRoute
   protectedorganizationTasksIndexRoute: typeof protectedorganizationTasksIndexRoute
   protectedorganizationTeamOpenhousesIndexRoute: typeof protectedorganizationTeamOpenhousesIndexRoute
 }
@@ -488,6 +509,8 @@ const protectedorganizationRouteRouteChildren: protectedorganizationRouteRouteCh
       protectedorganizationAgentsIndexRoute,
     protectedorganizationOpenhouseIndexRoute:
       protectedorganizationOpenhouseIndexRoute,
+    protectedorganizationProfileIndexRoute:
+      protectedorganizationProfileIndexRoute,
     protectedorganizationTasksIndexRoute: protectedorganizationTasksIndexRoute,
     protectedorganizationTeamOpenhousesIndexRoute:
       protectedorganizationTeamOpenhousesIndexRoute,

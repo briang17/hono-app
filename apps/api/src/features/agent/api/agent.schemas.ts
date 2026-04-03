@@ -34,3 +34,13 @@ export const ReactivateAgentParamsSchema = z.object({
     id: AgentSchema.shape.id,
 });
 export type ReactivateAgentParams = z.infer<typeof ReactivateAgentParamsSchema>;
+
+/* PATCH /api/agents/me → updateMyAgent() */
+export const UpdateMyAgentSchema = z.object({
+    firstName: z.string().min(1, "First name is required").optional(),
+    lastName: z.string().min(1, "Last name is required").optional(),
+    phone: z.string().nullable().optional(),
+    imageUrl: z.string().url().nullable().optional(),
+    imagePublicId: z.string().nullable().optional(),
+});
+export type UpdateMyAgentInput = z.infer<typeof UpdateMyAgentSchema>;

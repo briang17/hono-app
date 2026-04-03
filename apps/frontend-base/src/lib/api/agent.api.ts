@@ -4,6 +4,7 @@ import {
     agentWithUserSchema,
     type CreateAgentInput,
     type UpdateAgentInput,
+    type UpdateMyAgentInput,
 } from '@/lib/schemas/agent.schema'
 import { apiClient } from './client'
 
@@ -24,6 +25,24 @@ export const agentApi = {
         }
         const data = await res.json()
         return agentSchema.parse(data.data)
+    },
+
+    getMyAgent: async () => {
+        const res = await apiClient.api.agents.me.$get()
+        if (!res.ok) {
+            throw new Error('Failed to fetch agent profile')
+        }
+        const data = await res.json()
+        return agentSchema.parse(data.data)
+    },
+
+    updateMyAgent: async (data: UpdateMyAgentInput) => {
+        const res = await apiClient.api.agents.me.$patch({ json: data })
+        if (!res.ok) {
+            throw new Error('Failed to update profile')
+        }
+        const resData = await res.json()
+        return agentSchema.parse(resData.data)
     },
 
     createAgent: async (data: CreateAgentInput) => {
