@@ -173,7 +173,7 @@ export const getOpenHouseHandlers = orgFactory.createHandlers(
 
         const { id } = c.req.valid("param");
 
-        const openHouse = await service.getOpenHouse(id);
+        const openHouse = await service.getOpenHouseWithAgent(id);
         if (!openHouse || openHouse.organizationId !== organizationId) {
             throw new HTTPException(codes.NOT_FOUND, {
                 message: "Open house not found",

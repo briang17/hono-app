@@ -17,6 +17,7 @@ import {
     type OpenHouseImage,
     type OpenHouseLead,
     OpenHouseLeadFactory,
+    type OpenHouseWithAgent,
     type OpenHouseWithCreator,
     type PublicOpenHouse,
     type UpdateOpenHouseImage,
@@ -51,6 +52,70 @@ export class DbOpenHouseRepository implements IOpenHouseRepository {
 
         const images = await this.findImagesByOpenHouseId(id);
         return OpenHouseFactory.fromDb({ ...result, images });
+    }
+
+    async findByIdWithAgent(id: Id): Promise<OpenHouseWithAgent | null> {
+        const [result] = await db
+            .select({
+                id: openHouse.id,
+                organizationId: openHouse.organizationId,
+                createdByUserId: openHouse.createdByUserId,
+                propertyAddress: openHouse.propertyAddress,
+                listingPrice: openHouse.listingPrice,
+                date: openHouse.date,
+                startTime: openHouse.startTime,
+                endTime: openHouse.endTime,
+                bedrooms: openHouse.bedrooms,
+                bathrooms: openHouse.bathrooms,
+                features: openHouse.features,
+                notes: openHouse.notes,
+                createdAt: openHouse.createdAt,
+                updatedAt: openHouse.updatedAt,
+                agentFirstName: agentTable.firstName,
+                agentLastName: agentTable.lastName,
+                agentPhone: agentTable.phone,
+                agentEmail: agentTable.email,
+            })
+            .from(openHouse)
+            .leftJoin(
+                agentTable,
+                eq(openHouse.createdByUserId, agentTable.userId),
+            )
+            .where(eq(openHouse.id, id))
+            .limit(1);
+
+        if (!result) return null;
+
+        const images = await this.findImagesByOpenHouseId(id);
+
+        const hasAgent =
+            result.agentFirstName !== null || result.agentEmail !== null;
+
+        return OpenHouseFactory.fromDbWithAgent({
+            id: result.id,
+            organizationId: result.organizationId,
+            createdByUserId: result.createdByUserId,
+            propertyAddress: result.propertyAddress,
+            listingPrice: result.listingPrice,
+            date: result.date,
+            startTime: result.startTime,
+            endTime: result.endTime,
+            bedrooms: result.bedrooms,
+            bathrooms: result.bathrooms,
+            features: result.features,
+            notes: result.notes,
+            createdAt: result.createdAt,
+            updatedAt: result.updatedAt,
+            images,
+            agent: hasAgent
+                ? {
+                      firstName: result.agentFirstName,
+                      lastName: result.agentLastName,
+                      phone: result.agentPhone,
+                      email: result.agentEmail,
+                  }
+                : null,
+        });
     }
 
     async findByOrgAndUser(organizationId: string, userId: string) {

@@ -169,6 +169,21 @@ export const OpenHouseWithCreatorSchema = OpenHouseSchema.extend({
 
 export type OpenHouseWithCreator = z.infer<typeof OpenHouseWithCreatorSchema>;
 
+export const AgentInfoSchema = z.object({
+    firstName: z.string().nullable(),
+    lastName: z.string().nullable(),
+    phone: z.string().nullable(),
+    email: z.string().nullable(),
+});
+
+export type AgentInfo = z.infer<typeof AgentInfoSchema>;
+
+export const OpenHouseWithAgentSchema = OpenHouseSchema.extend({
+    agent: AgentInfoSchema.nullable(),
+});
+
+export type OpenHouseWithAgent = z.infer<typeof OpenHouseWithAgentSchema>;
+
 export const OpenHouseFactory = {
     create: (
         params: z.input<typeof NewOpenHouseSchema>,
@@ -206,6 +221,11 @@ export const OpenHouseFactory = {
         params: z.input<typeof OpenHouseWithCreatorSchema>,
     ): OpenHouseWithCreator => {
         return OpenHouseWithCreatorSchema.parse(params);
+    },
+    fromDbWithAgent: (
+        params: z.input<typeof OpenHouseWithAgentSchema>,
+    ): OpenHouseWithAgent => {
+        return OpenHouseWithAgentSchema.parse(params);
     },
 };
 

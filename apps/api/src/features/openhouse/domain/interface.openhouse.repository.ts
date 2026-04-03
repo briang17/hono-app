@@ -4,6 +4,7 @@ import type {
     OpenHouse,
     OpenHouseImage,
     OpenHouseLead,
+    OpenHouseWithAgent,
     OpenHouseWithCreator,
     PublicOpenHouse,
     UpdateOpenHouseImage,
@@ -20,6 +21,8 @@ export interface IOpenHouseRepository {
     ): Promise<void>;
 
     findById(id: Id): Promise<OpenHouse | null>;
+
+    findByIdWithAgent(id: Id): Promise<OpenHouseWithAgent | null>;
 
     findByOrgAndUser(organizationId: Id, userId: Id): Promise<OpenHouse[]>;
 

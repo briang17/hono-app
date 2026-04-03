@@ -23,7 +23,7 @@ export const openhouseApi = {
             throw new Error('Failed to fetch team open houses')
         }
         const data = await res.json()
-        return z.array(teamOpenHouseSchema).parse(data.data);
+        return data.data;
     },
 
     getOpenHouse: async (id: string) => {

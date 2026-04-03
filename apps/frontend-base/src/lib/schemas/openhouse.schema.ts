@@ -31,6 +31,13 @@ export const updateOpenHouseImageSchema = z.union([
     newOpenHouseImageSchema,
 ])
 
+export const agentInfoSchema = z.object({
+    firstName: z.string().nullable(),
+    lastName: z.string().nullable(),
+    phone: z.string().nullable(),
+    email: z.string().nullable(),
+})
+
 export const openHouseSchema = z.object({
     id: z.uuid(),
     organizationId: z.uuid(),
@@ -45,6 +52,7 @@ export const openHouseSchema = z.object({
     endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Time must be in HH:MM format'),
     images: z.array(openHouseImageSchema),
     notes: z.string().nullish(),
+    agent: agentInfoSchema.nullable().optional(),
     createdAt: z.date(),
     updatedAt: z.date(),
 })
@@ -144,6 +152,7 @@ export type NewOpenHouseImageInput = z.infer<typeof newOpenHouseImageSchema>
 export type ExistingOpenHouseImage = z.infer<typeof existingOpenHouseImageSchema>
 export type UpdateOpenHouseImage = z.infer<typeof updateOpenHouseImageSchema>
 export type OpenHouse = z.infer<typeof openHouseSchema>
+export type AgentInfo = z.infer<typeof agentInfoSchema>
 export type CreateOpenHouseInput = z.infer<typeof createOpenHouseSchema>
 export type UpdateOpenHouseInput = z.infer<typeof updateOpenHouseSchema>
 export type OpenHouseLead = z.infer<typeof openHouseLeadSchema>

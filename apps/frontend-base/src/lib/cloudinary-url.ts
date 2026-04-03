@@ -62,4 +62,5 @@ export const imagePresets = {
     heroSmall: { width: 800, height: 400, crop: 'fill' },
     thumbnail: { width: 100, height: 100, crop: 'fill', radius: '8' },
     flyer: { width: 600, height: 400, crop: 'fill' },
+    flyerThumb: { width: 300, height: 200, crop: 'fill' },
 } as const
