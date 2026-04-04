@@ -257,6 +257,23 @@ The headshot also flows through the openhouse API: `findByIdWithAgent` includes 
 
 *Added 2025-04-03: Agent profile page with headshot upload for flyers*
 
+**Organization Configuration**
+Organization owners/admins can configure branding via the Settings page (`/settings`). The fields:
+- **Name** — editable, passed through better-auth's `organization.update()`
+- **Slug** — read-only after creation
+- **Main Logo** — uploaded via Cloudinary widget (folder: `org-logos`), displayed in the app sidebar/topbar
+- **Small Logo** — uploaded via Cloudinary widget (folder: `org-logos`), displayed on open house flyers
+
+All fields are managed through better-auth's `additionalFields` on the organization schema (defined in `packages/auth/lib/auth.ts` under `schema.organization.additionalFields`). No custom API routes needed — better-auth's built-in `create` and `update` endpoints handle validation and persistence automatically. The client uses `inferAdditionalFields<typeof auth>()` for full type safety.
+
+Database columns (added to `organization` table): `logo_public_id`, `small_logo`, `small_logo_public_id`.
+
+The flyer (`QRCodeDisplay.tsx`) uses `organization.smallLogoPublicId` to render the org logo in the header. If no small logo exists, it falls back to the organization name. The `findByIdWithAgent` repo method joins the `organization` table to include org branding data.
+
+The settings route is gated to owner/admin via `checkRolePermission({ organization: ['update'] })` in the route's `beforeLoad`.
+
+*Added 2025-04-03: Organization config with Cloudinary logo uploads using better-auth additionalFields*
+
 ---
 
 ## Database

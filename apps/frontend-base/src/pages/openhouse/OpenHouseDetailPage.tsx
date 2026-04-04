@@ -271,9 +271,13 @@ export function OpenHouseDetailPage() {
                     <Card>
                         <CardContent className="p-6">
                             <h3 className="text-lg font-semibold text-re-navy mb-3">Features</h3>
-                            <div className="flex flex-wrap gap-2">
+                            <div className="flex flex-wrap gap-2.5">
                                 {openHouse.features.map((feature) => (
-                                    <Badge key={feature} variant="secondary">
+                                    <Badge
+                                        key={feature}
+                                        variant="secondary"
+                                        className="text-sm px-3 py-1 h-auto"
+                                    >
                                         {feature}
                                     </Badge>
                                 ))}

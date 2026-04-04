@@ -1,4 +1,5 @@
 import { Plus, X } from 'lucide-react'
+import { useId, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
@@ -32,32 +33,34 @@ function deriveValue(label: string, existingOptions: Option[]): string {
 export function FieldOptionsEditor({ field }: FieldOptionsEditorProps) {
     const updateField = useFormBuilderStore((s) => s.updateField)
     const options = field.options ?? []
+    const optionKeys = useRef<string[]>([])
+    const prefix = useId()
+
+    if (optionKeys.current.length !== options.length) {
+        const next: string[] = []
+        for (let i = 0; i < options.length; i++) {
+            next[i] = optionKeys.current[i] ?? `${prefix}-${crypto.randomUUID()}`
+        }
+        optionKeys.current = next
+    }
 
     function addOption() {
         const nextIndex = options.length + 1
         const label = `Option ${nextIndex}`
+        optionKeys.current = [...optionKeys.current, `${prefix}-${crypto.randomUUID()}`]
         updateField(field.id, {
             options: [...options, { label, value: deriveValue(label, options) }],
         })
     }
 
     function updateLabel(index: number, label: string) {
-        const newOptions = options.map((opt, i) =>
-            i === index
-                ? {
-                      label,
-                      value: deriveValue(
-                          label,
-                          options.filter((_, j) => j !== i),
-                      ),
-                  }
-                : opt,
-        )
+        const newOptions = options.map((opt, i) => (i === index ? { ...opt, label } : opt))
         updateField(field.id, { options: newOptions })
     }
 
     function removeOption(index: number) {
         const newOptions = options.filter((_, i) => i !== index)
+        optionKeys.current = optionKeys.current.filter((_, i) => i !== index)
         updateField(field.id, { options: newOptions })
     }
 
@@ -65,7 +68,7 @@ export function FieldOptionsEditor({ field }: FieldOptionsEditorProps) {
         <div className="space-y-2">
             <FieldLabel>Options</FieldLabel>
             {options.map((option, index) => (
-                <div key={option.value} className="flex items-center gap-2">
+                <div key={optionKeys.current[index]} className="flex items-center gap-2">
                     <Input
                         value={option.label}
                         onChange={(e) => updateLabel(index, e.target.value)}

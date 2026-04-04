@@ -212,11 +212,31 @@ function FieldError({
     )
 }
 
+function FormSubmitError({ error }: { error: unknown }) {
+    if (!error || error === undefined) return null
+    if (error instanceof Error) {
+        return <p className="text-sm text-destructive">{error.message}</p>
+    }
+    if (typeof error === 'string') {
+        return <p className="text-sm text-destructive">{error}</p>
+    }
+    if (typeof error === 'object' && error !== null) {
+        if ('form' in error && typeof error.form === 'string') {
+            return <p className="text-sm text-destructive">{error.form}</p>
+        }
+        const issues = Object.values(error).flat() as { message?: string }[]
+        const first = issues[0]?.message
+        if (first) return <p className="text-sm text-destructive">{first}</p>
+    }
+    return null
+}
+
 export {
     Field,
     FieldLabel,
     FieldDescription,
     FieldError,
+    FormSubmitError,
     FieldGroup,
     FieldLegend,
     FieldSeparator,

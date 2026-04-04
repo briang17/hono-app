@@ -1,4 +1,5 @@
 import { useNavigate } from '@tanstack/react-router'
+import { ListTodo } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import {
@@ -79,7 +80,11 @@ export function TasksPage() {
             ) : (
                 <div className="flex items-center justify-center min-h-[400px] w-full">
                     <div className="text-center max-w-md w-full">
-                        <div className="text-4xl mb-4">📋</div>
+                        <ListTodo
+                            size={48}
+                            strokeWidth={1.5}
+                            className="mx-auto mb-4 text-muted-foreground/50"
+                        />
                         <h3 className="text-lg font-semibold mb-2">No tasks yet</h3>
                         <p className="text-muted-foreground mb-4">
                             Create your first task to get started organizing your work.

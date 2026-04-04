@@ -41,7 +41,7 @@ export function useDeleteAgent() {
     return useMutation({
         mutationFn: (id: string) => agentApi.deleteAgent(id),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['agents'] })
+            queryClient.invalidateQueries({ queryKey: ['agents'], exact: true })
         },
         onError: (error) => {
             console.error('Failed to delete agent:', error)
@@ -86,6 +86,7 @@ export function useUpdateMyAgent() {
         mutationFn: (data: UpdateMyAgentInput) => agentApi.updateMyAgent(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['my-agent'] })
+            queryClient.invalidateQueries({ queryKey: ['openhouses'] })
         },
         onError: (error) => {
             console.error('Failed to update profile:', error)

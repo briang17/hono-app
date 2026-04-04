@@ -50,6 +50,13 @@
       "when": 1775240019348,
       "tag": "0006_vengeful_crystal",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1775245088160,
+      "tag": "0007_careless_falcon",
+      "breakpoints": true
     }
   ]
 }

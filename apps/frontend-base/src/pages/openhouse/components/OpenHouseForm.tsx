@@ -1,7 +1,7 @@
 import { useForm } from '@tanstack/react-form'
 import { Button } from '@/components/ui/button'
 import { DatePickerSimple } from '@/components/ui/datepicker-simple'
-import { Field, FieldError, FieldLabel } from '@/components/ui/field'
+import { Field, FieldError, FieldLabel, FormSubmitError } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import {
@@ -63,11 +63,11 @@ export function OpenHouseForm({
             }}
             className="space-y-4"
         >
-            <form.Subscribe selector={(state) => state.errorMap}>
-                {(errorMap) =>
-                    errorMap.onSubmit ? (
+            <form.Subscribe selector={(state) => state.errorMap.onSubmit}>
+                {(onSubmit) =>
+                    onSubmit ? (
                         <div className="p-2 text-sm text-destructive bg-destructive/10 rounded">
-                            {errorMap.onSubmit.toString()}
+                            <FormSubmitError error={onSubmit} />
                         </div>
                     ) : null
                 }

@@ -180,8 +180,16 @@ export const AgentInfoSchema = z.object({
 
 export type AgentInfo = z.infer<typeof AgentInfoSchema>;
 
+export const OrgInfoSchema = z.object({
+    name: z.string(),
+    smallLogoPublicId: z.string().nullable().optional(),
+});
+
+export type OrgInfo = z.infer<typeof OrgInfoSchema>;
+
 export const OpenHouseWithAgentSchema = OpenHouseSchema.extend({
     agent: AgentInfoSchema.nullable(),
+    organization: OrgInfoSchema,
 });
 
 export type OpenHouseWithAgent = z.infer<typeof OpenHouseWithAgentSchema>;

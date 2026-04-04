@@ -10,6 +10,9 @@ export const organizationSchema = z.object({
         .regex(/^[a-z0-9-]+$/, 'Slug can only contain lowercase letters, numbers, and hyphens'),
     createdAt: z.date(),
     logo: z.url('Invalid URL format').nullish(),
+    logoPublicId: z.string().nullish(),
+    smallLogo: z.string().nullish(),
+    smallLogoPublicId: z.string().nullish(),
     metadata: z.any().optional(),
 })
 
@@ -18,6 +21,9 @@ export const orgSchema = {
         name: true,
         slug: true,
         logo: true,
+        logoPublicId: true,
+        smallLogo: true,
+        smallLogoPublicId: true,
     }),
 }
 
@@ -25,6 +31,9 @@ export const createOrganizationSchema = organizationSchema.pick({
     name: true,
     slug: true,
     logo: true,
+    logoPublicId: true,
+    smallLogo: true,
+    smallLogoPublicId: true,
 })
 
 export type CreateOrganizationInput = z.infer<typeof createOrganizationSchema>

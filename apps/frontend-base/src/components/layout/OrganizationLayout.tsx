@@ -1,11 +1,12 @@
 import { Outlet, useRouteContext } from '@tanstack/react-router'
-import { cn } from '@/lib/utils'
 import { authClient } from '@/lib/api'
+import { cn } from '@/lib/utils'
+import { NavigationProgressBar } from './NavigationProgressBar'
 import { Sidebar } from './Sidebar'
 import { TopBar } from './TopBar'
 
 export function OrganizationLayout() {
-    const {isPending} = authClient.useActiveMember();
+    const { isPending } = authClient.useActiveMember()
 
     if (isPending) {
         return <div className="flex h-screen items-center justify-center">Loading...</div>
@@ -14,6 +15,7 @@ export function OrganizationLayout() {
     return (
         <div className="flex h-screen w-full flex-col bg-background">
             <TopBar />
+            <NavigationProgressBar />
             <div className="flex flex-1 w-full overflow-hidden">
                 <aside
                     className={cn(

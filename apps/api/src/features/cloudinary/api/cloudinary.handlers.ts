@@ -11,6 +11,7 @@ export const getConfigHandlers = orgFactory.createHandlers((c) => {
             apiKey: cloudinaryEnv.CLOUDINARY_CLOUD_API_KEY,
             folder: "open-houses",
             agentHeadshotsFolder: "agent-headshots",
+            orgLogosFolder: "org-logos",
         },
     });
 });

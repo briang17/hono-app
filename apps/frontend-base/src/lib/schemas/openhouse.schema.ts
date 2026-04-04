@@ -40,6 +40,11 @@ export const agentInfoSchema = z.object({
     imagePublicId: z.string().nullable().optional(),
 })
 
+export const orgInfoSchema = z.object({
+    name: z.string(),
+    smallLogoPublicId: z.string().nullable().optional(),
+})
+
 export const openHouseSchema = z.object({
     id: z.uuid(),
     organizationId: z.uuid(),
@@ -55,6 +60,7 @@ export const openHouseSchema = z.object({
     images: z.array(openHouseImageSchema),
     notes: z.string().nullish(),
     agent: agentInfoSchema.nullable().optional(),
+    organization: orgInfoSchema.optional(),
     createdAt: z.date(),
     updatedAt: z.date(),
 })
@@ -155,6 +161,7 @@ export type ExistingOpenHouseImage = z.infer<typeof existingOpenHouseImageSchema
 export type UpdateOpenHouseImage = z.infer<typeof updateOpenHouseImageSchema>
 export type OpenHouse = z.infer<typeof openHouseSchema>
 export type AgentInfo = z.infer<typeof agentInfoSchema>
+export type OrgInfo = z.infer<typeof orgInfoSchema>
 export type CreateOpenHouseInput = z.infer<typeof createOpenHouseSchema>
 export type UpdateOpenHouseInput = z.infer<typeof updateOpenHouseSchema>
 export type OpenHouseLead = z.infer<typeof openHouseLeadSchema>

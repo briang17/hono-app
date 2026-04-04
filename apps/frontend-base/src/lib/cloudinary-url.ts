@@ -65,4 +65,6 @@ export const imagePresets = {
     flyerThumb: { width: 300, height: 200, crop: 'fill' },
     headshot: { width: 200, height: 200, crop: 'thumb', gravity: 'face', radius: 'max' },
     flyerHeadshot: { width: 160, height: 160, crop: 'thumb', gravity: 'face', radius: 'max' },
+    orgLogo: { width: 320, height: 100, crop: 'fit', gravity: '' },
+    flyerOrgLogo: { width: 120, height: 40, crop: 'fit', gravity: '' },
 } as const

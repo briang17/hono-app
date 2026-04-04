@@ -41,7 +41,7 @@ export function useDeleteOpenHouse() {
     return useMutation({
         mutationFn: (id: string) => openhouseApi.deleteOpenHouse(id),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['openhouses'] })
+           queryClient.invalidateQueries({ queryKey: ['openhouses'], exact: true })
         },
         onError: (error) => {
             console.error('Failed to delete open house:', error)

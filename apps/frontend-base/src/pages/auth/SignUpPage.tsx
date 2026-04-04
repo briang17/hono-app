@@ -2,10 +2,12 @@ import { useForm } from '@tanstack/react-form'
 import { getRouteApi, useNavigate } from '@tanstack/react-router'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Field, FieldError, FormSubmitError } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { authClient } from '@/lib/api/auth-client'
 import { authSchema } from '@/lib/schemas/auth.schema'
+import { isFieldInvalid } from '@/lib/utils'
 
 export function SignUpPage() {
     const routeApi = getRouteApi('/auth/sign-up')
@@ -54,11 +56,11 @@ export function SignUpPage() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <form.Subscribe selector={(state) => state.errorMap}>
-                        {(errorMap) =>
-                            errorMap.onSubmit ? (
+                    <form.Subscribe selector={(state) => state.errorMap.onSubmit}>
+                        {(onSubmit) =>
+                            onSubmit ? (
                                 <div className="mb-4 p-2 text-sm text-destructive bg-destructive/10 rounded">
-                                    {errorMap.onSubmit.toString()}
+                                    <FormSubmitError error={onSubmit} />
                                 </div>
                             ) : null
                         }
@@ -77,24 +79,24 @@ export function SignUpPage() {
                                     !value ? 'Username is required' : undefined,
                             }}
                         >
-                            {(field) => (
-                                <div className="space-y-2">
-                                    <Label htmlFor={field.name}>Username</Label>
-                                    <Input
-                                        id={field.name}
-                                        type="text"
-                                        placeholder="johndoe"
-                                        value={field.state.value}
-                                        onChange={(e) => field.handleChange(e.target.value)}
-                                        className="transition-all duration-200"
-                                    />
-                                    {field.state.meta.errors && (
-                                        <p className="text-sm text-destructive">
-                                            {field.state.meta.errors.join(', ')}
-                                        </p>
-                                    )}
-                                </div>
-                            )}
+                            {(field) => {
+                                const { invalid, errors } = isFieldInvalid(field)
+                                return (
+                                    <Field data-invalid={invalid}>
+                                        <Label htmlFor={field.name}>Username</Label>
+                                        <Input
+                                            id={field.name}
+                                            type="text"
+                                            placeholder="johndoe"
+                                            value={field.state.value}
+                                            onChange={(e) => field.handleChange(e.target.value)}
+                                            className="transition-all duration-200"
+                                            aria-invalid={invalid}
+                                        />
+                                        {invalid && <FieldError>{errors.join(', ')}</FieldError>}
+                                    </Field>
+                                )
+                            }}
                         </form.Field>
                         <form.Field
                             name="email"
@@ -102,64 +104,64 @@ export function SignUpPage() {
                                 onChange: ({ value }) => (!value ? 'Email is required' : undefined),
                             }}
                         >
-                            {(field) => (
-                                <div className="space-y-2">
-                                    <Label htmlFor={field.name}>Email</Label>
-                                    <Input
-                                        id={field.name}
-                                        type="email"
-                                        placeholder="m@example.com"
-                                        value={field.state.value}
-                                        onChange={(e) => field.handleChange(e.target.value)}
-                                        disabled={!!email}
-                                        className="transition-all duration-200"
-                                    />
-                                    {field.state.meta.errors && (
-                                        <p className="text-sm text-destructive">
-                                            {field.state.meta.errors.join(', ')}
-                                        </p>
-                                    )}
-                                </div>
-                            )}
+                            {(field) => {
+                                const { invalid, errors } = isFieldInvalid(field)
+                                return (
+                                    <Field data-invalid={invalid}>
+                                        <Label htmlFor={field.name}>Email</Label>
+                                        <Input
+                                            id={field.name}
+                                            type="email"
+                                            placeholder="m@example.com"
+                                            value={field.state.value}
+                                            onChange={(e) => field.handleChange(e.target.value)}
+                                            disabled={!!email}
+                                            className="transition-all duration-200"
+                                            aria-invalid={invalid}
+                                        />
+                                        {invalid && <FieldError>{errors.join(', ')}</FieldError>}
+                                    </Field>
+                                )
+                            }}
                         </form.Field>
 
                         <form.Field name="password">
-                            {(field) => (
-                                <div className="space-y-2">
-                                    <Label htmlFor={field.name}>Password</Label>
-                                    <Input
-                                        id={field.name}
-                                        type="password"
-                                        value={field.state.value}
-                                        onChange={(e) => field.handleChange(e.target.value)}
-                                        className="transition-all duration-200"
-                                    />
-                                    {field.state.meta.errors && (
-                                        <p className="text-sm text-destructive">
-                                            {field.state.meta.errors.join(', ')}
-                                        </p>
-                                    )}
-                                </div>
-                            )}
+                            {(field) => {
+                                const { invalid, errors } = isFieldInvalid(field)
+                                return (
+                                    <Field data-invalid={invalid}>
+                                        <Label htmlFor={field.name}>Password</Label>
+                                        <Input
+                                            id={field.name}
+                                            type="password"
+                                            value={field.state.value}
+                                            onChange={(e) => field.handleChange(e.target.value)}
+                                            className="transition-all duration-200"
+                                            aria-invalid={invalid}
+                                        />
+                                        {invalid && <FieldError>{errors.join(', ')}</FieldError>}
+                                    </Field>
+                                )
+                            }}
                         </form.Field>
                         <form.Field name="confirmPassword">
-                            {(field) => (
-                                <div className="space-y-2">
-                                    <Label htmlFor={field.name}>Confirm password</Label>
-                                    <Input
-                                        id={field.name}
-                                        type="password"
-                                        value={field.state.value}
-                                        onChange={(e) => field.handleChange(e.target.value)}
-                                        className="transition-all duration-200"
-                                    />
-                                    {field.state.meta.errors && (
-                                        <p className="text-sm text-destructive">
-                                            {field.state.meta.errors.join(', ')}
-                                        </p>
-                                    )}
-                                </div>
-                            )}
+                            {(field) => {
+                                const { invalid, errors } = isFieldInvalid(field)
+                                return (
+                                    <Field data-invalid={invalid}>
+                                        <Label htmlFor={field.name}>Confirm password</Label>
+                                        <Input
+                                            id={field.name}
+                                            type="password"
+                                            value={field.state.value}
+                                            onChange={(e) => field.handleChange(e.target.value)}
+                                            className="transition-all duration-200"
+                                            aria-invalid={invalid}
+                                        />
+                                        {invalid && <FieldError>{errors.join(', ')}</FieldError>}
+                                    </Field>
+                                )
+                            }}
                         </form.Field>
                         <form.Subscribe selector={(state) => state.isSubmitting}>
                             {(isSubmitting) => (

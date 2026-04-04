@@ -1,6 +1,7 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { isPast, isToday } from 'date-fns'
+import { Building2 } from 'lucide-react'
 import { useTeamOpenHouses } from '@/lib/queries/openhouse'
 import type { TeamOpenHouse } from '@/lib/schemas/openhouse.schema'
 import { TeamOpenHouseCard } from './components/TeamOpenHouseCard'
@@ -71,7 +72,11 @@ export function TeamOpenHouseListPage() {
             {upcoming.length === 0 && past.length === 0 && (
                 <div className="flex items-center justify-center min-h-[400px]">
                     <div className="text-center max-w-md">
-                        <div className="text-4xl mb-4">🏠</div>
+                        <Building2
+                            size={48}
+                            strokeWidth={1.5}
+                            className="mx-auto mb-4 text-muted-foreground/50"
+                        />
                         <h3 className="text-lg font-semibold mb-2">No open houses yet</h3>
                         <p className="text-muted-foreground">
                             Your team hasn't created any open houses yet.

@@ -1,8 +1,8 @@
+import type { RBACParams } from '@packages/auth/lib/permissions'
 import { Link } from '@tanstack/react-router'
-import { Building2, Home, Users } from 'lucide-react'
+import { Building2, Home, Settings, Users } from 'lucide-react'
 import { Can } from '@/components/Can'
 import { cn } from '@/lib/utils'
-import type { RBACParams } from '@packages/auth/lib/permissions'
 
 interface SidebarProps {
     className?: string
@@ -10,8 +10,8 @@ interface SidebarProps {
 
 interface NavItem {
     to: string
-    label: string,
-    icon: typeof Building2,
+    label: string
+    icon: typeof Building2
     permission: RBACParams
 }
 
@@ -25,15 +25,20 @@ export function Sidebar({ className }: SidebarProps) {
             permission: { openhouse: ['view'] },
         },
         { to: '/agents', label: 'Agents', icon: Users, permission: { agent: ['view'] } },
+        {
+            to: '/settings',
+            label: 'Settings',
+            icon: Settings,
+            permission: { organization: ['update'] },
+        },
     ]
 
     return (
         <aside className={cn('w-64 border-r border-border', className)}>
             <nav className="flex flex-col gap-1 p-4">
                 {navItems.map((item) => (
-                    <Can permission={item.permission}>
+                    <Can key={item.to} permission={item.permission}>
                         <Link
-                            key={item.to}
                             to={item.to}
                             className={cn(
                                 'flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md',

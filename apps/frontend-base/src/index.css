@@ -278,6 +278,9 @@
     --shadow-lg: var(--shadow-lg);
     --shadow-xl: var(--shadow-xl);
     --shadow-2xl: var(--shadow-2xl);
+
+    --animate-nav-progress: nav-progress 2s ease-out forwards;
+    --animate-nav-progress-finish: nav-progress-finish 0.3s ease-out forwards;
 }
 
 @layer base {
@@ -286,6 +289,32 @@
     }
     body {
         @apply bg-background text-foreground;
+    }
+}
+
+@keyframes nav-progress {
+    0% {
+        width: 0%;
+    }
+    20% {
+        width: 30%;
+    }
+    50% {
+        width: 50%;
+    }
+    100% {
+        width: 60%;
+    }
+}
+
+@keyframes nav-progress-finish {
+    0% {
+        width: 60%;
+        opacity: 1;
+    }
+    100% {
+        width: 100%;
+        opacity: 0;
     }
 }
 

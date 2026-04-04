@@ -15,6 +15,11 @@ interface QRCodeDisplayProps {
     openHouse: OpenHouse
 }
 
+interface FlyerOrgInfo {
+    name: string
+    smallLogoPublicId?: string | null
+}
+
 function formatTime(time: string): string {
     const [h, m] = time.split(':')
     const hour = Number.parseInt(h, 10)
@@ -32,6 +37,7 @@ function buildFlyerHTML(openHouse: OpenHouse, qrDataUrl: string): string {
     const hasFeatures = features.length > 0
     const agent = openHouse.agent
     const hasAgent = agent && (agent.firstName || agent.email)
+    const org: FlyerOrgInfo = openHouse.organization ?? { name: '' }
 
     const mainImg = images.find((img) => img.isMain) ?? images[0]
     const subImages = images.filter((img) => img.publicId !== (mainImg?.publicId ?? '')).slice(0, 2)
@@ -122,6 +128,10 @@ function buildFlyerHTML(openHouse: OpenHouse, qrDataUrl: string): string {
             </div>
         </div>`
         : ''
+
+    const orgLogoHtml = org.smallLogoPublicId
+        ? `<img src="${cloudinaryUrl(org.smallLogoPublicId, imagePresets.flyerOrgLogo)}" style="max-height:28px; object-fit:contain;" alt="${org.name}">`
+        : `<div class="logos">${org.name}</div>`
 
     return `
 <!DOCTYPE html>
@@ -223,7 +233,7 @@ function buildFlyerHTML(openHouse: OpenHouse, qrDataUrl: string): string {
         <header>
             <div class="top-bar">
                 <hr>
-                <div class="logos">ANEWCo</div>
+                ${orgLogoHtml}
             </div>
             <div class="main-title">
                 <span class="title-open">OPEN</span>

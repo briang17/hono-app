@@ -1,6 +1,6 @@
 import { useForm } from '@tanstack/react-form'
 import { Button } from '@/components/ui/button'
-import { Field, FieldError, FieldLabel } from '@/components/ui/field'
+import { Field, FieldError, FieldLabel, FormSubmitError } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import type { CreateAgentInput, UpdateAgentInput } from '@/lib/schemas/agent.schema'
 import { createAgentSchema } from '@/lib/schemas/agent.schema'
@@ -23,19 +23,6 @@ type EditAgentFormProps = {
 }
 
 type AgentFormProps = CreateAgentFormProps | EditAgentFormProps
-
-function FormSubmitError({ error }: { error: unknown }) {
-    if (!error || error === undefined) return null
-    if (typeof error === 'string') return <p className="text-sm text-destructive">{error}</p>
-    if (typeof error === 'object' && error !== null) {
-        if ('form' in error && typeof error.form === 'string')
-            return <p className="text-sm text-destructive">{error.form}</p>
-        const issues = Object.values(error).flat() as { message?: string }[]
-        const first = issues[0]?.message
-        if (first) return <p className="text-sm text-destructive">{first}</p>
-    }
-    return null
-}
 
 function CreateAgentForm({ mutationFn, onSuccess, submitLabel }: CreateAgentFormProps) {
     const form = useForm({

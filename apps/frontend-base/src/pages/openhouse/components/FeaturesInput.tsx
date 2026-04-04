@@ -44,9 +44,13 @@ export function FeaturesInput({ value, onChange }: FeaturesInputProps) {
                 </Button>
             </div>
             {features.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
+                <div className="flex flex-wrap gap-2.5 mt-2">
                     {features.map((feature, i) => (
-                        <Badge key={feature} variant="secondary" className="gap-1 pr-1">
+                        <Badge
+                            key={feature}
+                            variant="secondary"
+                            className="text-sm px-3 py-1 h-auto gap-1.5 pr-1.5"
+                        >
                             {feature}
                             <button
                                 type="button"

@@ -45,6 +45,24 @@ export const auth = betterAuth({
                 console.error("[emailer] Failed to queue invitation email:", err);
             });
         },
+        schema: {
+            organization: {
+                additionalFields: {
+                    logoPublicId: {
+                        type: "string",
+                        required: false,
+                    },
+                    smallLogo: {
+                        type: "string",
+                        required: false,
+                    },
+                    smallLogoPublicId: {
+                        type: "string",
+                        required: false,
+                    },
+                },
+            },
+        },
         organizationHooks: {
             afterAcceptInvitation: async ({ invitation, user, organization }) => {
                 await db.update(agent)
@@ -55,8 +73,8 @@ export const auth = betterAuth({
                             eq(agent.email, invitation.email)
                         )
                     );
-            }
-        }
+            },
+        },
     }), admin({
         ac,
         roles: {

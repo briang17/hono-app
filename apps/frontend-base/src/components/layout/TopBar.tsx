@@ -1,9 +1,10 @@
 import type { RBACParams } from '@packages/auth/lib/permissions'
 import { Link } from '@tanstack/react-router'
-import { Building2, Home, Menu, User, Users } from 'lucide-react'
+import { Building2, Home, Menu, Settings, User, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { authClient } from '@/lib/api/auth-client'
+import { cloudinaryUrl, imagePresets } from '@/lib/cloudinary-url'
 import { useUIStore } from '@/lib/stores/uiStore'
 import { Can } from '../Can'
 
@@ -23,12 +24,21 @@ const navItems: NavItem[] = [
         permission: { openhouse: ['view'] },
     },
     { to: '/agents', label: 'Agents', icon: Users, permission: { agent: ['view'] } },
+    {
+        to: '/settings',
+        label: 'Settings',
+        icon: Settings,
+        permission: { organization: ['update'] },
+    },
 ]
 
 export function TopBar() {
     const { data: session, isPending } = authClient.useSession()
+    const { data: activeOrg } = authClient.useActiveOrganization()
     const mobileMenuOpen = useUIStore((s) => s.mobileMenuOpen)
     const toggleMobileMenu = useUIStore((s) => s.toggleMobileMenu)
+
+    const orgLogoPublicId = (activeOrg as any)?.logoPublicId ?? null
 
     const handleLogout = async () => {
         await authClient.signOut({
@@ -63,9 +73,8 @@ export function TopBar() {
                         <SheetContent side="left" className="w-64">
                             <nav className="flex flex-col gap-1 mt-8">
                                 {navItems.map((item) => (
-                                    <Can permission={item.permission}>
+                                    <Can key={item.to} permission={item.permission}>
                                         <Link
-                                            key={item.to}
                                             to={item.to}
                                             onClick={() => toggleMobileMenu()}
                                             className="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-accent"
@@ -79,7 +88,19 @@ export function TopBar() {
                             </nav>
                         </SheetContent>
                     </Sheet>
-                    <h1 className="text-xl font-semibold tracking-tight">Task Manager</h1>
+                    <div className="flex items-center gap-2">
+                        {orgLogoPublicId ? (
+                            <img
+                                src={cloudinaryUrl(orgLogoPublicId, imagePresets.orgLogo)}
+                                alt={activeOrg?.name ?? 'Organization'}
+                                className="h-10 object-contain"
+                            />
+                        ) : (
+                            <h1 className="text-xl font-semibold tracking-tight">
+                                {activeOrg?.name ?? 'Task Manager'}
+                            </h1>
+                        )}
+                    </div>
                 </div>
                 <div className="flex items-center gap-4">
                     {session?.user && (

@@ -2,6 +2,7 @@ import type { Id } from "@features/common/values";
 import type { FormConfig } from "@formconfig/domain/form-config.entity";
 import { db } from "@packages/database";
 import { agent as agentTable } from "@packages/database/src/schemas/agent.schema";
+import { organization as orgTable } from "@packages/database/src/schemas/auth.schema";
 import { organizationFormConfig } from "@packages/database/src/schemas/form-config.schema";
 import {
     openHouse,
@@ -77,12 +78,15 @@ export class DbOpenHouseRepository implements IOpenHouseRepository {
                 agentEmail: agentTable.email,
                 agentImageUrl: agentTable.imageUrl,
                 agentImagePublicId: agentTable.imagePublicId,
+                orgName: orgTable.name,
+                orgSmallLogoPublicId: orgTable.smallLogoPublicId,
             })
             .from(openHouse)
             .leftJoin(
                 agentTable,
                 eq(openHouse.createdByUserId, agentTable.userId),
             )
+            .leftJoin(orgTable, eq(openHouse.organizationId, orgTable.id))
             .where(eq(openHouse.id, id))
             .limit(1);
 
@@ -119,6 +123,10 @@ export class DbOpenHouseRepository implements IOpenHouseRepository {
                       imagePublicId: result.agentImagePublicId,
                   }
                 : null,
+            organization: {
+                name: result.orgName,
+                smallLogoPublicId: result.orgSmallLogoPublicId,
+            },
         });
     }
 

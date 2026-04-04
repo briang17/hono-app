@@ -22,6 +22,9 @@ export function UpdateOpenHousePage() {
         startTime: openHouse.startTime,
         endTime: openHouse.endTime,
         notes: openHouse.notes ?? '',
+        bedrooms: openHouse.bedrooms ?? null,
+        bathrooms: openHouse.bathrooms ?? null,
+        features: openHouse.features ?? [],
         images: openHouse.images.map(
             (img): UpdateOpenHouseImage => ({
                 id: img.id,
